@@ -1320,7 +1320,9 @@ void ConfigManager::validate(String serverhome)
 #endif
 
     el = getElement(_("/import/online-content/streaming"));
-    streamingOptions = make_shared<StreamingOptions>(el);
+    if(el != nullptr) {
+      streamingOptions = std::make_shared<StreamingOptions>(el);
+    }
 
     log_info("Configuration check succeeded.\n");
 

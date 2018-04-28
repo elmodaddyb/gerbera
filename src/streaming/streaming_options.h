@@ -5,13 +5,12 @@
 #include "streaming_playlists.h"
 #include "shoutcast_options.h"
 using namespace mxml;
-using namespace std;
 
 class StreamingOptions {
  public:
   StreamingOptions(zmm::Ref<Element> streamingElement);
-  shared_ptr<StreamingPlaylists> getPlaylists();
-  shared_ptr<ShoutcastOptions> getShoutcastOptions();
+  std::shared_ptr<StreamingPlaylists> getPlaylists();
+  std::shared_ptr<ShoutcastOptions> getShoutcastOptions();
 
  private:
   std::shared_ptr<StreamingPlaylists> playlists;

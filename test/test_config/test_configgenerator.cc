@@ -197,8 +197,8 @@ TEST_F(ConfigGeneratorTest, GeneratesOnlineContentWithAppleTrailers) {
   EXPECT_STREQ(mockXml.c_str(), result->print().c_str());
 }
 #else
-TEST_F(ConfigGeneratorTest, GeneratesOnlineContentEmpty) {
-  std::string mockXml = "<online-content/>";
+TEST_F(ConfigGeneratorTest, GeneratesOnlineWithStreamingDefaults) {
+  std::string mockXml = mockConfigXml("fixtures/mock-online-streaming.xml");
 
   zmm::Ref<mxml::Element> result = subject->generateOnlineContent();
   result->indent();

@@ -33,6 +33,7 @@
 #ifndef __CONFIG_MANAGER_H__
 #define __CONFIG_MANAGER_H__
 
+#include <streaming/streaming_options.h>
 #include "common.h"
 #include "mxml/mxml.h"
 #include "singleton.h"
@@ -218,6 +219,7 @@ public:
     /// \brief returns a config option of type Array of Object
     /// \param option option to retrieve.
     zmm::Ref<zmm::Array<zmm::Object> > getObjectArrayOption(config_option_t option);
+    std::shared_ptr<StreamingOptions> getStreamingOptions();
 #endif
 
     /// \brief returns a config option of type AutoscanList
@@ -265,6 +267,7 @@ protected:
     zmm::Ref<Dictionary> mime_content;
 
     zmm::Ref<zmm::Array<ConfigOption> > options;
+    std::shared_ptr<StreamingOptions> streamingOptions;
 
     /// \brief Returns a config option with the given path, if option does not exist a default value is returned.
     /// \param xpath option xpath
@@ -343,7 +346,7 @@ protected:
     ///
     /// This function will create an array like that: ["data", "otherdata"]
     zmm::Ref<zmm::Array<zmm::StringBase> > createArrayFromNodeset(zmm::Ref<mxml::Element> element, zmm::String nodeName, zmm::String attrName); 
-   
+
     void dumpOptions();
 
 #ifdef ONLINE_SERVICES

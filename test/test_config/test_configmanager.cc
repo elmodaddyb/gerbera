@@ -3,12 +3,23 @@
 #include "gmock/gmock.h"
 #include <uuid/uuid.h>
 #include <fstream>
+#include <ftw.h>
 
 #include <config_manager.h>
 #include <config/config_generator.h>
+#include <streaming/streaming_playlists.h>
+#include <streaming/streaming_options.h>
 
 using namespace zmm;
 using namespace mxml;
+
+static int rmFiles(const char *pathname, const struct stat *sbuf, int type, struct FTW *ftwb) {
+  if(remove(pathname) < 0) {
+    perror("ERROR: remove");
+    return -1;
+  }
+  return 0;
+}
 
 class ConfigManagerTest : public ::testing::Test {
 
@@ -89,6 +100,11 @@ class ConfigManagerTest : public ::testing::Test {
   }
 
   virtual void TearDown() {
+    // cleanup temporary directory
+    if (nftw(gerberaDir.c_str(), rmFiles,10, FTW_DEPTH|FTW_MOUNT|FTW_PHYS) < 0) {
+      perror("ERROR: ntfw");
+      exit(1);
+    }
     delete subject;
   };
 
@@ -130,5 +146,23 @@ TEST_F(ConfigManagerTest, LoadsConfigFromDefaultHomeWhenExistsButNotSpecified) {
   ASSERT_TRUE(subject->getBoolOption(CFG_SERVER_UI_SHOW_TOOLTIPS));
   ASSERT_FALSE(subject->getBoolOption(CFG_SERVER_UI_ACCOUNTS_ENABLED));
   ASSERT_EQ(30, subject->getIntOption(CFG_SERVER_UI_SESSION_TIMEOUT));
+}
+
+TEST_F(ConfigManagerTest, LoadsDefaultStreamingOptions) {
+  subject->setStaticArgs(config_file, _(home.c_str()), _(confdir.c_str()), _(prefix.c_str()), _(magic.c_str()));
+
+  subject->init();
+
+  auto streamingOptions = subject->getStreamingOptions();
+  auto shoutcastOption = streamingOptions->getShoutcastOptions();
+  auto playlists = streamingOptions->getPlaylists();
+
+  ASSERT_NE(streamingOptions, nullptr);
+  ASSERT_NE(shoutcastOption, nullptr);
+  EXPECT_STREQ(shoutcastOption->getBaseUrl().c_str(), "http://api.shoutcast.com");
+  EXPECT_STREQ(shoutcastOption->getDevId().c_str(), "");
+  ASSERT_FALSE(shoutcastOption->isEnabled());
+  ASSERT_NE(playlists, nullptr);
+  EXPECT_EQ(0, playlists->getSize());
 }
 

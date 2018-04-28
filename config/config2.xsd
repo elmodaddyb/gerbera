@@ -670,6 +670,7 @@
         <xs:complexType>
             <xs:all>
                 <xs:element ref="AppleTrailers" minOccurs="0"/>
+                <xs:element ref="streaming" minOccurs="0"/>
             </xs:all>
             <xs:attribute name="fetch-buffer-size" type="xs:positiveInteger" default="262144"/>
             <xs:attribute name="fetch-buffer-fill-size" type="xs:nonNegativeInteger" default="0"/>
@@ -699,4 +700,54 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:element name="streaming">
+        <xs:complexType>
+            <xs:all>
+                <xs:element ref="shoutcast" minOccurs="0"/>
+                <xs:element ref="playlists" minOccurs="0"/>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="shoutcast">
+        <xs:complexType>
+            <xs:all>
+                <xs:element ref="genre" minOccurs="0"/>
+            </xs:all>
+            <xs:attribute name="enabled" default="no">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="yes"/>
+                        <xs:enumeration value="no"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+            <xs:attribute name="base-url" default="http://api.shoutcast.com"/>
+            <xs:attribute name="dev-id"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="genre">
+        <xs:complexType>
+            <xs:attribute name="genre"/>
+            <xs:attribute name="limit"/>
+            <xs:attribute name="bit-rate"/>
+            <xs:attribute name="media-type"/>
+            <xs:attribute name="container-name"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="playlists">
+        <xs:complexType>
+            <xs:all>
+                <xs:element ref="playlist" minOccurs="0"/>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="playlist">
+        <xs:complexType>
+            <xs:attribute name="url"/>
+        </xs:complexType>
+    </xs:element>
 </xs:schema>

@@ -1319,6 +1319,9 @@ void ConfigManager::validate(String serverhome)
     SET_OPTION(CFG_ONLINE_CONTENT_ATRAILERS_RESOLUTION);
 #endif
 
+    el = getElement(_("/import/online-content/streaming"));
+    streamingOptions = make_shared<StreamingOptions>(el);
+
     log_info("Configuration check succeeded.\n");
 
     //root->indent();
@@ -2069,5 +2072,9 @@ Ref<Array<Object> > ConfigManager::createServiceTaskList(service_type_t service,
     if (element == nullptr)
         return arr;
     return arr;
+}
+
+std::shared_ptr<StreamingOptions> ConfigManager::getStreamingOptions() {
+    return streamingOptions;
 }
 #endif

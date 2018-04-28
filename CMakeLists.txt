@@ -32,6 +32,7 @@ set(WITH_SYSTEMD        1 CACHE BOOL "Install Systemd unit file")
 set(WITH_LASTFM         0 CACHE BOOL "Enable LastFM")
 set(WITH_DEBUG          1 CACHE BOOL "Enables debug logging")
 set(WITH_TESTS          0 CACHE BOOL "Enables Unit Tests")
+set(WITH_SHOUTCAST      0 CACHE BOOL "Enable Shoutcast Service")
 
 
 set(libgerberaFILES
@@ -193,6 +194,14 @@ set(libgerberaFILES
         src/storage/sql_storage.h
         src/storage/storage_cache.cc
         src/storage/storage_cache.h
+        src/streaming/streaming_playlists.h
+        src/streaming/streaming_playlists.cc
+        src/streaming/remote_playlist.h
+        src/streaming/remote_playlist.cc
+        src/streaming/streaming_options.h
+        src/streaming/streaming_options.cc
+        src/streaming/shoutcast_options.h
+        src/streaming/shoutcast_options.cc
         src/string_converter.cc
         src/string_converter.h
         src/subscription_request.cc
@@ -448,6 +457,9 @@ if(WITH_CURL)
         add_definitions(-DONLINE_SERVICES)
         add_definitions(-DATRAILERS)
         add_definitions(-DSOPCAST)
+        if(WITH_SHOUTCAST)
+            add_definitions(-DSHOUTCAST)
+        endif()
     else()
         message(FATAL_ERROR "cURL not found")
     endif()

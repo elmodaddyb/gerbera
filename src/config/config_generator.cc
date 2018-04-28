@@ -327,6 +327,17 @@ Ref<Element> ConfigGenerator::generateOnlineContent() {
   at->setAttribute(_("resolution"), String::from(DEFAULT_ATRAILERS_RESOLUTION));
   onlinecontent->appendElementChild(at);
 #endif
+  Ref<Element> stream(new Element(_("streaming")));
+  Ref<Element> playlists(new Element(_("playlists")));
+  stream->appendElementChild(playlists);
+
+  Ref<Element> shoutcast(new Element(_("shoutcast")));
+  shoutcast->setAttribute(_("base-url"), _("http://api.shoutcast.com"));
+  shoutcast->setAttribute(_("dev-id"), _(""));
+  shoutcast->setAttribute(_("enabled"), _("no"));
+  stream->appendElementChild(shoutcast);
+
+  onlinecontent->appendElementChild(stream);
   return onlinecontent;
 }
 

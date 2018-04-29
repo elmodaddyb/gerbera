@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include <memory>
 
 #include "streaming/remote_playlist.h"
 

@@ -1,6 +1,7 @@
 #include <streaming/streaming_playlists.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include <memory>
 
 using namespace std;
 

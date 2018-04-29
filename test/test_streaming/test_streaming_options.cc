@@ -4,6 +4,7 @@
 #include <streaming/shoutcast_options.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include <memory>
 
 using namespace std;
 using namespace zmm;

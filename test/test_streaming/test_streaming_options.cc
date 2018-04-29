@@ -37,7 +37,7 @@ class StreamingOptionsTest : public ::testing::Test {
     Ref<Element> shoutcast(new Element(_("shoutcast")));
     shoutcast->setAttribute(_("base-url"), _("http://api.shoutcast.com"));
     shoutcast->setAttribute(_("dev-id"), _("ABC123"));
-    shoutcast->setAttribute(_("enabled"), _(enabledShoutcast.c_str()));
+    shoutcast->setAttribute(_("enabled"), String::copy(enabledShoutcast.c_str()));
 
 //    Ref<Element> genre(new Element(_("genre")));
 //    genre->setAttribute(_("genre"), _("classic"));

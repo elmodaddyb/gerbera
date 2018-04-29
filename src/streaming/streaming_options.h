@@ -9,6 +9,7 @@ using namespace mxml;
 class StreamingOptions {
  public:
   StreamingOptions(zmm::Ref<Element> streamingElement);
+  ~StreamingOptions();
   std::shared_ptr<StreamingPlaylists> getPlaylists();
   std::shared_ptr<ShoutcastOptions> getShoutcastOptions();
 

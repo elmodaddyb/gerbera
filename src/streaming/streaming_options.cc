@@ -19,7 +19,14 @@ StreamingOptions::StreamingOptions(Ref<Element> streamingConfig) {
   std::string baseUrl = cfgShoutcast->getAttribute(_("base-url")).c_str();
   std::string devId = cfgShoutcast->getAttribute(_("dev-id")).c_str();
   std::string enabled = cfgShoutcast->getAttribute(_("enabled")).c_str();
+  printf("\nenabled = %s\n" ,enabled.c_str());
+  printf("enabled bool = %d\n", enabled.compare("yes"));
   shoutcast = std::make_shared<ShoutcastOptions>(baseUrl, devId, enabled.compare("yes") == 0);
+}
+
+StreamingOptions::~StreamingOptions() {
+  playlists = nullptr;
+  shoutcast = nullptr;
 }
 
 

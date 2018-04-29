@@ -13,11 +13,13 @@ class StreamingPlaylistsTest : public ::testing::Test {
   virtual ~StreamingPlaylistsTest() {};
 
   virtual void SetUp() {
-    subject = new StreamingPlaylists();
+    subject = make_unique<StreamingPlaylists>();
   }
-  virtual void TearDown() {}
+  virtual void TearDown() {
+    subject = nullptr;
+  }
 
-  StreamingPlaylists *subject;
+  std::unique_ptr<StreamingPlaylists> subject;
 };
 
 TEST_F(StreamingPlaylistsTest, CreatesStreamingPlaylistWithEmptyList) {

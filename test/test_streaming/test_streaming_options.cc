@@ -19,11 +19,11 @@ class StreamingOptionsTest : public ::testing::Test {
 
   virtual void SetUp() {
     Ref<Element> streaming = mockConfig("yes");
-    subject = new StreamingOptions(streaming);
+    subject = make_unique<StreamingOptions>(streaming);
   }
 
   virtual void TearDown() {
-    delete subject;
+    subject = nullptr;
   }
 
   Ref<Element> mockConfig(std::string enabledShoutcast) {
@@ -53,7 +53,7 @@ class StreamingOptionsTest : public ::testing::Test {
     return streaming;
   }
 
-  StreamingOptions *subject;
+  std::unique_ptr<StreamingOptions> subject;
 };
 
 TEST_F(StreamingOptionsTest, ConvertsXmlOptionsIntoObjectDefinition) {
@@ -66,7 +66,7 @@ TEST_F(StreamingOptionsTest, ConvertsXmlOptionsIntoObjectDefinition) {
 
 TEST_F(StreamingOptionsTest, WhenEnabledNoSetsBooleanToFalse) {
   Ref<Element> config = mockConfig("no");
-  subject = new StreamingOptions(config);
+  subject = make_unique<StreamingOptions>(config);
   auto shoutcast = subject->getShoutcastOptions();
   ASSERT_FALSE(shoutcast->isEnabled());
 }

@@ -12,11 +12,13 @@ class RemotePlaylistTest : public ::testing::Test {
   virtual ~RemotePlaylistTest() {};
 
   virtual void SetUp() {
-    subject = new RemotePlaylist();
+    subject = std::make_unique<RemotePlaylist>();
   }
-  virtual void TearDown() {}
+  virtual void TearDown() {
+    subject = nullptr;
+  }
 
-  RemotePlaylist *subject;
+  std::unique_ptr<RemotePlaylist> subject;
 };
 
 TEST_F(RemotePlaylistTest, CreateRemotePlaylistObject) {

@@ -18,8 +18,6 @@ class StreamingOptionsTest : public ::testing::Test {
   virtual ~StreamingOptionsTest() {};
 
   virtual void SetUp() {
-    Ref<Element> streaming = mockConfig("yes");
-    subject = make_unique<StreamingOptions>(streaming);
   }
 
   virtual void TearDown() {
@@ -57,6 +55,8 @@ class StreamingOptionsTest : public ::testing::Test {
 };
 
 TEST_F(StreamingOptionsTest, ConvertsXmlOptionsIntoObjectDefinition) {
+  Ref<Element> config = mockConfig("yes");
+  subject = make_unique<StreamingOptions>(config);
   ASSERT_NE(subject, nullptr);
   EXPECT_EQ(1, subject->getPlaylists()->getSize());
   auto shoutcast = subject->getShoutcastOptions();

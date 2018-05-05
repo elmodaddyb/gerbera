@@ -10,7 +10,7 @@ class StreamingPlaylists {
   StreamingPlaylists();
   ~StreamingPlaylists();
   unsigned long getSize();
-  void addPlaylist(std::shared_ptr<RemotePlaylist> &playlist);
+  void addPlaylist(std::shared_ptr<RemotePlaylist> playlist);
   std::shared_ptr<std::vector<std::shared_ptr<RemotePlaylist>>> getPlaylists();
 
  private:

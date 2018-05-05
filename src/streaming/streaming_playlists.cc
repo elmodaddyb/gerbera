@@ -11,7 +11,7 @@ unsigned long StreamingPlaylists::getSize() {
   return playlists->size();
 }
 
-void StreamingPlaylists::addPlaylist(std::shared_ptr<RemotePlaylist>& playlist) {
+void StreamingPlaylists::addPlaylist(std::shared_ptr<RemotePlaylist> playlist) {
   playlists->push_back(playlist);
 }
 

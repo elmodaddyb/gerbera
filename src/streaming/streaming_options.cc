@@ -6,13 +6,13 @@ StreamingOptions::StreamingOptions(Ref<Element> streamingConfig) {
   playlists = std::make_shared<StreamingPlaylists>();
 
   Ref<Element> cfgPlaylists = streamingConfig->getChildByName(_("playlists"));
-  std::shared_ptr<RemotePlaylist> playlist;
+  std::unique_ptr<RemotePlaylist> playlist;
   Ref<Element> item;
   for (int e = 0; e < cfgPlaylists->elementChildCount(); e++) {
     item = cfgPlaylists->getElementChild(e);
-    playlist = std::make_shared<RemotePlaylist>();
+    playlist = std::make_unique<RemotePlaylist>();
     playlist->setUrl(item->getAttribute(_("url")).c_str());
-    playlists->addPlaylist(playlist);
+    playlists->addPlaylist(std::move(playlist));
   }
 
   Ref<Element> cfgShoutcast = streamingConfig->getChildByName(_("shoutcast"));

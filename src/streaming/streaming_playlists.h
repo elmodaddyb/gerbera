@@ -10,11 +10,11 @@ class StreamingPlaylists {
   StreamingPlaylists();
   ~StreamingPlaylists();
   unsigned long getSize();
-  void addPlaylist(std::shared_ptr<RemotePlaylist> playlist);
-  std::shared_ptr<std::vector<std::shared_ptr<RemotePlaylist>>> getPlaylists();
+  void addPlaylist(std::unique_ptr<RemotePlaylist> playlist);
+  std::shared_ptr<std::vector<std::unique_ptr<RemotePlaylist>>> getPlaylists();
 
  private:
-  std::shared_ptr<std::vector<std::shared_ptr<RemotePlaylist>>> playlists;
+  std::shared_ptr<std::vector<std::unique_ptr<RemotePlaylist>>> playlists;
 };
 
 #endif //GERBERA_STREAMING_PLAYLISTS_H

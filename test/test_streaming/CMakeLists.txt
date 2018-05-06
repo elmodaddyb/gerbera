@@ -53,6 +53,10 @@ target_link_libraries(teststreaming PRIVATE
         ${CMAKE_THREAD_LIBS_INIT}
         )
 
+add_custom_command(TARGET teststreaming POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/fixtures $<TARGET_FILE_DIR:teststreaming>/fixtures
+        )
+
 add_test(NAME teststreaming
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/test/test_streaming
         COMMAND ./teststreaming)

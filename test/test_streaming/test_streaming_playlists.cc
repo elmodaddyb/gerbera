@@ -28,33 +28,33 @@ TEST_F(StreamingPlaylistsTest, CreatesStreamingPlaylistWithEmptyList) {
 }
 
 TEST_F(StreamingPlaylistsTest, AllowsToAddRemotePlaylists) {
-  auto playlist = make_shared<RemotePlaylist>();
+  auto playlist = make_unique<RemotePlaylist>();
   playlist->setUrl("http://localhost");
 
-  subject->addPlaylist(playlist);
+  subject->addPlaylist(std::move(playlist));
 
   ASSERT_EQ(1, subject->getSize());
 }
 
 TEST_F(StreamingPlaylistsTest, ProvidesListOfAllPlaylists) {
-  auto playlist = make_shared<RemotePlaylist>();
+  auto playlist = make_unique<RemotePlaylist>();
   playlist->setUrl("http://localhost");
-  subject->addPlaylist(playlist);
+  subject->addPlaylist(std::move(playlist));
 
   auto playlists = subject->getPlaylists();
 
   ASSERT_EQ(1, playlists->size());
-  EXPECT_STREQ(playlists->at(0)->getUrl().c_str(), playlist->getUrl().c_str());
+  EXPECT_STREQ("http://localhost", playlists->at(0)->getUrl().c_str());
 }
 
 TEST_F(StreamingPlaylistsTest, AllowsToAddSeveralRemotePlaylists) {
-  auto playlist = make_shared<RemotePlaylist>();
+  auto playlist = make_unique<RemotePlaylist>();
   playlist->setUrl("http://localhost/playlist1");
-  subject->addPlaylist(playlist);
+  subject->addPlaylist(std::move(playlist));
 
-  playlist = make_shared<RemotePlaylist>();
+  playlist = make_unique<RemotePlaylist>();
   playlist->setUrl("http://localhost/playlist2");
-  subject->addPlaylist(playlist);
+  subject->addPlaylist(std::move(playlist));
 
   ASSERT_EQ(2, subject->getSize());
   ASSERT_STREQ("http://localhost/playlist1", subject->getPlaylists()->at(0)->getUrl().c_str());

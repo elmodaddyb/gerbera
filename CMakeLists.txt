@@ -206,6 +206,12 @@ set(libgerberaFILES
         src/string_converter.h
         src/subscription_request.cc
         src/subscription_request.h
+        src/task/task.h
+        src/task/task.cc
+        src/task/task_threadpool.h
+        src/task/task_threadpool.cc
+        src/task/task_worker.h
+        src/task/task_worker.cc
         src/task_processor.cc
         src/task_processor.h
         src/thread_executor.cc

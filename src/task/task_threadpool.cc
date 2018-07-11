@@ -45,7 +45,7 @@ TaskThreadPool::~TaskThreadPool() {
   }
 }
 
-void TaskThreadPool::enqueue(std::unique_ptr<Task> t)
+void TaskThreadPool::enqueue(std::shared_ptr<Task> t)
 {
   {
     std::unique_lock<std::mutex> lock(mutex);
@@ -54,7 +54,7 @@ void TaskThreadPool::enqueue(std::unique_ptr<Task> t)
       throw std::runtime_error("Attemped to enqueue when TaskThreadPool is shutdown");
 
     stats.received++;
-    tasks.emplace(std::move(t));
+    tasks.emplace(t);
   }
   cond.notify_one();
 }

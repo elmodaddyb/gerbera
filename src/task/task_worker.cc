@@ -9,7 +9,7 @@ Worker::Worker(TaskThreadPool &s): pool(s) {};
 
 void Worker::operator()() {
   while(true) {
-    std::unique_ptr<Task> task;
+    std::shared_ptr<Task> task;
     {
       std::unique_lock<std::mutex> lock(pool.mutex);
       pool.cond.wait(lock, [this]{ return pool.shutdown || !pool.tasks.empty(); });
@@ -21,7 +21,6 @@ void Worker::operator()() {
     }
 
     task->run();
-    task = nullptr;
     pool.stats.completed++;
   }
 }

@@ -43,9 +43,9 @@ TEST_F(TaskThreadPoolTest, InitializesQueueToEmpty) {
 
 TEST_F(TaskThreadPoolTest, EnqueuesATaskAndTracksItReceived) {
   for(int i = 0; i < 5; i++) {
-    std::unique_ptr<TaskMock> task(new ::testing::NiceMock<TaskMock>());
+    std::shared_ptr<TaskMock> task(new ::testing::NiceMock<TaskMock>());
     EXPECT_CALL(*task, run()).WillOnce(Return());
-    subject->enqueue(std::move(task));
+    subject->enqueue(task);
   }
 
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -54,9 +54,9 @@ TEST_F(TaskThreadPoolTest, EnqueuesATaskAndTracksItReceived) {
 
 TEST_F(TaskThreadPoolTest, EnqueuesATaskAndTracksItCompleted) {
   for(int i = 0; i < 5; i++) {
-    std::unique_ptr<TaskMock> task(new ::testing::NiceMock<TaskMock>());
+    std::shared_ptr<TaskMock> task(new ::testing::NiceMock<TaskMock>());
     EXPECT_CALL(*task, run()).WillOnce(Return());
-    subject->enqueue(std::move(task));
+    subject->enqueue(task);
   }
 
   std::this_thread::sleep_for(std::chrono::milliseconds(10));

@@ -41,10 +41,10 @@ public:
     long long getQueueSize();
     long long tasksReceived();
     long long tasksCompleted();
-    void enqueue(std::unique_ptr<Task> t);
+    void enqueue(std::shared_ptr<Task> t);
 protected:
     std::vector<std::thread> threads;
-    std::queue<std::unique_ptr<Task>> tasks;
+    std::queue<std::shared_ptr<Task>> tasks;
 private:
     friend class Worker;
     std::mutex mutex;

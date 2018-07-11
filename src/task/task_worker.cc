@@ -21,6 +21,7 @@ void Worker::operator()() {
     }
 
     task->run();
+    task = nullptr;
     pool.stats.completed++;
   }
 }

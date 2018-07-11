@@ -3,6 +3,13 @@
 #include "gmock/gmock.h"
 #include <functional>
 
+using namespace ::testing;
+
+class TaskMock : public Task {
+public:
+    MOCK_METHOD0(run, void());
+};
+
 class TaskThreadPoolTest : public ::testing::Test {
 
 public:
@@ -35,24 +42,24 @@ TEST_F(TaskThreadPoolTest, InitializesQueueToEmpty) {
 }
 
 TEST_F(TaskThreadPoolTest, EnqueuesATaskAndTracksItReceived) {
-
   for(int i = 0; i < 5; i++) {
-    std::unique_ptr<Task> task = std::make_unique<Task>();
+    std::unique_ptr<TaskMock> task(new ::testing::NiceMock<TaskMock>());
+    EXPECT_CALL(*task, run()).WillOnce(Return());
     subject->enqueue(std::move(task));
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
   EXPECT_EQ(subject->tasksReceived(), 5);
 }
 
 TEST_F(TaskThreadPoolTest, EnqueuesATaskAndTracksItCompleted) {
-
   for(int i = 0; i < 5; i++) {
-    std::unique_ptr<Task> task = std::make_unique<Task>();
+    std::unique_ptr<TaskMock> task(new ::testing::NiceMock<TaskMock>());
+    EXPECT_CALL(*task, run()).WillOnce(Return());
     subject->enqueue(std::move(task));
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
   EXPECT_EQ(subject->tasksCompleted(), 5);
 }
 

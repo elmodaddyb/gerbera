@@ -8,10 +8,7 @@
 
 class Task {
 public:
-    Task();
-    ~Task();
-    void run();
-
+    virtual void run() = 0;
 };
 
 

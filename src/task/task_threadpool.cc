@@ -28,7 +28,7 @@ Gerbera - https://gerbera.io/
 
 TaskThreadPool::TaskThreadPool() {
   int numCores = std::thread::hardware_concurrency();
-
+  shutdown = false;
   for(size_t i = 0; i < numCores; i++) {
     threads.emplace_back(std::thread(Worker(*this)));
   }

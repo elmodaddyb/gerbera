@@ -27,14 +27,17 @@ Gerbera - https://gerbera.io/
 #include "task_worker.h"
 
 TaskThreadPool::TaskThreadPool() {
-  int numCores = std::thread::hardware_concurrency();
+
+}
+
+void TaskThreadPool::start(int numberOfThreads) {
   shutdown = false;
-  for(size_t i = 0; i < numCores; i++) {
+  for(size_t i = 0; i < numberOfThreads; i++) {
     threads.emplace_back(std::thread(Worker(*this)));
   }
 }
 
-TaskThreadPool::~TaskThreadPool() {
+void TaskThreadPool::stop() {
   {
     std::unique_lock<std::mutex> lock(mutex);
     shutdown = true;
@@ -43,6 +46,13 @@ TaskThreadPool::~TaskThreadPool() {
   for(std::thread &thread: threads) {
     thread.join();
   }
+  threads.clear();
+}
+
+TaskThreadPool::~TaskThreadPool() {
+  if(!shutdown) {
+    stop();
+  }
 }
 
 void TaskThreadPool::enqueue(std::shared_ptr<Task> t)
@@ -50,9 +60,9 @@ void TaskThreadPool::enqueue(std::shared_ptr<Task> t)
   {
     std::unique_lock<std::mutex> lock(mutex);
 
-    if(shutdown)
+    if(shutdown) {
       throw std::runtime_error("Attemped to enqueue when TaskThreadPool is shutdown");
-
+    }
     stats.received++;
     tasks.emplace(t);
   }

@@ -42,6 +42,8 @@ public:
     long long tasksReceived();
     long long tasksCompleted();
     void enqueue(std::shared_ptr<Task> t);
+    void start(int numberOfThreads);
+    void stop();
 protected:
     std::vector<std::thread> threads;
     std::queue<std::shared_ptr<Task>> tasks;

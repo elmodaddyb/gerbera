@@ -20,6 +20,7 @@ public:
 
     virtual void SetUp() {
       subject = std::make_unique<TaskThreadPool>();
+      numCores = std::thread::hardware_concurrency();
     }
 
     virtual void TearDown() {
@@ -27,21 +28,16 @@ public:
     }
 
     std::unique_ptr<TaskThreadPool> subject;
-    static int count;
+    int numCores;
 };
-
-
-TEST_F(TaskThreadPoolTest, InitializesThreadPoolBasedOnCores) {
-  int numCores = std::thread::hardware_concurrency();
-
-  EXPECT_EQ(subject->getPoolSize(), numCores);
-}
 
 TEST_F(TaskThreadPoolTest, InitializesQueueToEmpty) {
   EXPECT_EQ(subject->getQueueSize(), 0);
 }
 
 TEST_F(TaskThreadPoolTest, EnqueuesATaskAndTracksItReceived) {
+  subject->start(numCores);
+
   for(int i = 0; i < 5; i++) {
     std::shared_ptr<TaskMock> task(new ::testing::NiceMock<TaskMock>());
     EXPECT_CALL(*task, run()).WillOnce(Return());
@@ -53,6 +49,8 @@ TEST_F(TaskThreadPoolTest, EnqueuesATaskAndTracksItReceived) {
 }
 
 TEST_F(TaskThreadPoolTest, EnqueuesATaskAndTracksItCompleted) {
+  subject->start(numCores);
+
   for(int i = 0; i < 5; i++) {
     std::shared_ptr<TaskMock> task(new ::testing::NiceMock<TaskMock>());
     EXPECT_CALL(*task, run()).WillOnce(Return());
@@ -65,4 +63,20 @@ TEST_F(TaskThreadPoolTest, EnqueuesATaskAndTracksItCompleted) {
 
 TEST_F(TaskThreadPoolTest, InitializesProcessedToZero) {
   EXPECT_EQ(subject->tasksCompleted(), 0);
+}
+
+TEST_F(TaskThreadPoolTest, ProvidesStartMethodToInitializePool) {
+  EXPECT_EQ(subject->getPoolSize(), 0);
+  int numCores = std::thread::hardware_concurrency();
+
+  subject->start(numCores);
+
+  EXPECT_EQ(subject->getPoolSize(), numCores);
+}
+
+TEST_F(TaskThreadPoolTest, ProvidesStopMethodToStopPool) {
+  subject->start(numCores);
+
+  subject->stop();
+  EXPECT_EQ(subject->getPoolSize(), 0);
 }

@@ -95,7 +95,7 @@ TEST_F(TaskThreadPoolTest, OnlyStartsThreadsOneTime) {
 
   long long result = subject->getPoolSize();
 
-  EXPECT_EQ(result, 8);
+  EXPECT_EQ(result, numCores);
 }
 
 TEST_F(TaskThreadPoolTest, ReportsTrueShutdownWhenPoolStopped) {

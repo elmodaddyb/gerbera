@@ -227,6 +227,9 @@ void Server::upnp_init()
 
     // initializing ContentManager
     ContentManager::getInstance();
+    ContentManager::getInstance()->processStreamingPlaylists();
+
+
 
     config->writeBookmark(ip, String::from(port));
     log_info("The Web UI can be reached by following this link: http://%s:%d/\n", ip.c_str(), port);

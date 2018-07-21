@@ -80,3 +80,29 @@ TEST_F(TaskThreadPoolTest, ProvidesStopMethodToStopPool) {
   subject->stop();
   EXPECT_EQ(subject->getPoolSize(), 0);
 }
+
+TEST_F(TaskThreadPoolTest, ReportsFalseShutdownWhenPoolStarts) {
+  subject->start(numCores);
+
+  bool result = subject->isShutdown();
+
+  EXPECT_EQ(result, false);
+}
+
+TEST_F(TaskThreadPoolTest, OnlyStartsThreadsOneTime) {
+  subject->start(numCores);
+  subject->start(numCores);
+
+  long long result = subject->getPoolSize();
+
+  EXPECT_EQ(result, 8);
+}
+
+TEST_F(TaskThreadPoolTest, ReportsTrueShutdownWhenPoolStopped) {
+  subject->start(numCores);
+  subject->stop();
+
+  bool result = subject->isShutdown();
+
+  EXPECT_EQ(result, true);
+}

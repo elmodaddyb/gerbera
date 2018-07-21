@@ -34,6 +34,7 @@
 #define __CONFIG_MANAGER_H__
 
 #include <streaming/streaming_options.h>
+#include <config/IConfigManager.h>
 #include "common.h"
 #include "mxml/mxml.h"
 #include "singleton.h"
@@ -66,7 +67,7 @@ typedef enum
     CFG_SERVER_WEBROOT,
     CFG_SERVER_SERVEDIR,
     CFG_SERVER_ALIVE_INTERVAL,
-#ifdef EXTEND_PROTOCOLINFO 
+#ifdef EXTEND_PROTOCOLINFO
     CFG_SERVER_EXTEND_PROTOCOLINFO,
     CFG_SERVER_EXTEND_PROTOCOLINFO_CL_HACK,
     CFG_SERVER_EXTEND_PROTOCOLINFO_SM_HACK,
@@ -179,7 +180,7 @@ typedef enum
     CFG_MAX
 } config_option_t;
 
-class ConfigManager : public Singleton<ConfigManager, std::mutex>
+class ConfigManager : public Singleton<ConfigManager, std::mutex>, public IConfigManager
 {
 public:
     ConfigManager();
@@ -219,7 +220,7 @@ public:
     /// \brief returns a config option of type Array of Object
     /// \param option option to retrieve.
     zmm::Ref<zmm::Array<zmm::Object> > getObjectArrayOption(config_option_t option);
-    std::shared_ptr<StreamingOptions> getStreamingOptions();
+    std::shared_ptr<StreamingOptions> getStreamingOptions() override;
 #endif
 
     /// \brief returns a config option of type AutoscanList

@@ -35,6 +35,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <streaming/streaming_content_service.h>
+#include <task/task_threadpool.h>
 
 #include "config_manager.h"
 #include "content_manager.h"
@@ -248,6 +250,10 @@ ContentManager::ContentManager()
         }
     }
 #endif //ATRAILERS
+
+    std::shared_ptr<StreamingOptions> streamingOptions = cm->getStreamingOptions();
+    std::unique_ptr<TaskThreadPool> taskThreadPool = std::make_unique<TaskThreadPool>();
+    this->streamingContentService = std::make_unique<StreamingContentService>(streamingOptions, std::move(taskThreadPool));
 
 #endif //ONLINE_SERVICES
 }
@@ -1407,6 +1413,9 @@ void ContentManager::cleanupOnlineServiceObjects(zmm::Ref<OnlineService> service
     }
 }
 
+void ContentManager::processStreamingPlaylists() {
+    this->streamingContentService->processConfiguredPlaylists();
+}
 #endif
 
 void ContentManager::invalidateAddTask(Ref<GenericTask> t, String path)

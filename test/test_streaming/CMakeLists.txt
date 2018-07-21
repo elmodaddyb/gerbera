@@ -4,9 +4,10 @@ add_executable(teststreaming
         $<TARGET_OBJECTS:libgerbera>
         main.cc
         test_streaming_playlists.cc
-        test_remote_playlist.cc
+        test_playlist_task.cc
         test_streaming_options.cc
-        test_shoutcast_options.cc)
+        test_shoutcast_options.cc
+        test_streaming_content_service.cc)
 
 include(DefFileName)
 define_file_path_for_sources(teststreaming)

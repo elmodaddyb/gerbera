@@ -1,12 +1,11 @@
 find_package(Threads REQUIRED)
 
-add_executable(testtasks
+add_executable(testcontent
         $<TARGET_OBJECTS:libgerbera>
-        main.cc
-        test_task_threadpool.cc)
+        main.cc)
 
 include(DefFileName)
-define_file_path_for_sources(testtasks)
+define_file_path_for_sources(testcontent)
 
 include_directories(
         ${UPNP_INCLUDE_DIRS}
@@ -28,7 +27,7 @@ include_directories(
         ${GMOCK_INCLUDE_DIRS}
 )
 
-target_link_libraries(testtasks PRIVATE
+target_link_libraries(testcontent PRIVATE
         ${UUID_LIBRARIES}
         ${UPNP_LIBRARIES}
         ${MAGIC_LIBRARIES}
@@ -50,6 +49,6 @@ target_link_libraries(testtasks PRIVATE
         ${CMAKE_THREAD_LIBS_INIT}
         )
 
-add_test(NAME testtasks
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/test/test_tasks
-        COMMAND ./testtasks)
+add_test(NAME testcontent
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/test/test_content
+        COMMAND ./testcontent)

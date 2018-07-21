@@ -2,19 +2,20 @@
 #include "gmock/gmock.h"
 #include <memory>
 #include <fstream>
+#include <streaming/playlist_task.h>
 
 #include "streaming/remote_playlist.h"
 
-class RemotePlaylistTest : public ::testing::Test {
+class PlaylistTaskTest : public ::testing::Test {
 
  public:
 
-  RemotePlaylistTest() {};
+  PlaylistTaskTest() {};
 
-  virtual ~RemotePlaylistTest() {};
+  virtual ~PlaylistTaskTest() {};
 
   virtual void SetUp() {
-    subject = std::make_unique<RemotePlaylist>();
+    subject = std::make_unique<PlaylistTask>("http://localhost/playlist");
   }
   virtual void TearDown() {
     subject = nullptr;
@@ -26,21 +27,14 @@ class RemotePlaylistTest : public ::testing::Test {
     return str;
   }
 
-  std::unique_ptr<RemotePlaylist> subject;
+  std::unique_ptr<PlaylistTask> subject;
 };
 
-TEST_F(RemotePlaylistTest, CreateRemotePlaylistObject) {
+TEST_F(PlaylistTaskTest, CreateRemotePlaylistObject) {
   ASSERT_NE(subject, nullptr);
 }
 
-TEST_F(RemotePlaylistTest, ProvidesTheRemoteUrlOfPlaylist) {
-  std::string expectedUrl = "http://localhost/playlist.pls";
-  subject->setUrl(expectedUrl);
-
-  ASSERT_STREQ(subject->getUrl().c_str(), expectedUrl.c_str());
-}
-
-TEST_F(RemotePlaylistTest, HoldsRemotePlaylistContent) {
+TEST_F(PlaylistTaskTest, HoldsRemotePlaylistContent) {
   std::string playlistContent = mockPlaylist("fixtures/example.pls");
 
   subject->setContent(playlistContent);
@@ -48,7 +42,7 @@ TEST_F(RemotePlaylistTest, HoldsRemotePlaylistContent) {
   ASSERT_STREQ(playlistContent.c_str(), subject->getContent().c_str());
 }
 
-TEST_F(RemotePlaylistTest, ProvidesContentAsVector) {
+TEST_F(PlaylistTaskTest, ProvidesContentAsVector) {
   std::string playlistContent = mockPlaylist("fixtures/example.pls");
   subject->setContent(playlistContent);
 
@@ -57,7 +51,7 @@ TEST_F(RemotePlaylistTest, ProvidesContentAsVector) {
   ASSERT_EQ(result.size(), 18);
 }
 
-TEST_F(RemotePlaylistTest, ReadsContentFirstLine) {
+TEST_F(PlaylistTaskTest, ReadsContentFirstLine) {
   std::string playlistContent = mockPlaylist("fixtures/example.pls");
   subject->setContent(playlistContent);
 
@@ -66,7 +60,7 @@ TEST_F(RemotePlaylistTest, ReadsContentFirstLine) {
   ASSERT_EQ(result, "[playlist]");
 }
 
-TEST_F(RemotePlaylistTest, ReadsContentLineByLine) {
+TEST_F(PlaylistTaskTest, ReadsContentLineByLine) {
   std::string playlistContent = mockPlaylist("fixtures/simple.pls");
   subject->setContent(playlistContent);
   std::vector<std::string> expected = {
@@ -89,12 +83,12 @@ TEST_F(RemotePlaylistTest, ReadsContentLineByLine) {
   }
 }
 
-TEST_F(RemotePlaylistTest, ThrowsOutOfRangeWhenEmptyPlaylist) {
+TEST_F(PlaylistTaskTest, ThrowsOutOfRangeWhenEmptyPlaylist) {
   subject->setContent("");
   EXPECT_THROW(subject->readLine(), std::out_of_range);
 }
 
-TEST_F(RemotePlaylistTest, ThrowsOutOfRangeWhenEndPlaylist) {
+TEST_F(PlaylistTaskTest, ThrowsOutOfRangeWhenEndPlaylist) {
   subject->setContent("[playlist]\n");
   std::string result = subject->readLine();
   ASSERT_STREQ(result.c_str(), "[playlist]");

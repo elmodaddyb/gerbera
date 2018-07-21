@@ -59,6 +59,7 @@ set(libgerberaFILES
         src/common.h
         src/config/config_generator.h
         src/config/config_generator.cc
+        src/config/IConfigManager.h
         src/config_manager.cc
         src/config_manager.h
         src/config_options.h
@@ -202,6 +203,10 @@ set(libgerberaFILES
         src/streaming/streaming_options.cc
         src/streaming/shoutcast_options.h
         src/streaming/shoutcast_options.cc
+        src/streaming/streaming_content_service.cc
+        src/streaming/streaming_content_service.h
+        src/streaming/playlist_task.h
+        src/streaming/playlist_task.cpp
         src/string_converter.cc
         src/string_converter.h
         src/subscription_request.cc
@@ -211,6 +216,7 @@ set(libgerberaFILES
         src/task/task_threadpool.cc
         src/task/task_worker.h
         src/task/task_worker.cc
+        src/task/threadpool.h
         src/task_processor.cc
         src/task_processor.h
         src/thread_executor.cc

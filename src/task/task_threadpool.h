@@ -32,28 +32,40 @@ Gerbera - https://gerbera.io/
 #include <vector>
 #include <queue>
 #include "task.h"
+#include "threadpool.h"
 
-class TaskThreadPool {
+class TaskThreadPool : public ThreadPool {
 public:
     TaskThreadPool();
-    virtual ~TaskThreadPool();
-    long long getPoolSize();
-    long long getQueueSize();
-    long long tasksReceived();
-    long long tasksCompleted();
-    void enqueue(std::shared_ptr<Task> t);
-    void start(int numberOfThreads);
-    void stop();
+
+    ~TaskThreadPool();
+
+    long long getPoolSize() override;
+
+    long long getQueueSize() override;
+
+    long long tasksReceived() override;
+
+    long long tasksCompleted() override;
+
+    void enqueue(std::shared_ptr<Task> t) override;
+
+    bool isShutdown() override;
+
+    void start(int numberOfThreads) override;
+
+    void stop() override;
+
 protected:
     std::vector<std::thread> threads;
     std::queue<std::shared_ptr<Task>> tasks;
 private:
     friend class Worker;
+
     std::mutex mutex;
     std::condition_variable cond;
-    bool shutdown;
-    struct
-    {
+    bool shutdown = true;
+    struct {
         unsigned long int received = 0;
         unsigned long int completed = 0;
     } stats;

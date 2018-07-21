@@ -35,6 +35,7 @@
 #include <unordered_set>
 #include <mutex>
 #include <condition_variable>
+#include <streaming/streaming_content_service.h>
 
 #include "common.h"
 #include "cds_objects.h"
@@ -236,6 +237,8 @@ public:
 
     void cleanupOnlineServiceObjects(zmm::Ref<OnlineService> service);
 
+    void processStreamingPlaylists();
+
 #endif//ONLINE_SERVICES
 
     /// \brief Adds a virtual item.
@@ -391,6 +394,7 @@ protected:
 
 #ifdef ONLINE_SERVICES 
     zmm::Ref<OnlineServiceList> online_services;
+    std::unique_ptr<StreamingContentService> streamingContentService;
 
     void fetchOnlineContentInternal(zmm::Ref<OnlineService> service,
                                     bool lowPriority=true,

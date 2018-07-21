@@ -27,13 +27,21 @@ Gerbera - https://gerbera.io/
 #include "task_worker.h"
 
 TaskThreadPool::TaskThreadPool() {
+}
 
+TaskThreadPool::~TaskThreadPool() {
+  if(!shutdown) {
+    this->stop();
+  }
 }
 
 void TaskThreadPool::start(int numberOfThreads) {
-  shutdown = false;
-  for(size_t i = 0; i < numberOfThreads; i++) {
-    threads.emplace_back(std::thread(Worker(*this)));
+  std::unique_lock<std::mutex> lock(mutex);
+  if(shutdown) {
+    shutdown = false;
+    for (size_t i = 0; i < numberOfThreads; i++) {
+      threads.emplace_back(std::thread(Worker(*this)));
+    }
   }
 }
 
@@ -49,12 +57,6 @@ void TaskThreadPool::stop() {
   threads.clear();
 }
 
-TaskThreadPool::~TaskThreadPool() {
-  if(!shutdown) {
-    stop();
-  }
-}
-
 void TaskThreadPool::enqueue(std::shared_ptr<Task> t)
 {
   {
@@ -64,9 +66,14 @@ void TaskThreadPool::enqueue(std::shared_ptr<Task> t)
       throw std::runtime_error("Attemped to enqueue when TaskThreadPool is shutdown");
     }
     stats.received++;
-    tasks.emplace(t);
+    tasks.emplace(std::move(t));
   }
   cond.notify_one();
+}
+
+bool TaskThreadPool::isShutdown() {
+  std::lock_guard<std::mutex> lock(mutex);
+  return this->shutdown;
 }
 
 long long TaskThreadPool::tasksReceived() {

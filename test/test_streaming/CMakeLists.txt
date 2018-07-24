@@ -3,6 +3,8 @@ find_package(Threads REQUIRED)
 add_executable(teststreaming
         $<TARGET_OBJECTS:libgerbera>
         main.cc
+        mock/task_threadpool_mock.h
+        mock/config_mgr_mock.h
         test_streaming_playlists.cc
         test_playlist_task.cc
         test_streaming_options.cc

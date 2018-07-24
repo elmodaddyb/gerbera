@@ -29,12 +29,14 @@
 #include <config/IConfigManager.h>
 #include <task/threadpool.h>
 #include <task/task_threadpool.h>
+#include "streaming_content.h"
 
-class StreamingContentService {
+class StreamingContentService : public StreamingContent {
 public:
     StreamingContentService(std::shared_ptr<StreamingOptions>, std::shared_ptr<ThreadPool> threadPool);
-    ~StreamingContentService();
-    void processConfiguredPlaylists();
+    ~StreamingContentService() = default;
+    void processConfiguredPlaylists() override;
+    void printUrl(std::string url) override;
 protected:
     std::shared_ptr<StreamingOptions> streamingOptions;
     std::shared_ptr<ThreadPool> threadPool;

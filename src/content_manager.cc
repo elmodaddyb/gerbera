@@ -253,7 +253,7 @@ ContentManager::ContentManager()
 
     std::shared_ptr<StreamingOptions> streamingOptions = cm->getStreamingOptions();
     std::unique_ptr<TaskThreadPool> taskThreadPool = std::make_unique<TaskThreadPool>();
-    this->streamingContentService = std::make_unique<StreamingContentService>(streamingOptions, std::move(taskThreadPool));
+    this->streamingContentService = std::make_shared<StreamingContentService>(streamingOptions, std::move(taskThreadPool));
 
 #endif //ONLINE_SERVICES
 }

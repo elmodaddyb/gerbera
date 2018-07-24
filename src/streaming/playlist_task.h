@@ -8,11 +8,12 @@
 
 #include <task/task.h>
 #include "remote_playlist.h"
+#include "streaming_content_service.h"
 #include <string>
 
 class PlaylistTask : public Task {
 public:
-    PlaylistTask(std::string url);
+    PlaylistTask(std::string url, StreamingContent* streamingContentService);
     ~PlaylistTask() = default;
     void run() override;
     std::string getUrl();
@@ -21,6 +22,7 @@ public:
     std::string readLine();
     std::vector<std::string> getContentVector();
 private:
+    StreamingContent* streamingContentService;
     std::string url;
     std::string content;
     std::vector<std::string> contentVector;

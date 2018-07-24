@@ -5,6 +5,17 @@
 #include <streaming/playlist_task.h>
 
 #include "streaming/remote_playlist.h"
+#include "mock/task_threadpool_mock.h"
+
+using namespace zmm;
+using namespace mxml;
+
+class StreamingServiceMock : public StreamingContent {
+public:
+    MOCK_METHOD0(processConfiguredPlaylists, void());
+    MOCK_METHOD1(printUrl, void(std::string url));
+};
+
 
 class PlaylistTaskTest : public ::testing::Test {
 
@@ -15,7 +26,8 @@ class PlaylistTaskTest : public ::testing::Test {
   virtual ~PlaylistTaskTest() {};
 
   virtual void SetUp() {
-    subject = std::make_unique<PlaylistTask>("http://localhost/playlist");
+    streamingService.reset(new ::testing::NiceMock<StreamingServiceMock>());
+    subject = std::make_unique<PlaylistTask>("http://localhost/playlist", streamingService.get());
   }
   virtual void TearDown() {
     subject = nullptr;
@@ -27,7 +39,32 @@ class PlaylistTaskTest : public ::testing::Test {
     return str;
   }
 
+  zmm::Ref<Element> mockConfig(std::string enabledShoutcast) {
+    zmm::Ref<Element> streaming(new Element(_("streaming")));
+
+    zmm::Ref<Element> playlists(new Element(_("playlists")));
+    streaming->appendElementChild(playlists);
+
+    zmm::Ref<Element> playlist(new Element(_("playlist")));
+    playlist->setAttribute(_("url"), _("http://localhost/playlist"));
+    playlists->appendElementChild(playlist);
+
+    zmm::Ref<Element> playlist2(new Element(_("playlist")));
+    playlist2->setAttribute(_("url"), _("http://localhost/playlist2"));
+    playlists->appendElementChild(playlist2);
+
+    zmm::Ref<Element> shoutcast(new Element(_("shoutcast")));
+    shoutcast->setAttribute(_("base-url"), _("http://api.shoutcast.com"));
+    shoutcast->setAttribute(_("dev-id"), _("ABC123"));
+    shoutcast->setAttribute(_("enabled"), String::copy(enabledShoutcast.c_str()));
+    streaming->appendElementChild(shoutcast);
+    return streaming;
+  }
+
   std::unique_ptr<PlaylistTask> subject;
+  std::shared_ptr<StreamingOptions> streamingOptionsMock;
+  std::shared_ptr<TaskThreadPoolMock> threadPoolMock;
+  std::shared_ptr<StreamingServiceMock> streamingService;
 };
 
 TEST_F(PlaylistTaskTest, CreateRemotePlaylistObject) {

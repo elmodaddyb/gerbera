@@ -203,6 +203,7 @@ set(libgerberaFILES
         src/streaming/streaming_options.cc
         src/streaming/shoutcast_options.h
         src/streaming/shoutcast_options.cc
+        src/streaming/streaming_content.h
         src/streaming/streaming_content_service.cc
         src/streaming/streaming_content_service.h
         src/streaming/playlist_task.h

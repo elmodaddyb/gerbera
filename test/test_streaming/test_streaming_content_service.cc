@@ -3,33 +3,16 @@
 #include <memory>
 #include <fstream>
 #include <streaming/streaming_content_service.h>
-#include <config/IConfigManager.h>
 #include <zmm/zmm.h>
 #include <mxml/mxml.h>
 #include <task/task_threadpool.h>
 
 #include "streaming/remote_playlist.h"
+#include "mock/task_threadpool_mock.h"
 
 using namespace zmm;
 using namespace mxml;
 using namespace ::testing;
-
-class ConfigManagerMock : public IConfigManager {
-public:
-    MOCK_METHOD0(getStreamingOptions, std::shared_ptr<StreamingOptions>());
-};
-
-class TaskThreadPoolMock : public ThreadPool {
-public:
-    MOCK_METHOD0(getPoolSize, long long());
-    MOCK_METHOD0(getQueueSize, long long());
-    MOCK_METHOD0(tasksReceived, long long());
-    MOCK_METHOD0(tasksCompleted, long long());
-    MOCK_METHOD1(enqueue, void(std::shared_ptr<Task> t));
-    MOCK_METHOD1(start, void(int numberOfThreads));
-    MOCK_METHOD0(stop, void());
-    MOCK_METHOD0(isShutdown, bool());
-};
 
 class StreamingContentServiceTest : public ::testing::Test {
 

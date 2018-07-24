@@ -394,7 +394,7 @@ protected:
 
 #ifdef ONLINE_SERVICES 
     zmm::Ref<OnlineServiceList> online_services;
-    std::unique_ptr<StreamingContentService> streamingContentService;
+    std::shared_ptr<StreamingContentService> streamingContentService;
 
     void fetchOnlineContentInternal(zmm::Ref<OnlineService> service,
                                     bool lowPriority=true,

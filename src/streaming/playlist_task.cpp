@@ -9,13 +9,13 @@
 #include <thread>
 #include "playlist_task.h"
 
-PlaylistTask::PlaylistTask(std::string url) {
-  this->url = url;
+PlaylistTask::PlaylistTask(std::string url, StreamingContent* streamingContentService) :
+        streamingContentService(streamingContentService), url(std::move(url)){
 }
 
 void PlaylistTask::run() {
   std::this_thread::sleep_for(std::chrono::seconds(3));
-  printf("\n%s\n", this->url.c_str());
+  this->streamingContentService->printUrl(this->getUrl());
 }
 
 std::string PlaylistTask::getUrl() {
@@ -24,7 +24,7 @@ std::string PlaylistTask::getUrl() {
 
 void PlaylistTask::setContent(std::string content) {
   this->content = content;
-  std::istringstream f(content.c_str());
+  std::istringstream f(content);
   std::string line;
   while (std::getline(f, line)) {
     contentVector.push_back(line);
@@ -40,7 +40,7 @@ std::vector<std::string> PlaylistTask::getContentVector() {
 }
 
 std::string PlaylistTask::readLine() {
-  if(contentVector.size() > 0 && contentVector.size() >= lineNumber) {
+  if(!contentVector.empty() && contentVector.size() >= lineNumber) {
     return contentVector.at(lineNumber++);
   } else {
     throw std::out_of_range ("End of playlist reached");

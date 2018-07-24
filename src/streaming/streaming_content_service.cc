@@ -28,9 +28,10 @@
 
 using namespace zmm;
 
-StreamingContentService::StreamingContentService(std::shared_ptr<StreamingOptions> streamingOptions,
-                                                 std::shared_ptr<ThreadPool> threadPool) :
-        streamingOptions(streamingOptions), threadPool(std::move(threadPool)) {
+StreamingContentService::StreamingContentService(
+        std::shared_ptr<StreamingOptions> streamingOptions,
+        std::shared_ptr<ThreadPool> threadPool) :
+        streamingOptions(std::move(streamingOptions)), threadPool(std::move(threadPool)) {
   int numCores = std::thread::hardware_concurrency();
   this->threadPool->start(numCores - 2);
 }
@@ -41,12 +42,14 @@ void StreamingContentService::processConfiguredPlaylists() {
   makeTasks(remotePlaylists);
 }
 
-StreamingContentService::~StreamingContentService() {}
-
-void
-StreamingContentService::makeTasks(std::shared_ptr<std::vector<std::unique_ptr<RemotePlaylist>>> &remotePlaylists) {
-  for (const auto &playlist : (*remotePlaylists.get())) {
-    std::shared_ptr<PlaylistTask> task = std::make_shared<PlaylistTask>(playlist->getUrl());
+void StreamingContentService::makeTasks(std::shared_ptr<std::vector<std::unique_ptr<RemotePlaylist>>> &remotePlaylists) {
+  for (const auto &playlist : (*remotePlaylists)) {
+    std::shared_ptr<PlaylistTask> task = std::make_shared<PlaylistTask>(playlist->getUrl(), this);
     this->threadPool->enqueue(task);
   }
 }
+
+void StreamingContentService::printUrl(std::string url) {
+  printf("\n%s\n", url.c_str());
+}
+

@@ -29,19 +29,33 @@
 #include <config/IConfigManager.h>
 #include <task/threadpool.h>
 #include <task/task_threadpool.h>
+#include <content/abstract_content_manager.h>
+#include <storage/abstract_storage.h>
 #include "streaming_content.h"
+#include "curl_downloader.h"
 
 class StreamingContentService : public StreamingContent {
 public:
-    StreamingContentService(std::shared_ptr<StreamingOptions>, std::shared_ptr<ThreadPool> threadPool);
+    StreamingContentService(std::shared_ptr<StreamingOptions>,
+        std::shared_ptr<ThreadPool> threadPool,
+        std::shared_ptr<CurlDownloader> curlDownloader,
+        AbstractContentManager* contentManager,
+        AbstractStorage* storage);
     ~StreamingContentService() = default;
     void processConfiguredPlaylists() override;
     void printUrl(std::string url) override;
+    std::shared_ptr<InMemoryPlaylist> downloadPlaylist(std::string url) override;
+    std::shared_ptr<PlaylistParseResult> parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) override;
+    unsigned long persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult) override;
 protected:
     std::shared_ptr<StreamingOptions> streamingOptions;
     std::shared_ptr<ThreadPool> threadPool;
+    std::shared_ptr<CurlDownloader> curlDownloader;
+    AbstractContentManager* contentManager;
+    AbstractStorage* storage;
 private:
-    void makeTasks(std::shared_ptr<std::vector<std::unique_ptr<RemotePlaylist>>>& playlists);
+    void makeTasks(std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>>& playlists);
+    std::shared_ptr<CdsContainer> createParentContainer(std::string containerName);
 };
 
 

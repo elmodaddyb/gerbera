@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  IConfigManager.h - this file is part of Gerbera.
+  storage_mock.h - this file is part of Gerbera.
 
   Copyright (C) 2018 Gerbera Contributors
 
@@ -20,24 +20,17 @@
   $Id$
 */
 
-/// \file IConfigManager.h
+/// \file storage_mock.h
 
-#ifndef GERBERA_ICONFIGMANAGER_H
+#ifndef GERBERA_STORAGE_MOCK_H
+#define GERBERA_STORAGE_MOCK_H
+#include <storage/abstract_storage.h>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
-#define GERBERA_ICONFIGMANAGER_H
-#include <zmm/zmmf.h>
-
-#include <streaming/streaming_options.h>
-
-
-class IConfigManager {
-
-public:
-    virtual ~IConfigManager() {}
-#ifdef ONLINE_SERVICES
-    virtual std::shared_ptr<StreamingOptions> getStreamingOptions() = 0;
-#endif
+class StorageMock : public AbstractStorage {
+ public:
+  MOCK_METHOD1(loadObject, zmm::Ref<CdsObject>(int objectID));
 };
 
-
-#endif //GERBERA_ICONFIGMANAGER_H
+#endif //GERBERA_STORAGE_MOCK_H

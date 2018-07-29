@@ -36,6 +36,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <streaming/streaming_content_service.h>
+#include <content/abstract_content_manager.h>
 
 #include "common.h"
 #include "cds_objects.h"
@@ -161,7 +162,7 @@ public:
 };
 */
 
-class ContentManager : public Timer::Subscriber, public Singleton<ContentManager, std::recursive_mutex>
+class ContentManager : public Timer::Subscriber, public Singleton<ContentManager, std::recursive_mutex>, public AbstractContentManager
 {
 public:
     ContentManager();
@@ -273,7 +274,7 @@ public:
     /// \param parentID the id of the parent.
     /// \param title the title of the container.
     /// \param upnpClass the upnp class of the container.
-    void addContainer(int parentID, zmm::String title, zmm::String upnpClass);
+    int addContainer(int parentID, zmm::String title, zmm::String upnpClass) override;
     
     /// \brief Updates an object in the database.
     /// \param obj the object to update

@@ -3,17 +3,14 @@
 
 #include <string>
 
-class RemotePlaylist {
+class ConfiguredPlaylist {
  public:
-  void setUrl(std::string url);
+  ConfiguredPlaylist() = default;
+  explicit ConfiguredPlaylist(std::string url);
+  virtual ~ConfiguredPlaylist() = default;
   std::string getUrl();
-
-
  private:
   std::string url;
-  std::string content;
-  std::vector<std::string> contentVector;
-  unsigned long lineNumber = 0;
 };
 
 #endif //GERBERA_REMOTE_PLAYLIST_H

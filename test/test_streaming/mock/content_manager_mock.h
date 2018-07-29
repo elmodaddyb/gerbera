@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  IConfigManager.h - this file is part of Gerbera.
+  content_manager_mock.h - this file is part of Gerbera.
 
   Copyright (C) 2018 Gerbera Contributors
 
@@ -20,24 +20,19 @@
   $Id$
 */
 
-/// \file IConfigManager.h
-
-#ifndef GERBERA_ICONFIGMANAGER_H
-
-#define GERBERA_ICONFIGMANAGER_H
-#include <zmm/zmmf.h>
-
-#include <streaming/streaming_options.h>
+/// \file content_manager_mock.h
 
 
-class IConfigManager {
+#ifndef GERBERA_CONTENT_MANAGER_MOCK_H
+#define GERBERA_CONTENT_MANAGER_MOCK_H
+#include <content/abstract_content_manager.h>
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
-public:
-    virtual ~IConfigManager() {}
-#ifdef ONLINE_SERVICES
-    virtual std::shared_ptr<StreamingOptions> getStreamingOptions() = 0;
-#endif
+class ContentManagerMock : public AbstractContentManager {
+ public:
+  MOCK_METHOD3(addContainer, int(int parentID, const zmm::String title, const zmm::String upnpClass));
+  MOCK_METHOD1(addObject, void(zmm::Ref<CdsObject> obj));
 };
 
-
-#endif //GERBERA_ICONFIGMANAGER_H
+#endif //GERBERA_CONTENT_MANAGER_MOCK_H

@@ -28,8 +28,7 @@ TEST_F(StreamingPlaylistsTest, CreatesStreamingPlaylistWithEmptyList) {
 }
 
 TEST_F(StreamingPlaylistsTest, AllowsToAddRemotePlaylists) {
-  auto playlist = make_unique<RemotePlaylist>();
-  playlist->setUrl("http://localhost");
+  auto playlist = make_unique<ConfiguredPlaylist>("http://localhost");
 
   subject->addPlaylist(std::move(playlist));
 
@@ -37,8 +36,7 @@ TEST_F(StreamingPlaylistsTest, AllowsToAddRemotePlaylists) {
 }
 
 TEST_F(StreamingPlaylistsTest, ProvidesListOfAllPlaylists) {
-  auto playlist = make_unique<RemotePlaylist>();
-  playlist->setUrl("http://localhost");
+  auto playlist = make_unique<ConfiguredPlaylist>("http://localhost");
   subject->addPlaylist(std::move(playlist));
 
   auto playlists = subject->getPlaylists();
@@ -48,12 +46,10 @@ TEST_F(StreamingPlaylistsTest, ProvidesListOfAllPlaylists) {
 }
 
 TEST_F(StreamingPlaylistsTest, AllowsToAddSeveralRemotePlaylists) {
-  auto playlist = make_unique<RemotePlaylist>();
-  playlist->setUrl("http://localhost/playlist1");
+  auto playlist = make_unique<ConfiguredPlaylist>("http://localhost/playlist1");
   subject->addPlaylist(std::move(playlist));
 
-  playlist = make_unique<RemotePlaylist>();
-  playlist->setUrl("http://localhost/playlist2");
+  playlist = make_unique<ConfiguredPlaylist>("http://localhost/playlist2");
   subject->addPlaylist(std::move(playlist));
 
   ASSERT_EQ(2, subject->getSize());

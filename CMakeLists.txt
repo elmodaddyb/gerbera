@@ -65,6 +65,7 @@ set(libgerberaFILES
         src/config_options.h
         src/content_manager.cc
         src/content_manager.h
+        src/content/abstract_content_manager.h
         src/contrib/md5.c
         src/contrib/md5.h
         src/curl_io_handler.cc
@@ -195,10 +196,11 @@ set(libgerberaFILES
         src/storage/sql_storage.h
         src/storage/storage_cache.cc
         src/storage/storage_cache.h
+        src/storage/abstract_storage.h
         src/streaming/streaming_playlists.h
         src/streaming/streaming_playlists.cc
-        src/streaming/remote_playlist.h
-        src/streaming/remote_playlist.cc
+        src/streaming/configured_playlist.h
+        src/streaming/configured_playlist.cc
         src/streaming/streaming_options.h
         src/streaming/streaming_options.cc
         src/streaming/shoutcast_options.h
@@ -207,7 +209,13 @@ set(libgerberaFILES
         src/streaming/streaming_content_service.cc
         src/streaming/streaming_content_service.h
         src/streaming/playlist_task.h
-        src/streaming/playlist_task.cpp
+        src/streaming/playlist_task.cc
+        src/streaming/inmemory_playlist.h
+        src/streaming/inmemory_playlist.cc
+        src/streaming/curl_downloader.h
+        src/streaming/curl_downloader_mock.cc
+        src/streaming/playlist_parse_result.h
+        src/streaming/playlist_parse_result.cc
         src/string_converter.cc
         src/string_converter.h
         src/subscription_request.cc

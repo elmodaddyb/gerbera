@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  IConfigManager.h - this file is part of Gerbera.
+  inmemory_playlist.h - this file is part of Gerbera.
 
   Copyright (C) 2018 Gerbera Contributors
 
@@ -20,24 +20,26 @@
   $Id$
 */
 
-/// \file IConfigManager.h
+/// \file inmemory_playlist.h
 
-#ifndef GERBERA_ICONFIGMANAGER_H
+#ifndef GERBERA_INMEMORY_PLAYLIST_H
+#define GERBERA_INMEMORY_PLAYLIST_H
 
-#define GERBERA_ICONFIGMANAGER_H
-#include <zmm/zmmf.h>
+#include <vector>
+#include <string>
 
-#include <streaming/streaming_options.h>
-
-
-class IConfigManager {
-
-public:
-    virtual ~IConfigManager() {}
-#ifdef ONLINE_SERVICES
-    virtual std::shared_ptr<StreamingOptions> getStreamingOptions() = 0;
-#endif
+class InMemoryPlaylist {
+ public:
+  InMemoryPlaylist(std::string content);
+  ~InMemoryPlaylist() = default;
+  void setContent(std::string content);
+  std::string getContent();
+  std::string readLine();
+  std::vector<std::string> getContentVector();
+ private:
+  std::string content;
+  std::vector<std::string> contentVector;
+  unsigned long lineNumber = 0;
 };
 
-
-#endif //GERBERA_ICONFIGMANAGER_H
+#endif //GERBERA_INMEMORY_PLAYLIST_H

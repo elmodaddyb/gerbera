@@ -14,7 +14,7 @@ public:
     MOCK_METHOD0(tasksReceived, long long());
     MOCK_METHOD0(tasksCompleted, long long());
     MOCK_METHOD1(enqueue, void(std::shared_ptr<Task> t));
-    MOCK_METHOD1(start, void(int numberOfThreads));
+    MOCK_METHOD1(start, void(size_t numberOfThreads));
     MOCK_METHOD0(stop, void());
     MOCK_METHOD0(isShutdown, bool());
 };

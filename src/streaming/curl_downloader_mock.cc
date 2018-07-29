@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  IConfigManager.h - this file is part of Gerbera.
+  curl_downloader_mock.cc - this file is part of Gerbera.
 
   Copyright (C) 2018 Gerbera Contributors
 
@@ -20,24 +20,10 @@
   $Id$
 */
 
-/// \file IConfigManager.h
+/// \file curl_downloader_mock.cc
 
-#ifndef GERBERA_ICONFIGMANAGER_H
+#include "curl_downloader.h"
 
-#define GERBERA_ICONFIGMANAGER_H
-#include <zmm/zmmf.h>
-
-#include <streaming/streaming_options.h>
-
-
-class IConfigManager {
-
-public:
-    virtual ~IConfigManager() {}
-#ifdef ONLINE_SERVICES
-    virtual std::shared_ptr<StreamingOptions> getStreamingOptions() = 0;
-#endif
+std::string CurlDownloader::download(std::string url) {
+  return "";
 };
-
-
-#endif //GERBERA_ICONFIGMANAGER_H

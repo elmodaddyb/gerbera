@@ -251,9 +251,15 @@ ContentManager::ContentManager()
     }
 #endif //ATRAILERS
 
-    std::shared_ptr<StreamingOptions> streamingOptions = cm->getStreamingOptions();
-    std::unique_ptr<TaskThreadPool> taskThreadPool = std::make_unique<TaskThreadPool>();
-    this->streamingContentService = std::make_shared<StreamingContentService>(streamingOptions, std::move(taskThreadPool));
+    auto streamingOptions = cm->getStreamingOptions();
+    auto taskThreadPool = std::make_unique<TaskThreadPool>();
+    auto curlDownloader = std::make_unique<CurlDownloader>();
+    this->streamingContentService = std::make_shared<StreamingContentService>(
+        streamingOptions,
+        std::move(taskThreadPool),
+        std::move(curlDownloader),
+        this,
+        storage.getPtr());
 
 #endif //ONLINE_SERVICES
 }
@@ -1024,10 +1030,10 @@ void ContentManager::addObject(zmm::Ref<CdsObject> obj)
         ContentManager::getInstance()->getAccounting()->totalFiles++;
 }
 
-void ContentManager::addContainer(int parentID, String title, String upnpClass)
+int ContentManager::addContainer(int parentID, String title, String upnpClass)
 {
     Ref<Storage> storage = Storage::getInstance();
-    addContainerChain(storage->buildContainerPath(parentID, escape(title, VIRTUAL_CONTAINER_ESCAPE, VIRTUAL_CONTAINER_SEPARATOR)), upnpClass);
+    return addContainerChain(storage->buildContainerPath(parentID, escape(title, VIRTUAL_CONTAINER_ESCAPE, VIRTUAL_CONTAINER_SEPARATOR)), upnpClass);
 }
 
 int ContentManager::addContainerChain(String chain, String lastClass, int lastRefID, Ref<Dictionary> lastMetadata)

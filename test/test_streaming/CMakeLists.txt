@@ -5,11 +5,16 @@ add_executable(teststreaming
         main.cc
         mock/task_threadpool_mock.h
         mock/config_mgr_mock.h
+        mock/streaming_service_mock.h
+        mock/curl_downloader_mock.h
+        mock/content_manager_mock.h
+        mock/storage_mock.h
         test_streaming_playlists.cc
         test_playlist_task.cc
         test_streaming_options.cc
         test_shoutcast_options.cc
-        test_streaming_content_service.cc)
+        test_streaming_content_service.cc
+        test_inmemory_playlist.cc)
 
 include(DefFileName)
 define_file_path_for_sources(teststreaming)

@@ -35,7 +35,7 @@ TaskThreadPool::~TaskThreadPool() {
   }
 }
 
-void TaskThreadPool::start(int numberOfThreads) {
+void TaskThreadPool::start(size_t numberOfThreads) {
   std::unique_lock<std::mutex> lock(mutex);
   if(shutdown) {
     shutdown = false;

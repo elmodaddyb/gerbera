@@ -52,7 +52,7 @@ public:
 
     bool isShutdown() override;
 
-    void start(int numberOfThreads) override;
+    void start(size_t numberOfThreads) override;
 
     void stop() override;
 

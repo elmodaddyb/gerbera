@@ -2,7 +2,7 @@
 #define GERBERA_STREAMING_PLAYLISTS_H
 
 #include <vector>
-#include "remote_playlist.h"
+#include "configured_playlist.h"
 #include <memory>
 
 class StreamingPlaylists {
@@ -10,11 +10,11 @@ class StreamingPlaylists {
   StreamingPlaylists();
   ~StreamingPlaylists();
   unsigned long getSize();
-  void addPlaylist(std::unique_ptr<RemotePlaylist> playlist);
-  std::shared_ptr<std::vector<std::unique_ptr<RemotePlaylist>>> getPlaylists();
+  void addPlaylist(std::unique_ptr<ConfiguredPlaylist> playlist);
+  std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> getPlaylists();
 
  private:
-  std::shared_ptr<std::vector<std::unique_ptr<RemotePlaylist>>> playlists;
+  std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> playlists;
 };
 
 #endif //GERBERA_STREAMING_PLAYLISTS_H

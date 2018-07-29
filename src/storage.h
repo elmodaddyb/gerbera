@@ -190,7 +190,7 @@ public:
     virtual zmm::String incrementUpdateIDs(std::shared_ptr<std::unordered_set<int> > ids) = 0;
     
     /* utility methods */
-    virtual zmm::Ref<CdsObject> loadObject(int objectID) = 0;
+    virtual zmm::Ref<CdsObject> loadObject(int objectID) override = 0;
     virtual int getChildCount(int contId, bool containers = true, bool items = true, bool hideFsRoot = false) = 0;
 
     virtual zmm::String findFolderImage(int id, zmm::String trackArtBase) = 0;

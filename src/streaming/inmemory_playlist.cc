@@ -24,6 +24,7 @@
 
 #include <string>
 #include <sstream>
+#include <stdexcept>
 #include "inmemory_playlist.h"
 
 InMemoryPlaylist::InMemoryPlaylist(std::string content) {

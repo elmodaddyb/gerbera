@@ -82,7 +82,7 @@ public:
     void seek(IN off_t offset, IN int whence) override;
 
     /// \brief Close a previously opened file.
-    virtual void close();
+    virtual void close() override;
 };
 
 

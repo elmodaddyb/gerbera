@@ -30,7 +30,7 @@
 
 class StorageMock : public AbstractStorage {
  public:
-  MOCK_METHOD1(loadObject, zmm::Ref<CdsObject>(int objectID));
+    MOCK_METHOD1(loadObject, zmm::Ref<CdsObject>(int objectID));
 };
 
 #endif //GERBERA_STORAGE_MOCK_H

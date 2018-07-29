@@ -149,6 +149,6 @@ std::shared_ptr<CdsContainer> StreamingContentService::createParentContainer(std
   parent->setParentID(parentID);
   parent->setTitle(containerName);
   // TODO: Lookup existing containerId & cleanup
-  return std::move(parent);
+  return parent;
 }
 

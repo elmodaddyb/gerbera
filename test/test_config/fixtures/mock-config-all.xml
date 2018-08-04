@@ -129,7 +129,7 @@
     <online-content>
       <AppleTrailers enabled="no" refresh="43200" update-at-start="no" resolution="640"/>
       <streaming>
-        <playlists/>
+        <playlists root-virtual-path="/Remote Playlists"/>
         <shoutcast base-url="http://api.shoutcast.com" dev-id="" enabled="no"/>
       </streaming>
     </online-content>

@@ -742,7 +742,7 @@
             <xs:all>
                 <xs:element ref="playlist" minOccurs="0"/>
             </xs:all>
-            <xs:attribute name="rootVirtualPath"/>
+            <xs:attribute name="root-virtual-path"/>
         </xs:complexType>
     </xs:element>
 

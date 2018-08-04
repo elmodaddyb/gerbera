@@ -6,7 +6,7 @@ StreamingOptions::StreamingOptions(Ref<Element> streamingConfig) {
 
 
   Ref<Element> cfgPlaylists = streamingConfig->getChildByName(_("playlists"));
-  std::string rootVirtualPath = cfgPlaylists->getAttribute("rootVirtualPath").c_str();
+  std::string rootVirtualPath = cfgPlaylists->getAttribute("root-virtual-path").c_str();
   playlists = std::make_shared<StreamingPlaylists>(rootVirtualPath);
   std::unique_ptr<ConfiguredPlaylist> playlist;
   Ref<Element> item;

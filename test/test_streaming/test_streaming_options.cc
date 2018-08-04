@@ -30,7 +30,7 @@ class StreamingOptionsTest : public ::testing::Test {
 
     Ref<Element> playlists(new Element(_("playlists")));
     streaming->appendElementChild(playlists);
-    playlists->setAttribute(_("rootVirtualPath"), _("/Radio Playlists"));
+    playlists->setAttribute(_("root-virtual-path"), _("/Radio Playlists"));
 
     Ref<Element> playlist(new Element(_("playlist")));
     playlist->setAttribute(_("url"), _("http://localhost/playlist"));

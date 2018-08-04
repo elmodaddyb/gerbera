@@ -14,7 +14,8 @@ class StreamingPlaylistsTest : public ::testing::Test {
   virtual ~StreamingPlaylistsTest() {};
 
   virtual void SetUp() {
-    subject = make_unique<StreamingPlaylists>();
+    std::string rootVirtualPath = "/Root Virtual Path";
+    subject = make_unique<StreamingPlaylists>(rootVirtualPath);
   }
   virtual void TearDown() {
     subject = nullptr;
@@ -55,4 +56,9 @@ TEST_F(StreamingPlaylistsTest, AllowsToAddSeveralRemotePlaylists) {
   ASSERT_EQ(2, subject->getSize());
   ASSERT_STREQ("http://localhost/playlist1", subject->getPlaylists()->at(0)->getUrl().c_str());
   ASSERT_STREQ("http://localhost/playlist2", subject->getPlaylists()->at(1)->getUrl().c_str());
+}
+
+TEST_F(StreamingPlaylistsTest, ContainsVirtualPathForAllPlaylists) {
+ std::string result = subject->getRootVirtualPath();
+ ASSERT_STREQ(result.c_str(), "/Root Virtual Path");
 }

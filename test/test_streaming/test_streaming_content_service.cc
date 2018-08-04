@@ -49,6 +49,7 @@ public:
       zmm::Ref<Element> streaming(new Element(_("streaming")));
 
       zmm::Ref<Element> playlists(new Element(_("playlists")));
+      playlists->setAttribute("rootVirtualPath", "V/Root Virtual Path");
       streaming->appendElementChild(playlists);
 
       zmm::Ref<Element> playlist(new Element(_("playlist")));

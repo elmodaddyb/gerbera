@@ -1,7 +1,7 @@
 #include "streaming_playlists.h"
 
 
-StreamingPlaylists::StreamingPlaylists() {
+StreamingPlaylists::StreamingPlaylists(std::string rootVirtualPath): rootVirtualPath(std::move(rootVirtualPath)) {
   playlists = std::make_shared<std::vector<std::unique_ptr<ConfiguredPlaylist>>>();
 }
 
@@ -17,4 +17,8 @@ void StreamingPlaylists::addPlaylist(std::unique_ptr<ConfiguredPlaylist> playlis
 
 std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> StreamingPlaylists::getPlaylists() {
   return playlists;
+}
+
+std::string StreamingPlaylists::getRootVirtualPath() {
+  return rootVirtualPath;
 }

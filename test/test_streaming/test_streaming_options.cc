@@ -30,6 +30,7 @@ class StreamingOptionsTest : public ::testing::Test {
 
     Ref<Element> playlists(new Element(_("playlists")));
     streaming->appendElementChild(playlists);
+    playlists->setAttribute(_("rootVirtualPath"), _("/Radio Playlists"));
 
     Ref<Element> playlist(new Element(_("playlist")));
     playlist->setAttribute(_("url"), _("http://localhost/playlist"));
@@ -70,5 +71,12 @@ TEST_F(StreamingOptionsTest, WhenEnabledNoSetsBooleanToFalse) {
   subject = make_unique<StreamingOptions>(config);
   auto shoutcast = subject->getShoutcastOptions();
   ASSERT_FALSE(shoutcast->isEnabled());
+}
+
+TEST_F(StreamingOptionsTest, ContainsRootVirtualPathForPlaylists) {
+  Ref<Element> config = mockConfig("no");
+  subject = make_unique<StreamingOptions>(config);
+  auto playlists = subject->getPlaylists();
+  ASSERT_STREQ(playlists->getRootVirtualPath().c_str(), "/Radio Playlists");
 }
 

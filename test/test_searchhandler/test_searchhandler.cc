@@ -86,19 +86,19 @@ TEST(SearchLexer, OneSimpleTokenRecognized)
 {
     auto tokens = getAllTokens("=");
     EXPECT_EQ(1, tokens->size());
-    EXPECT_EQ(SearchToken(TokenType::COMPAREOP, std::move(std::make_unique<std::string>("="))), *(tokens->at(0)));
+    EXPECT_EQ(SearchToken(TokenType::COMPAREOP, std::make_unique<std::string>("=")), *(tokens->at(0)));
 
     tokens = getAllTokens("!=");
     EXPECT_EQ(1, tokens->size());
-    EXPECT_EQ(SearchToken(TokenType::COMPAREOP, std::move(std::make_unique<std::string>("!="))), *(tokens->at(0)));
+    EXPECT_EQ(SearchToken(TokenType::COMPAREOP, std::make_unique<std::string>("!=")), *(tokens->at(0)));
 
     tokens = getAllTokens(">");
     EXPECT_EQ(1, tokens->size());
-    EXPECT_EQ(SearchToken(TokenType::COMPAREOP, std::move(std::make_unique<std::string>(">"))), *(tokens->at(0)));
+    EXPECT_EQ(SearchToken(TokenType::COMPAREOP, std::make_unique<std::string>(">")), *(tokens->at(0)));
 
     tokens = getAllTokens("(");
     EXPECT_EQ(1, tokens->size());
-    EXPECT_EQ(SearchToken(TokenType::LPAREN, std::move(std::make_unique<std::string>("("))), *(tokens->at(0)));
+    EXPECT_EQ(SearchToken(TokenType::LPAREN, std::make_unique<std::string>("(")), *(tokens->at(0)));
 }
 
 TEST(SearchLexer,OneComplexTokenRecognized)
@@ -111,23 +111,23 @@ TEST(SearchLexer,OneComplexTokenRecognized)
 
     tokens = getAllTokens("true");
     EXPECT_EQ(1, tokens->size());
-    EXPECT_EQ(SearchToken(TokenType::BOOLVAL, std::move(std::make_unique<std::string>("true"))), *(tokens->at(0)));
+    EXPECT_EQ(SearchToken(TokenType::BOOLVAL, std::make_unique<std::string>("true")), *(tokens->at(0)));
 
     tokens = getAllTokens("FALSE");
     EXPECT_EQ(1, tokens->size());
-    EXPECT_EQ(SearchToken(TokenType::BOOLVAL, std::move(std::make_unique<std::string>("FALSE"))), *(tokens->at(0)));
+    EXPECT_EQ(SearchToken(TokenType::BOOLVAL, std::make_unique<std::string>("FALSE")), *(tokens->at(0)));
 
     tokens = getAllTokens("and");
     EXPECT_EQ(1, tokens->size());
-    EXPECT_EQ(SearchToken(TokenType::AND, std::move(std::make_unique<std::string>("and"))), *(tokens->at(0)));
+    EXPECT_EQ(SearchToken(TokenType::AND, std::make_unique<std::string>("and")), *(tokens->at(0)));
 
     tokens = getAllTokens("OR");
     EXPECT_EQ(1, tokens->size());
-    EXPECT_EQ(SearchToken(TokenType::OR, std::move(std::make_unique<std::string>("OR"))), *(tokens->at(0)));
+    EXPECT_EQ(SearchToken(TokenType::OR, std::make_unique<std::string>("OR")), *(tokens->at(0)));
 
     tokens = getAllTokens("exists");
     EXPECT_EQ(1, tokens->size());
-    EXPECT_EQ(SearchToken(TokenType::EXISTS, std::move(std::make_unique<std::string>("exists"))), *(tokens->at(0)));
+    EXPECT_EQ(SearchToken(TokenType::EXISTS, std::make_unique<std::string>("exists")), *(tokens->at(0)));
 
     tokens = getAllTokens("@id");
     EXPECT_EQ(1, tokens->size());

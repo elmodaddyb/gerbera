@@ -24,6 +24,7 @@
 
 #include <thread>
 #include <regex>
+#include <algorithm>
 #include <metadata_handler.h>
 #include <tools.h>
 #include <online_service.h>
@@ -44,7 +45,7 @@ StreamingContentService::StreamingContentService(
     contentManager(contentManager),
     storage(storage) {
   int numCores = std::thread::hardware_concurrency();
-  this->threadPool->start(numCores - 2);
+  this->threadPool->start(numCores - 2); // TODO make this number right...
 }
 
 void StreamingContentService::processConfiguredPlaylists() {
@@ -54,7 +55,7 @@ void StreamingContentService::processConfiguredPlaylists() {
 }
 
 void StreamingContentService::makeTasks(std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> &remotePlaylists) {
-  for (const auto &playlist : (*remotePlaylists)) {
+  for (const auto &playlist : *remotePlaylists) {
     std::shared_ptr<PlaylistTask> task = std::make_shared<PlaylistTask>(playlist->getUrl(), this);
     this->threadPool->enqueue(task);
   }
@@ -71,7 +72,8 @@ std::shared_ptr<InMemoryPlaylist> StreamingContentService::downloadPlaylist(std:
 
 std::shared_ptr<PlaylistParseResult> StreamingContentService::parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) {
   struct timespec ts;
-  auto parentCds = createParentContainer("Radio Playlist");
+  std::string rootVirtualPath = this->streamingOptions->getPlaylists()->getRootVirtualPath();
+  auto parentCds = createParentContainer(rootVirtualPath);
   auto parseResult = std::make_shared<PlaylistParseResult>(parentCds);
 
   std::vector<std::string> playlistLines = playlist->getContentVector();
@@ -126,15 +128,21 @@ std::shared_ptr<PlaylistParseResult> StreamingContentService::parsePlaylist(std:
 unsigned long StreamingContentService::persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult) {
   unsigned long objectsAdded = 0;
 
-  std::shared_ptr<CdsContainer> parentContainer = parseResult->getParentContainer();
-  int containerId = contentManager->addContainer(parentContainer->getParentID(), parentContainer->getTitle(), parentContainer->getClass());
-  Ref<CdsObject> parentObj = storage->loadObject(containerId);
-  objectsAdded++;
+  // Create the wrapping container
+  std::string rootVirtualPath = this->streamingOptions->getPlaylists()->getRootVirtualPath();
+  int containerId = createRootContainer(rootVirtualPath);
 
+  // Create the playlist container
+  std::shared_ptr<CdsContainer> playlistContainer = parseResult->getParentContainer();
+  int playlistContainerId = contentManager->addContainer(containerId, playlistContainer->getTitle(), playlistContainer->getClass());
+  playlistContainer->setParentID(containerId);
+  playlistContainer->setID(playlistContainerId);
+
+  // Create the child streams
   auto childItems = parseResult->getChildObjects();
 
-  for (auto &cdsObj : (*childItems)) {
-    cdsObj->setParentID(parentObj->getParentID());
+  for (auto &cdsObj : *childItems) {
+    cdsObj->setParentID(playlistContainer->getID());
     contentManager->addObject(RefCast(cdsObj, CdsObject));
     objectsAdded++;
   }
@@ -142,12 +150,33 @@ unsigned long StreamingContentService::persistPlaylist(std::shared_ptr<PlaylistP
   return objectsAdded;
 }
 
+int StreamingContentService::createRootContainer(std::string containerChain) {
+  std::unique_lock<std::mutex> lock(mutex);
+
+  int containerId;
+  log_debug("Searching for root container for configured playlists: %s", containerChain.c_str());
+  zmm::Ref<CdsObject> object = this->storage->findVirtualObjectByPath(containerChain);
+
+  if(object == nullptr) {
+    containerId = this->contentManager->addContainerChain(containerChain, nullptr, INVALID_OBJECT_ID, nullptr);
+    log_debug("Added new root container: %d\n", containerId);
+  } else {
+    containerId = object->getID();
+    log_debug("Found existing root container: %d\n", containerId);
+  }
+
+  lock.unlock();
+  return containerId;
+}
+
 std::shared_ptr<CdsContainer> StreamingContentService::createParentContainer(std::string containerName) {
   int parentID = 0; // TODO lookup parentId?
   std::shared_ptr<CdsContainer> parent = std::make_shared<CdsContainer>();
   parent->setClass("object.container");
   parent->setParentID(parentID);
+  containerName.erase(std::remove(containerName.begin(), containerName.end(), DIR_SEPARATOR), containerName.end());
   parent->setTitle(containerName);
+  parent->setVirtual(true);
   // TODO: Lookup existing containerId & cleanup
   return parent;
 }

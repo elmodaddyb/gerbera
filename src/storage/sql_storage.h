@@ -132,6 +132,7 @@ public:
     
     //virtual zmm::Ref<CdsObject> findObjectByTitle(zmm::String title, int parentID);
     virtual zmm::Ref<CdsObject> findObjectByPath(zmm::String fullpath) override;
+    virtual zmm::Ref<CdsObject> findVirtualObjectByPath(zmm::String fullpath) override;
     virtual int findObjectIDByPath(zmm::String fullpath) override;
     virtual zmm::String incrementUpdateIDs(std::shared_ptr<std::unordered_set<int> > ids) override;
 

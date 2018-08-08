@@ -31,6 +31,7 @@ class AbstractStorage {
  public:
   virtual ~AbstractStorage() {}
   virtual zmm::Ref<CdsObject> loadObject(int objectID) = 0;
+  virtual zmm::Ref<CdsObject> findVirtualObjectByPath(zmm::String fullpath) = 0;
 };
 
 #endif //GERBERA_ABSTRACT_STORAGE_H

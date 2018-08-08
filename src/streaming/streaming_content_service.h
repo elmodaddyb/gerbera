@@ -53,9 +53,11 @@ protected:
     std::shared_ptr<CurlDownloader> curlDownloader;
     AbstractContentManager* contentManager;
     AbstractStorage* storage;
+    std::mutex mutex;
 private:
     void makeTasks(std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>>& playlists);
     std::shared_ptr<CdsContainer> createParentContainer(std::string containerName);
+    int createRootContainer(std::string containerChain);
 };
 
 

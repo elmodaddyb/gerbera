@@ -896,6 +896,42 @@ Ref<CdsObject> SQLStorage::_findObjectByPath(String fullpath)
     return createObjectFromRow(row);
 }
 
+Ref<CdsObject> SQLStorage::findVirtualObjectByPath(String fullpath) {
+    fullpath = fullpath.reduce(DIR_SEPARATOR);
+
+    String dbLocation = addLocationPrefix(LOC_VIRT_PREFIX, fullpath);
+
+    /* check cache */
+    if (cacheOn()) {
+        AutoLock lock(cache->getMutex());
+        Ref<Array<CacheObject>> objects = cache->getObjects(dbLocation);
+        if (objects != nullptr) {
+            for (int i = 0; i < objects->size(); i++) {
+                Ref<CacheObject> cObj = objects->get(i);
+                if (cObj->knowsObject() && cObj->knowsVirtual() && !cObj->getVirtual())
+                    return cObj->getObject();
+            }
+        }
+    }
+    /* ----------- */
+
+    std::ostringstream qb;
+    qb << SQL_QUERY
+       << " WHERE " << TQD('f', "location_hash") << '=' << quote(stringHash(dbLocation))
+       << " AND " << TQD('f', "location") << '=' << quote(dbLocation)
+       << " AND " << TQD('f', "ref_id") << " IS NULL "
+                                           "LIMIT 1";
+
+    Ref<SQLResult> res = select(qb);
+    if (res == nullptr)
+        throw _Exception(_("error while doing select: ") + qb.str());
+
+    Ref<SQLRow> row = res->nextRow();
+    if (row == nullptr)
+        return nullptr;
+    return createObjectFromRow(row);
+}
+
 Ref<CdsObject> SQLStorage::findObjectByPath(String fullpath)
 {
     return _findObjectByPath(fullpath);

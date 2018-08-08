@@ -49,7 +49,7 @@ public:
       zmm::Ref<Element> streaming(new Element(_("streaming")));
 
       zmm::Ref<Element> playlists(new Element(_("playlists")));
-      playlists->setAttribute("root-virtual-path", "/Root Virtual Path");
+      playlists->setAttribute("root-virtual-path", "/Root Virtual Path/");
       streaming->appendElementChild(playlists);
 
       zmm::Ref<Element> playlist(new Element(_("playlist")));
@@ -106,15 +106,15 @@ TEST_F(StreamingContentServiceTest, UsingRemotePlaylistDownloadPlaylistIntoMemor
   EXPECT_STREQ(result->getContent().c_str(), expectedContent.c_str());
 }
 
-TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistContentCreatesCdsObjects) {
-    std::string playlistContent = mockPlaylist("fixtures/remote-playlist.pls");
+TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistContentCreatesCdsObjectsIncludingParentContainer) {
+  std::string playlistContent = mockPlaylist("fixtures/remote-playlist.pls");
   std::shared_ptr<InMemoryPlaylist> inMemoryPlaylist = std::make_shared<InMemoryPlaylist>(std::move(playlistContent));
 
   std::shared_ptr<PlaylistParseResult> result = subject->parsePlaylist(std::move(inMemoryPlaylist));
 
   EXPECT_NE(result, nullptr);
   EXPECT_NE(result->getParentContainer(), nullptr);
-  EXPECT_EQ(result->getParentContainer()->getTitle(), "Radio Playlist");
+  EXPECT_EQ(result->getParentContainer()->getTitle(), "Root Virtual Path");
   EXPECT_EQ(result->getParentContainer()->getParentID(), 0);
 
   // Verify children objects
@@ -129,7 +129,7 @@ TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistContentCreatesCdsObject
   }
 }
 
-TEST_F(StreamingContentServiceTest, GivenListofContentObjectsPersistsThemToDatabase) {
+TEST_F(StreamingContentServiceTest, GivenListofContentObjectsPersistsUsingExistingParentContainer) {
   // Mock up the parent container with parent ID
   std::shared_ptr<CdsContainer> parentCds = std::make_shared<CdsContainer>();
   parentCds->setTitle("Radio Playlist");
@@ -138,18 +138,54 @@ TEST_F(StreamingContentServiceTest, GivenListofContentObjectsPersistsThemToDatab
   zmm::Ref<CdsItemExternalURL> newObject = zmm::Ref<CdsItemExternalURL>(new CdsItemExternalURL());
   parseResult->addItem(newObject);
 
-  // Mock the returned container parent from DB
-  int expParentId = 5;
-  zmm::Ref<CdsObject> parent(new CdsContainer());
-  parent->setParentID(expParentId);
+  zmm::Ref<CdsObject> mockObject = zmm::Ref<CdsObject>(new CdsContainer());
+  mockObject->setID(555);
 
-  EXPECT_CALL(*contentManagerMock, addContainer(Eq(0), Eq("Radio Playlist"), Eq("object.container"))).WillOnce(Return(expParentId));
-  EXPECT_CALL(*storageMock, loadObject(Eq(expParentId))).WillOnce(Return(parent));
+  // Mock call to find existing parent - which will return result
+  EXPECT_CALL(*storageMock, findVirtualObjectByPath(_)).WillOnce(Return(mockObject));
+
+  // Mock Playlist Container creation
+  EXPECT_CALL(*contentManagerMock, addContainer(Eq(555), Eq("Radio Playlist"), Eq("object.container"))).WillOnce(Return(777));
+
+  // Mock object stream creation
   EXPECT_CALL(*contentManagerMock, addObject(_)).Times(1).WillRepeatedly(Return());
+
 
   unsigned long result = subject->persistPlaylist(parseResult);
 
-  EXPECT_EQ(result, 2);
+  EXPECT_EQ(result, 1);
+}
+
+TEST_F(StreamingContentServiceTest, GivenListofContentObjectsPersistsUsingNewlyCreatedParentContainer) {
+  // Mock up the playlist container with parent ID
+  std::shared_ptr<CdsContainer> parentCds = std::make_shared<CdsContainer>();
+  parentCds->setTitle("Radio Playlist");
+  parentCds->setParentID(0);
+
+  std::shared_ptr<PlaylistParseResult> parseResult = std::make_shared<PlaylistParseResult>(parentCds);
+  zmm::Ref<CdsItemExternalURL> newObject = zmm::Ref<CdsItemExternalURL>(new CdsItemExternalURL());
+  parseResult->addItem(newObject);
+
+  // Mock call to find existing parent - which will return nullptr
+  EXPECT_CALL(*storageMock, findVirtualObjectByPath(_)).WillOnce(Return(nullptr));
+
+  // Mock root container creation
+  int expRootContainerId = 555;
+  EXPECT_CALL(*contentManagerMock, addContainerChain(Eq("/Root Virtual Path/"), Eq(nullptr),
+          Eq(INVALID_OBJECT_ID), Eq(nullptr))).WillOnce(Return(expRootContainerId));
+
+  // Mock Playlist Container creation
+  int expPlaylistContainerId = 777;
+  EXPECT_CALL(*contentManagerMock, addContainer(Eq(expRootContainerId), Eq("Radio Playlist"),
+          Eq("object.container"))).WillOnce(Return(expPlaylistContainerId));
+
+  // Mock object creation
+  EXPECT_CALL(*contentManagerMock, addObject(_)).Times(1).WillRepeatedly(Return());
+
+
+  unsigned long objectsAdded = subject->persistPlaylist(parseResult);
+
+  EXPECT_EQ(objectsAdded, 1);
 }
 
 

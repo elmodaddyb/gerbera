@@ -29,7 +29,7 @@ TEST_F(StreamingPlaylistsTest, CreatesStreamingPlaylistWithEmptyList) {
 }
 
 TEST_F(StreamingPlaylistsTest, AllowsToAddRemotePlaylists) {
-  auto playlist = make_unique<ConfiguredPlaylist>("http://localhost");
+  auto playlist = make_unique<ConfiguredPlaylist>("http://localhost", "Name of Playlist");
 
   subject->addPlaylist(std::move(playlist));
 
@@ -37,7 +37,7 @@ TEST_F(StreamingPlaylistsTest, AllowsToAddRemotePlaylists) {
 }
 
 TEST_F(StreamingPlaylistsTest, ProvidesListOfAllPlaylists) {
-  auto playlist = make_unique<ConfiguredPlaylist>("http://localhost");
+  auto playlist = make_unique<ConfiguredPlaylist>("http://localhost", "Name of Playlist");
   subject->addPlaylist(std::move(playlist));
 
   auto playlists = subject->getPlaylists();
@@ -47,10 +47,10 @@ TEST_F(StreamingPlaylistsTest, ProvidesListOfAllPlaylists) {
 }
 
 TEST_F(StreamingPlaylistsTest, AllowsToAddSeveralRemotePlaylists) {
-  auto playlist = make_unique<ConfiguredPlaylist>("http://localhost/playlist1");
+  auto playlist = make_unique<ConfiguredPlaylist>("http://localhost/playlist1", "Name of Playlist");
   subject->addPlaylist(std::move(playlist));
 
-  playlist = make_unique<ConfiguredPlaylist>("http://localhost/playlist2");
+  playlist = make_unique<ConfiguredPlaylist>("http://localhost/playlist2", "Name of Playlist");
   subject->addPlaylist(std::move(playlist));
 
   ASSERT_EQ(2, subject->getSize());
@@ -61,4 +61,13 @@ TEST_F(StreamingPlaylistsTest, AllowsToAddSeveralRemotePlaylists) {
 TEST_F(StreamingPlaylistsTest, ContainsVirtualPathForAllPlaylists) {
  std::string result = subject->getRootVirtualPath();
  ASSERT_STREQ(result.c_str(), "/Root Virtual Path");
+}
+
+TEST_F(StreamingPlaylistsTest, EachPlaylistHasName) {
+  auto playlist = make_unique<ConfiguredPlaylist>("http://localhost/playlist1", "Name of Playlist");
+  subject->addPlaylist(std::move(playlist));
+
+  std::string result = subject->getPlaylists()->at(0)->getName();
+
+  ASSERT_STREQ(result.c_str(), "Name of Playlist");
 }

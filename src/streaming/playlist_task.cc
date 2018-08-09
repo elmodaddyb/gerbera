@@ -29,12 +29,12 @@
 #include <thread>
 #include "playlist_task.h"
 
-PlaylistTask::PlaylistTask(std::string url, StreamingContent* streamingContentService) :
-        streamingContentService(streamingContentService), url(std::move(url)){
+PlaylistTask::PlaylistTask(std::string url, std::string name, StreamingContent* streamingContentService) :
+        streamingContentService(streamingContentService), url(std::move(url)), name(std::move(name)){
 }
 
 void PlaylistTask::run() {
-  auto inMemoryPlaylist = this->streamingContentService->downloadPlaylist(this->url);
+  auto inMemoryPlaylist = this->streamingContentService->downloadPlaylist(this->name, this->url);
   auto parseResult = this->streamingContentService->parsePlaylist(inMemoryPlaylist);
   unsigned long itemsAdded = this->streamingContentService->persistPlaylist(parseResult);
 

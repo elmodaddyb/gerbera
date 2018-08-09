@@ -32,7 +32,7 @@ class StreamingServiceMock : public StreamingContent {
  public:
   MOCK_METHOD0(processConfiguredPlaylists, void());
   MOCK_METHOD1(printUrl, void(std::string url));
-  MOCK_METHOD1(downloadPlaylist, std::shared_ptr<InMemoryPlaylist>(std::string url));
+  MOCK_METHOD2(downloadPlaylist, std::shared_ptr<InMemoryPlaylist>(std::string name, std::string url));
   MOCK_METHOD1(parsePlaylist, std::shared_ptr<PlaylistParseResult>(std::shared_ptr<InMemoryPlaylist> playlist));
   MOCK_METHOD1(persistPlaylist, unsigned long(std::shared_ptr<PlaylistParseResult> parseResult));
 };

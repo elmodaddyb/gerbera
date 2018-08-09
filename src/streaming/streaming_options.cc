@@ -12,7 +12,7 @@ StreamingOptions::StreamingOptions(Ref<Element> streamingConfig) {
   Ref<Element> item;
   for (int e = 0; e < cfgPlaylists->elementChildCount(); e++) {
     item = cfgPlaylists->getElementChild(e);
-    playlist = std::make_unique<ConfiguredPlaylist>(item->getAttribute(_("url")).c_str());
+    playlist = std::make_unique<ConfiguredPlaylist>(item->getAttribute(_("url")).c_str(), item->getAttribute(_("name")).c_str());
     playlists->addPlaylist(std::move(playlist));
   }
 

@@ -11,7 +11,7 @@
 
 class PlaylistTask : public Task {
 public:
-    PlaylistTask(std::string url, StreamingContent* streamingContentService);
+    PlaylistTask(std::string url, std::string name, StreamingContent* streamingContentService);
     ~PlaylistTask() = default;
     void run() override;
     std::string getUrl();
@@ -19,6 +19,7 @@ public:
 private:
     StreamingContent* streamingContentService;
     std::string url;
+    std::string name;
 };
 
 

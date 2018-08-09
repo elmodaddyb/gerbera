@@ -32,7 +32,7 @@ public:
     virtual ~StreamingContent() = default;
     virtual void processConfiguredPlaylists() = 0;
     virtual void printUrl(std::string url) = 0;
-    virtual std::shared_ptr<InMemoryPlaylist> downloadPlaylist(std::string url) = 0;
+    virtual std::shared_ptr<InMemoryPlaylist> downloadPlaylist(std::string name, std::string url) = 0;
     virtual std::shared_ptr<PlaylistParseResult> parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) = 0;
     virtual unsigned long persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult) = 0;
 };

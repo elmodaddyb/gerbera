@@ -44,7 +44,7 @@ public:
     ~StreamingContentService() = default;
     void processConfiguredPlaylists() override;
     void printUrl(std::string url) override;
-    std::shared_ptr<InMemoryPlaylist> downloadPlaylist(std::string url) override;
+    std::shared_ptr<InMemoryPlaylist> downloadPlaylist(std::string name, std::string url) override;
     std::shared_ptr<PlaylistParseResult> parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) override;
     unsigned long persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult) override;
 protected:
@@ -56,7 +56,7 @@ protected:
     std::mutex mutex;
 private:
     void makeTasks(std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>>& playlists);
-    std::shared_ptr<CdsContainer> createParentContainer(std::string containerName);
+    std::shared_ptr<CdsContainer> createPlaylistContainer(std::string playlistName);
     int createRootContainer(std::string containerChain);
 };
 

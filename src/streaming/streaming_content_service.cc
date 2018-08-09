@@ -56,7 +56,7 @@ void StreamingContentService::processConfiguredPlaylists() {
 
 void StreamingContentService::makeTasks(std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> &remotePlaylists) {
   for (const auto &playlist : *remotePlaylists) {
-    std::shared_ptr<PlaylistTask> task = std::make_shared<PlaylistTask>(playlist->getUrl(), this);
+    std::shared_ptr<PlaylistTask> task = std::make_shared<PlaylistTask>(playlist->getUrl(), playlist->getName(), this);
     this->threadPool->enqueue(task);
   }
 }
@@ -65,15 +65,14 @@ void StreamingContentService::printUrl(std::string url) {
   printf("\n%s\n", url.c_str());
 }
 
-std::shared_ptr<InMemoryPlaylist> StreamingContentService::downloadPlaylist(std::string url) {
+std::shared_ptr<InMemoryPlaylist> StreamingContentService::downloadPlaylist(std::string name, std::string url) {
   std::string content = this->curlDownloader->download(url);
-  return std::make_shared<InMemoryPlaylist>(content);
+  return std::make_shared<InMemoryPlaylist>(name, content);
 }
 
 std::shared_ptr<PlaylistParseResult> StreamingContentService::parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) {
   struct timespec ts;
-  std::string rootVirtualPath = this->streamingOptions->getPlaylists()->getRootVirtualPath();
-  auto parentCds = createParentContainer(rootVirtualPath);
+  auto parentCds = createPlaylistContainer(playlist->getName());
   auto parseResult = std::make_shared<PlaylistParseResult>(parentCds);
 
   std::vector<std::string> playlistLines = playlist->getContentVector();
@@ -169,13 +168,12 @@ int StreamingContentService::createRootContainer(std::string containerChain) {
   return containerId;
 }
 
-std::shared_ptr<CdsContainer> StreamingContentService::createParentContainer(std::string containerName) {
+std::shared_ptr<CdsContainer> StreamingContentService::createPlaylistContainer(std::string playlistName) {
   int parentID = 0; // TODO lookup parentId?
   std::shared_ptr<CdsContainer> parent = std::make_shared<CdsContainer>();
   parent->setClass("object.container");
   parent->setParentID(parentID);
-  containerName.erase(std::remove(containerName.begin(), containerName.end(), DIR_SEPARATOR), containerName.end());
-  parent->setTitle(containerName);
+  parent->setTitle(playlistName);
   parent->setVirtual(true);
   // TODO: Lookup existing containerId & cleanup
   return parent;

@@ -30,13 +30,15 @@
 
 class InMemoryPlaylist {
  public:
-  InMemoryPlaylist(std::string content);
+  InMemoryPlaylist(std::string name, std::string content);
   ~InMemoryPlaylist() = default;
   void setContent(std::string content);
   std::string getContent();
+  std::string getName();
   std::string readLine();
   std::vector<std::string> getContentVector();
  private:
+  std::string name;
   std::string content;
   std::vector<std::string> contentVector;
   unsigned long lineNumber = 0;

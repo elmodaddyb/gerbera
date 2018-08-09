@@ -37,7 +37,7 @@ class InMemoryPlaylistTest : public ::testing::Test {
   virtual ~InMemoryPlaylistTest() {};
 
   virtual void SetUp() {
-    subject = std::make_unique<InMemoryPlaylist>("http://localhost/playlist");
+    subject = std::make_unique<InMemoryPlaylist>("Name of Playlist", "http://localhost/playlist");
   }
   virtual void TearDown() {
     subject = nullptr;

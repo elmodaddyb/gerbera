@@ -749,6 +749,7 @@
     <xs:element name="playlist">
         <xs:complexType>
             <xs:attribute name="url"/>
+            <xs:attribute name="name"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

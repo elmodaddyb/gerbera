@@ -34,6 +34,7 @@ class StreamingOptionsTest : public ::testing::Test {
 
     Ref<Element> playlist(new Element(_("playlist")));
     playlist->setAttribute(_("url"), _("http://localhost/playlist"));
+    playlist->setAttribute(_("name"), _("Name of Playlist"));
     playlists->appendElementChild(playlist);
 
     Ref<Element> shoutcast(new Element(_("shoutcast")));

@@ -22,7 +22,7 @@ class PlaylistTaskTest : public ::testing::Test {
 
   virtual void SetUp() {
     streamingService.reset(new ::testing::NiceMock<StreamingServiceMock>());
-    subject = std::make_unique<PlaylistTask>("http://localhost/playlist", streamingService.get());
+    subject = std::make_unique<PlaylistTask>("http://localhost/playlist", "Name of Playlist", streamingService.get());
   }
   virtual void TearDown() {
     subject = nullptr;
@@ -43,13 +43,13 @@ TEST_F(PlaylistTaskTest, CreateRemotePlaylistObject) {
 }
 
 TEST_F(PlaylistTaskTest, CallStreamingServiceToProcessPlaylist) {
-  std::shared_ptr<InMemoryPlaylist> inMemoryPlaylist = std::make_shared<InMemoryPlaylist>("content");
+  std::shared_ptr<InMemoryPlaylist> inMemoryPlaylist = std::make_shared<InMemoryPlaylist>("name", "content");
   std::shared_ptr<CdsContainer> parentCds = std::make_shared<CdsContainer>();
   parentCds->setTitle("Playlist Task Test Playlist");
   std::shared_ptr<PlaylistParseResult> parseResult = std::make_shared<PlaylistParseResult>(parentCds);
   unsigned long expItemsAdded = 13;
 
-  EXPECT_CALL(*streamingService, downloadPlaylist(Eq("http://localhost/playlist"))).WillOnce(Return(inMemoryPlaylist));
+  EXPECT_CALL(*streamingService, downloadPlaylist(Eq("Name of Playlist"), Eq("http://localhost/playlist"))).WillOnce(Return(inMemoryPlaylist));
   EXPECT_CALL(*streamingService, parsePlaylist(_)).WillOnce(Return(parseResult));
   EXPECT_CALL(*streamingService, persistPlaylist(_)).WillOnce(Return(expItemsAdded));
 

@@ -27,7 +27,8 @@
 #include <stdexcept>
 #include "inmemory_playlist.h"
 
-InMemoryPlaylist::InMemoryPlaylist(std::string content) {
+InMemoryPlaylist::InMemoryPlaylist(std::string name, std::string content) {
+  this->name = std::move(name);
   this->setContent(std::move(content));
 }
 
@@ -39,6 +40,10 @@ void InMemoryPlaylist::setContent(std::string content) {
   while (std::getline(f, line)) {
     contentVector.push_back(line);
   }
+}
+
+std::string InMemoryPlaylist::getName() {
+  return this->name;
 }
 
 std::string InMemoryPlaylist::getContent() {

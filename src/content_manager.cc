@@ -252,14 +252,16 @@ ContentManager::ContentManager()
 #endif //ATRAILERS
 
     auto streamingOptions = cm->getStreamingOptions();
-    auto taskThreadPool = std::make_unique<TaskThreadPool>();
-    auto curlDownloader = std::make_unique<CurlDownloader>();
-    this->streamingContentService = std::make_shared<StreamingContentService>(
-        streamingOptions,
-        std::move(taskThreadPool),
-        std::move(curlDownloader),
-        this,
-        storage.getPtr());
+    if(streamingOptions) {
+        auto taskThreadPool = std::make_unique<TaskThreadPool>();
+        auto curlDownloader = std::make_unique<CurlDownloader>();
+        this->streamingContentService = std::make_shared<StreamingContentService>(
+            streamingOptions,
+            std::move(taskThreadPool),
+            std::move(curlDownloader),
+            this,
+            storage.getPtr());
+    }
 
 #endif //ONLINE_SERVICES
 }
@@ -1420,7 +1422,7 @@ void ContentManager::cleanupOnlineServiceObjects(zmm::Ref<OnlineService> service
 }
 
 void ContentManager::processStreamingPlaylists() {
-    this->streamingContentService->processConfiguredPlaylists();
+  this->streamingContentService->processConfiguredPlaylists();
 }
 #endif
 

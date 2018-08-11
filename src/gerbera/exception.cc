@@ -33,24 +33,12 @@
 
 using namespace gerbera;
 
-Exception::Exception(std::string message, const char* file, int line, const char* function)
-{
+Exception::Exception(std::string message, const char* file, int line, const char* function) {
   this->message = std::move(message);
   this->file = file;
   this->function = function;
   this->line = line;
-#if defined HAVE_BACKTRACE
-  void *b[100];
-  int size = backtrace(b, 100);
-
-  char **s = backtrace_symbols(b, size);
-  for (int i = 0; i < size; i++) {
-    stackTrace.emplace_back(s[i]);
-  }
-  if (s) {
-    free(s);
-  }
-#endif
+  this->stackTrace = captureBacktrace();
 }
 
 Exception::Exception(std::string message) {
@@ -58,18 +46,7 @@ Exception::Exception(std::string message) {
   this->file = "";
   this->function = "";
   this->line = -1;
-#if defined HAVE_BACKTRACE
-  void *b[100];
-  int size = backtrace(b, 100);
-
-  char **s = backtrace_symbols(b, size);
-  for (int i = 0; i < size; i++) {
-    stackTrace.emplace_back(s[i]);
-  }
-  if (s) {
-    free(s);
-  }
-#endif
+  this->stackTrace = captureBacktrace();
 }
 
 std::string Exception::getMessage() const {
@@ -89,10 +66,9 @@ std::string Exception::getStackTraceStr() const {
 }
 
 #ifdef TOMBDEBUG
-void Exception::printStackTrace(FILE *file) const
-{
+void Exception::printStackTrace(FILE *file) const {
   if (line >= 0) {
-    fprintf(file, "Exception raised in [%s:%d] %s(): %s\r\n",
+    fprintf(file, "Exception raised in [%s:%d] %s(): %s\n",
             this->file.c_str(), line, function.c_str(), message.c_str());
   } else {
     fprintf(file, "Exception: %s\n", message.c_str());
@@ -107,3 +83,22 @@ void Exception::printStackTrace(FILE *file) const
 #endif // HAVE_BACKTRACE
 }
 #endif // TOMBDEBUG
+
+std::vector<std::string> Exception::captureBacktrace() const {
+  std::vector<std::string> stackTrace;
+#if defined HAVE_BACKTRACE
+  void *b[100];
+  int size = backtrace(b, 100);
+  char **s = backtrace_symbols(b, size);
+
+  stackTrace.reserve(static_cast<size_t>(size));
+  for (int i = 0; i < size; i++) {
+    stackTrace.emplace_back(s[i]);
+  }
+
+  if (s) {
+    free(s);
+  }
+#endif
+  return stackTrace;
+}

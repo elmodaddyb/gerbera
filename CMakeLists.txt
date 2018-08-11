@@ -86,6 +86,7 @@ set(libgerberaFILES
         src/filesystem.h
         src/generic_task.cc
         src/generic_task.h
+        src/gerbera/gerbera.h
         src/gerbera/exception.h
         src/gerbera/exception.cc
         src/io_handler_buffer_helper.cc

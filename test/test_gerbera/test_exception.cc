@@ -36,6 +36,7 @@
 #include <uuid.h>
 #else
 #include <uuid/uuid.h>
+#include <gerbera/gerbera.h>
 #endif
 
 using namespace ::testing;
@@ -159,6 +160,21 @@ TEST_F(ExceptionTest, PrintsStacktraceToTheFileGivenWithMessageOnly) {
   }
 }
 
+TEST_F(ExceptionTest, ProvidesPreprocessorFunctionForExceptionClass) {
+  try {
+    throw _Except("test exception");
+  } catch(Exception const & err) {
+    if (logFile == NULL) {
+      FAIL() << "Error creating temp exception log file";
+    } else {
+      err.printStackTrace(logFile);
+
+      std::string contents = getLogContents(logFileName);
+      ASSERT_THAT(contents, HasSubstr("Exception raised in [test_exception.cc:165] TestBody(): test exception"));
+      ASSERT_THAT(contents, HasSubstr("ExceptionTest_ProvidesPreprocessorFunctionForExceptionClass"));
+    }
+  }
+}
 
 #endif
 

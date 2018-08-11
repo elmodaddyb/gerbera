@@ -51,7 +51,8 @@ class Exception : public std::exception {
 #else
   inline void printStackTrace(FILE *file = LOG_FILE) const {};
 #endif
-
+ private:
+  std::vector<std::string> captureBacktrace() const;
 };
 
 }

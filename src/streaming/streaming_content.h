@@ -25,8 +25,10 @@
 #ifndef GERBERA_STREAMING_CONTENT_H
 #define GERBERA_STREAMING_CONTENT_H
 
+#include <memory>
 #include "inmemory_playlist.h"
 #include "playlist_parse_result.h"
+
 class StreamingContent {
 public:
     virtual ~StreamingContent() = default;

@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  curl_downloader_mock.h - this file is part of Gerbera.
+  test_url.cc - this file is part of Gerbera.
 
   Copyright (C) 2018 Gerbera Contributors
 
@@ -20,26 +20,48 @@
   $Id$
 */
 
-/// \file curl_downloader_mock.h
-#ifdef HAVE_CURL
+/// \file test_url.cc
 
-#ifndef GERBERA_CURL_DOWNLOADER_MOCK_H
-#define GERBERA_CURL_DOWNLOADER_MOCK_H
+#ifdef HAVE_CURL
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-
-#include <string>
+#include <gerbera/gerbera.h>
 #include <gerbera/url.h>
-#include <streaming/downloader.h>
 
 using namespace ::testing;
+using namespace gerbera;
 
-class CurlDownloaderMock : public Downloader {
+class URLTest : public ::testing::Test {
+
  public:
-  MOCK_METHOD1(download, std::string(const std::shared_ptr<gerbera::URL>& url));
+
+  URLTest() {};
+
+  virtual ~URLTest() {};
+
+  virtual void SetUp() {
+    subject = std::make_unique<URL>("http://localhost/url");
+  }
+
+  virtual void TearDown() {
+    subject = nullptr;
+  }
+
+  std::unique_ptr<URL> subject;
 };
 
+TEST_F(URLTest, InstantiatesURL) {
+  EXPECT_NE(subject, nullptr);
+}
 
-#endif //GERBERA_CURL_DOWNLOADER_MOCK_H
+TEST_F(URLTest, SupportsStatInfoFromURL) {
+  off_t size = 200;
+  auto stat = std::make_unique<URL::Stat>("http://localhost", size, "text/html");
+
+  EXPECT_NE(stat, nullptr);
+}
+
 #endif //HAVE_CURL
+
+

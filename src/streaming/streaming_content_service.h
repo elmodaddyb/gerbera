@@ -28,17 +28,16 @@
 
 #include <config/IConfigManager.h>
 #include <task/threadpool.h>
-#include <task/task_threadpool.h>
 #include <content/abstract_content_manager.h>
 #include <storage/abstract_storage.h>
 #include "streaming_content.h"
-#include "curl_downloader.h"
+#include "downloader.h"
 
 class StreamingContentService : public StreamingContent {
 public:
     StreamingContentService(std::shared_ptr<StreamingOptions>,
         std::shared_ptr<ThreadPool> threadPool,
-        std::shared_ptr<CurlDownloader> curlDownloader,
+        std::shared_ptr<Downloader> curlDownloader,
         AbstractContentManager* contentManager,
         AbstractStorage* storage);
     ~StreamingContentService() = default;
@@ -50,7 +49,7 @@ public:
 protected:
     std::shared_ptr<StreamingOptions> streamingOptions;
     std::shared_ptr<ThreadPool> threadPool;
-    std::shared_ptr<CurlDownloader> curlDownloader;
+    std::shared_ptr<Downloader> downloader;
     AbstractContentManager* contentManager;
     AbstractStorage* storage;
     std::mutex mutex;

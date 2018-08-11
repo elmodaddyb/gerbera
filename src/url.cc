@@ -39,6 +39,7 @@
 #include "config_manager.h"
 
 #include <sstream>
+#include <gerbera/url.h>
 
 using namespace zmm;
 
@@ -86,12 +87,12 @@ std::string URL::download(String URL, long *HTTP_retcode,
     if (only_header)
     {
         curl_easy_setopt(curl_handle, CURLOPT_NOBODY, 1);
-        curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, URL::dl);
+        curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, gerbera::URL::dl);
         curl_easy_setopt(curl_handle, CURLOPT_HEADERDATA, &buffer);
     }
     else
     {
-        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, URL::dl);
+        curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, gerbera::URL::dl);
         curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &buffer);
     }
 
@@ -244,17 +245,6 @@ Ref<URL::Stat> URL::getInfo(String URL, CURL *curl_handle)
         curl_easy_cleanup(curl_handle);
 
     return st;
-}
-
-
-size_t URL::dl(void *buf, size_t size, size_t nmemb, void *data)
-{
-    auto &oss = *reinterpret_cast<std::ostringstream *>(data);
-
-    size_t s = size * nmemb;
-    oss << std::string(reinterpret_cast<const char *>(buf), s);
-
-    return s;
 }
 
 #endif//HAVE_CURL

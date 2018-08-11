@@ -28,6 +28,7 @@
 #include <metadata_handler.h>
 #include <tools.h>
 #include <online_service.h>
+#include <gerbera/url.h>
 #include "streaming_content_service.h"
 #include "playlist_task.h"
 
@@ -36,12 +37,12 @@ using namespace zmm;
 StreamingContentService::StreamingContentService(
     std::shared_ptr<StreamingOptions> streamingOptions,
     std::shared_ptr<ThreadPool> threadPool,
-    std::shared_ptr<CurlDownloader> curlDownloader,
+    std::shared_ptr<Downloader> downloader,
     AbstractContentManager *contentManager,
     AbstractStorage *storage) :
     streamingOptions(std::move(streamingOptions)),
     threadPool(std::move(threadPool)),
-    curlDownloader(std::move(curlDownloader)),
+    downloader(std::move(downloader)),
     contentManager(contentManager),
     storage(storage) {
   int numCores = std::thread::hardware_concurrency();
@@ -66,7 +67,8 @@ void StreamingContentService::printUrl(std::string url) {
 }
 
 std::shared_ptr<InMemoryPlaylist> StreamingContentService::downloadPlaylist(std::string name, std::string url) {
-  std::string content = this->curlDownloader->download(url);
+  auto remoteUrl = std::make_shared<gerbera::URL>(url);
+  std::string content = this->downloader->download(remoteUrl);
   return std::make_shared<InMemoryPlaylist>(name, content);
 }
 

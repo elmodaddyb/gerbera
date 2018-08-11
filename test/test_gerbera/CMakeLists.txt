@@ -3,7 +3,8 @@ find_package(Threads REQUIRED)
 add_executable(testgerbera
         $<TARGET_OBJECTS:libgerbera>
         main.cc
-        test_exception.cc)
+        test_exception.cc
+        test_url.cc)
 
 include(DefFileName)
 define_file_path_for_sources(testgerbera)

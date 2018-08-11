@@ -89,6 +89,8 @@ set(libgerberaFILES
         src/gerbera/gerbera.h
         src/gerbera/exception.h
         src/gerbera/exception.cc
+        src/gerbera/url.h
+        src/gerbera/url.cc
         src/io_handler_buffer_helper.cc
         src/io_handler_buffer_helper.h
         src/io_handler.cc
@@ -216,8 +218,9 @@ set(libgerberaFILES
         src/streaming/playlist_task.cc
         src/streaming/inmemory_playlist.h
         src/streaming/inmemory_playlist.cc
+        src/streaming/downloader.h
         src/streaming/curl_downloader.h
-        src/streaming/curl_downloader_mock.cc
+        src/streaming/curl_downloader.cc
         src/streaming/playlist_parse_result.h
         src/streaming/playlist_parse_result.cc
         src/string_converter.cc

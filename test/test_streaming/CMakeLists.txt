@@ -14,7 +14,8 @@ add_executable(teststreaming
         test_streaming_options.cc
         test_shoutcast_options.cc
         test_streaming_content_service.cc
-        test_inmemory_playlist.cc)
+        test_inmemory_playlist.cc
+        test_curldownloader.cc)
 
 include(DefFileName)
 define_file_path_for_sources(teststreaming)

@@ -11,9 +11,9 @@
 
 #include "streaming/configured_playlist.h"
 #include "mock/task_threadpool_mock.h"
-#include "mock/curl_downloader_mock.h"
 #include "mock/content_manager_mock.h"
 #include "mock/storage_mock.h"
+#include "mock/curl_downloader_mock.h"
 
 using namespace zmm;
 using namespace mxml;

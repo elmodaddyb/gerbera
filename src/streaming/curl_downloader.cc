@@ -22,8 +22,33 @@
 
 /// \file curl_downloader_mock.cc
 
-#include "curl_downloader.h"
+#ifdef HAVE_CURL
 
-std::string CurlDownloader::download(std::string url) {
-  return "";
+#include <curl/curl.h>
+#include <gerbera/gerbera.h>
+#include <gerbera/url.h>
+#include "curl_downloader.h"
+using namespace gerbera;
+
+std::string CurlDownloader::download(const std::shared_ptr<URL>& url) {
+  long retcode;
+  CURL *curl_handle;
+  curl_handle = curl_easy_init();
+  std::string result;
+  try {
+    result = url->download(&retcode, curl_handle, false, false, true);
+    if (retcode != 200) {
+      result = "";
+    }
+  } catch (gerbera::Exception &ex) {
+    log_error("Exception: %s\n", ex.getMessage().c_str());
+    result = "";
+  }
+
+  if (curl_handle) {
+    curl_easy_cleanup(curl_handle);
+  }
+  return result;
 };
+
+#endif //HAVE_CURL

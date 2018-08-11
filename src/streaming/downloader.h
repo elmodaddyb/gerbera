@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  curl_downloader.h - this file is part of Gerbera.
+  downloader.h - this file is part of Gerbera.
 
   Copyright (C) 2018 Gerbera Contributors
 
@@ -20,23 +20,18 @@
   $Id$
 */
 
-/// \file curl_downloader.h
-
-#ifdef HAVE_CURL
-
-#ifndef GERBERA_CURLDOWNLOADER_H
-#define GERBERA_CURLDOWNLOADER_H
-
+/// \file downloader.h
 #include <string>
+#include <memory>
 #include <gerbera/url.h>
-#include "downloader.h"
 
-class CurlDownloader : public Downloader {
+#ifndef GERBERA_DOWNLOADER_H
+#define GERBERA_DOWNLOADER_H
+
+class Downloader {
  public:
-  CurlDownloader() = default;
-  ~CurlDownloader() = default;
-  std::string download(const std::shared_ptr<gerbera::URL>& url) override;
+  virtual ~Downloader() {};
+  virtual std::string download(const std::shared_ptr<gerbera::URL>& url) = 0;
 };
 
-#endif //GERBERA_CURLDOWNLOADER_H
-#endif //HAVE_CURL
+#endif //GERBERA_DOWNLOADER_H

@@ -88,11 +88,6 @@ public:
                                          bool redirect=false);
 
     zmm::Ref<Stat> getInfo(zmm::String URL, CURL *curl_handle = NULL );
-
-protected:
-    /// \brief This function is installed as a callback for libcurl, when
-    /// we download data from a remote site.
-    static size_t dl(void *buf, size_t size, size_t nmemb, void *data);
 };
 
 #endif//__URL_H__

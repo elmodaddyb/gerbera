@@ -37,6 +37,7 @@
 #include <unistd.h>
 #include <streaming/streaming_content_service.h>
 #include <task/task_threadpool.h>
+#include <streaming/curl_downloader.h>
 
 #include "config_manager.h"
 #include "content_manager.h"
@@ -253,8 +254,8 @@ ContentManager::ContentManager()
 
     auto streamingOptions = cm->getStreamingOptions();
     if(streamingOptions) {
-        auto taskThreadPool = std::make_unique<TaskThreadPool>();
-        auto curlDownloader = std::make_unique<CurlDownloader>();
+        auto taskThreadPool = std::make_shared<TaskThreadPool>();
+        auto curlDownloader = std::make_shared<CurlDownloader>();
         this->streamingContentService = std::make_shared<StreamingContentService>(
             streamingOptions,
             std::move(taskThreadPool),

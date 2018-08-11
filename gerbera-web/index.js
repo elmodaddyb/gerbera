@@ -5,6 +5,7 @@ var staticPath = path.join(__dirname, '../web')
 var port = process.env.npm_package_config_webserver_port
 
 app.use(express.static(staticPath))
+app.use('/mock-playlists', express.static('mock-playlists'));
 
 require('./mock-api/routes')(app)
 

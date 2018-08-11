@@ -72,6 +72,9 @@ class ExceptionTest : public ::testing::Test {
     uuid_generate(uuid);
     uuid_unparse(uuid, uuid_str);
 #endif
+#ifdef BSD_NATIVE_UUID
+    free(uuid_str);
+#endif
 
     std::stringstream ss;
     ss << CMAKE_BINARY_DIR << DIR_SEPARATOR << "test" << DIR_SEPARATOR << "test_gerbera" << DIR_SEPARATOR << uuid_str << ".log";

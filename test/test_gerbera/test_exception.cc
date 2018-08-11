@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <string>
 #include <fstream>
+#include <memory>
 #include <streambuf>
 #ifdef BSD_NATIVE_UUID
 #include <uuid.h>

@@ -1,7 +1,11 @@
 #include <array>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#ifdef BSD_NATIVE_UUID
+#include <uuid.h>
+#else
 #include <uuid/uuid.h>
+#endif
 #include <fstream>
 #include <ftw.h>
 

@@ -33,6 +33,7 @@ set(WITH_LASTFM         0 CACHE BOOL "Enable LastFM")
 set(WITH_DEBUG          1 CACHE BOOL "Enables debug logging")
 set(WITH_TESTS          0 CACHE BOOL "Enables Unit Tests")
 set(WITH_SHOUTCAST      0 CACHE BOOL "Enable Shoutcast Service")
+set(WITH_BACKTRACE      0 CACHE BOOL "Enable Backtrace")
 
 
 set(libgerberaFILES
@@ -85,6 +86,8 @@ set(libgerberaFILES
         src/filesystem.h
         src/generic_task.cc
         src/generic_task.h
+        src/gerbera/exception.h
+        src/gerbera/exception.cc
         src/io_handler_buffer_helper.cc
         src/io_handler_buffer_helper.h
         src/io_handler.cc
@@ -582,6 +585,17 @@ if(WITH_SYSTEMD)
         INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/gerbera.service DESTINATION ${SYSTEMD_UNIT_DIR} COMPONENT init)
     else()
         message(FATAL_ERROR "Systemd not found")
+    endif()
+endif()
+
+if(WITH_BACKTRACE)
+    find_package(Backtrace)
+    if(Backtrace_FOUND)
+        include_directories(${Backtrace_INCLUDE_DIRS})
+        target_link_libraries (gerbera ${Backtrace_LIBRARIES})
+        add_definitions(-DHAVE_BACKTRACE)
+    else()
+        message(FATAL_ERROR "Backtrace not found")
     endif()
 endif()
 

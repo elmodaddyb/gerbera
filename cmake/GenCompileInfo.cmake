@@ -21,7 +21,8 @@ function(generate_compile_info)
             "WITH_SYSTEMD=${WITH_SYSTEMD}"
             "WITH_LASTFM=${WITH_LASTFM}"
             "WITH_DEBUG=${WITH_DEBUG}"
-            "WITH_TESTS=${WITH_TESTS}")
+            "WITH_TESTS=${WITH_TESTS}"
+            "WITH_BACKTRACE=${WITH_BACKTRACE}")
 
     string (REPLACE ";" "\\n" COMPILE_INFO_STR "${COMPILE_INFO_LIST}")
     set(COMPILE_INFO "${COMPILE_INFO_STR}" PARENT_SCOPE)

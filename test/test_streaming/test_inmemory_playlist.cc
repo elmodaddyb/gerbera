@@ -79,20 +79,27 @@ TEST_F(InMemoryPlaylistTest, ReadsContentFirstLine) {
 }
 
 TEST_F(InMemoryPlaylistTest, ReadsContentLineByLine) {
-  std::string playlistContent = mockPlaylist("fixtures/simple.pls");
+  std::string playlistContent = mockPlaylist("fixtures/example.pls");
   subject->setContent(playlistContent);
   std::vector<std::string> expected = {
-      "[playlist]",
-      "",
-      "File1=http://relay5.181.fm:8068",
-      "Length1=-1",
-      "",
-      "File2=example2.mp3",
-      "Title2=Just some local audio that is 2mins long",
-      "Length2=120",
-      "",
-      "NumberOfEntries=2",
-      "Version=2"
+    "[playlist]",
+    "numberofentries=5",
+    "File1=http://107.191.38.213:10042/stream",
+    "Title1=(#1 - 28/500) Classic Rock 109",
+    "Length1=-1",
+    "File2=http://158.69.167.48:10042/stream",
+    "Title2=(#2 - 29/500) Classic Rock 109",
+    "Length2=-1",
+    "File3=http://142.4.197.244:10042/stream",
+    "Title3=(#3 - 29/500) Classic Rock 109",
+    "Length3=-1",
+    "File4=http://209.222.19.110:10042/stream",
+    "Title4=(#4 - 29/500) Classic Rock 109",
+    "Length4=-1",
+    "File5=http://198.27.70.42:10042/stream",
+    "Title5=(#5 - 29/500) Classic Rock 109",
+    "Length5=-1",
+    "Version=2"
   };
 
   for(auto const& value: expected) {

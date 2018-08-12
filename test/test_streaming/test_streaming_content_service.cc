@@ -110,7 +110,7 @@ TEST_F(StreamingContentServiceTest, UsingRemotePlaylistDownloadPlaylistIntoMemor
 }
 
 TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromPLS) {
-  std::string playlistContent = mockPlaylist("fixtures/remote-playlist.pls");
+  std::string playlistContent = mockPlaylist("fixtures/example.pls");
   std::shared_ptr<InMemoryPlaylist> inMemoryPlaylist = std::make_shared<InMemoryPlaylist>("Name of Playlist", std::move(playlistContent));
 
   std::shared_ptr<PlaylistParseResult> result = subject->parsePlaylist(std::move(inMemoryPlaylist));
@@ -121,7 +121,7 @@ TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromPLS) {
   EXPECT_EQ(result->getParentContainer()->getParentID(), 0);
 
   // Verify children objects
-  EXPECT_EQ(result->getChildObjects()->size(), 12);
+  EXPECT_EQ(result->getChildObjects()->size(), 5);
   for (const auto &obj : (*result->getChildObjects())) {
     EXPECT_STREQ(obj->getClass().c_str(), "object.item.audioItem"); // TODO: Playlist Item?
     EXPECT_GT(obj->getResourceCount(), 0);

@@ -33,6 +33,10 @@
 #include "streaming_content.h"
 #include "downloader.h"
 
+enum PlaylistType {
+    PLS, M3U, XSPF, UNKNOWN
+};
+
 class StreamingContentService : public StreamingContent {
 public:
     StreamingContentService(std::shared_ptr<StreamingOptions>,
@@ -42,7 +46,6 @@ public:
         AbstractStorage* storage);
     ~StreamingContentService() = default;
     void processConfiguredPlaylists() override;
-    void printUrl(std::string url) override;
     std::shared_ptr<InMemoryPlaylist> downloadPlaylist(std::string name, std::string url) override;
     std::shared_ptr<PlaylistParseResult> parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) override;
     unsigned long persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult) override;
@@ -57,6 +60,10 @@ private:
     void makeTasks(std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>>& playlists);
     std::shared_ptr<CdsContainer> createPlaylistContainer(std::string playlistName);
     int createRootContainer(std::string containerChain);
+    std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parsePLS(std::shared_ptr<InMemoryPlaylist>& playlist);
+    std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parseM3U(std::shared_ptr<InMemoryPlaylist>& playlist);
+    std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parseXSPF(std::shared_ptr<InMemoryPlaylist>& playlist);
+    PlaylistType determinePlaylistType(std::string firstLine);
 };
 
 

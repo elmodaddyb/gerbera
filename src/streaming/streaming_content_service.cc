@@ -29,6 +29,7 @@
 #include <tools.h>
 #include <online_service.h>
 #include <gerbera/url.h>
+#include <xpath.h>
 #include "streaming_content_service.h"
 #include "playlist_task.h"
 
@@ -62,10 +63,6 @@ void StreamingContentService::makeTasks(std::shared_ptr<std::vector<std::unique_
   }
 }
 
-void StreamingContentService::printUrl(std::string url) {
-  printf("\n%s\n", url.c_str());
-}
-
 std::shared_ptr<InMemoryPlaylist> StreamingContentService::downloadPlaylist(std::string name, std::string url) {
   auto remoteUrl = std::make_shared<gerbera::URL>(url);
   std::string content = this->downloader->download(remoteUrl);
@@ -73,54 +70,34 @@ std::shared_ptr<InMemoryPlaylist> StreamingContentService::downloadPlaylist(std:
 }
 
 std::shared_ptr<PlaylistParseResult> StreamingContentService::parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) {
-  struct timespec ts;
   auto parentCds = createPlaylistContainer(playlist->getName());
   auto parseResult = std::make_shared<PlaylistParseResult>(parentCds);
 
-  std::vector<std::string> playlistLines = playlist->getContentVector();
-
-  std::regex fileRegex("^File(\\d)+?=(.*)$");
-  std::regex titleRegex("^Title(\\d)+?=(.*)$");
-
-  for(unsigned long i = 0; i < playlistLines.size(); i++) {
-    auto line = playlistLines.at(i);
-    std::cmatch pieces;
-    if (std::regex_match(line.c_str(), pieces, fileRegex)) {
-      Ref<CdsItemExternalURL> newObject = zmm::Ref<CdsItemExternalURL>(new CdsItemExternalURL());
-      if(pieces.size() >= 2) {
-
-
-        newObject->setURL(pieces.str(2));
-        newObject->setClass("object.item.audioItem");
-
-        // Add HTTP Protocol
-        Ref<CdsResource> resource(new CdsResource(CH_DEFAULT));
-        String protocolInfo = renderProtocolInfo(MIMETYPE_DEFAULT, PROTOCOL);
-        resource->addAttribute(MetadataHandler::getResAttrName(R_PROTOCOLINFO), protocolInfo);
-        newObject->addResource(resource);
-
-        // Add last update timestamp
-        getTimespecNow(&ts);
-        newObject->setAuxData(_(ONLINE_SERVICE_LAST_UPDATE), String::from(ts.tv_sec));
-
-        // Get the Title
-        line = playlistLines.at(++i);
-        if (std::regex_match(line.c_str(), pieces, titleRegex)) {
-          newObject->setTitle(pieces.str(2));
-        }
-
-        // Add the item
-        try {
-          newObject->validate();
-          newObject->setVirtual(true);
-          parseResult->addItem(newObject);
-        }
-        catch (const Exception &ex) {
-          log_warning("Failed to validate newly created Configured Playlist item: %s\n", ex.getMessage().c_str());
-          continue;
-        }
-      }
+  // Determine the type of playlist
+  std::string firstLine = playlist->getContentVector().at(0);
+  PlaylistType type = determinePlaylistType(firstLine);
+  std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> playlistItems;
+  switch(type) {
+    case PLS: {
+      playlistItems = parsePLS(playlist);
+      break;
     }
+    case M3U: {
+      playlistItems = parseM3U(playlist);
+      break;
+    }
+    case XSPF: {
+      playlistItems = parseXSPF(playlist);
+      break;
+    }
+    default: {
+      playlistItems = std::make_shared<std::vector<zmm::Ref<CdsItemExternalURL>>>();
+    }
+  }
+
+  // Add items to the parseResult
+  for (const auto &item : *playlistItems) {
+    parseResult->addItem(item);
   }
 
   return parseResult;
@@ -181,3 +158,161 @@ std::shared_ptr<CdsContainer> StreamingContentService::createPlaylistContainer(s
   return parent;
 }
 
+PlaylistType StreamingContentService::determinePlaylistType(std::string firstLine) {
+  PlaylistType type;
+  std::regex plsRegex("^\\[playlist\\]$");
+  std::regex m3uRegex("^#EXTM3U$");
+  std::regex xspfRegex(".*xmlns=\"http://xspf.org/ns/0/\".*");
+  std::cmatch pieces;
+  if(std::regex_match(firstLine.c_str(), pieces, plsRegex)) {
+    type = PLS;
+  } else if (std::regex_match(firstLine.c_str(), pieces, m3uRegex)) {
+    type = M3U;
+  } else if (std::regex_match(firstLine.c_str(), pieces, xspfRegex)) {
+    type = XSPF;
+  } else {
+    type = UNKNOWN;
+  }
+  return type;
+}
+
+std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> StreamingContentService::parsePLS(std::shared_ptr<InMemoryPlaylist>& playlist) {
+  struct timespec ts;
+  auto playlistItems = std::make_shared<std::vector<zmm::Ref<CdsItemExternalURL>>>();
+  auto playlistLines = playlist->getContentVector();
+
+  std::regex fileRegex("^File(\\d)+?=(.*)$");
+  std::regex titleRegex("^Title(\\d)+?=(.*)$");
+
+  for(unsigned long i = 0; i < playlistLines.size(); i++) {
+    auto line = playlistLines.at(i);
+    std::cmatch pieces;
+    if (std::regex_match(line.c_str(), pieces, fileRegex)) {
+      Ref<CdsItemExternalURL> newObject = zmm::Ref<CdsItemExternalURL>(new CdsItemExternalURL());
+      if(pieces.size() >= 2) {
+        newObject->setURL(pieces.str(2));
+        newObject->setClass("object.item.audioItem");
+
+        // Add HTTP Protocol
+        Ref<CdsResource> resource(new CdsResource(CH_DEFAULT));
+        String protocolInfo = renderProtocolInfo(MIMETYPE_DEFAULT, PROTOCOL);
+        resource->addAttribute(MetadataHandler::getResAttrName(R_PROTOCOLINFO), protocolInfo);
+        newObject->addResource(resource);
+
+        // Add last update timestamp
+        getTimespecNow(&ts);
+        newObject->setAuxData(_(ONLINE_SERVICE_LAST_UPDATE), String::from(ts.tv_sec));
+
+        // Get the Title
+        line = playlistLines.at(++i);
+        if (std::regex_match(line.c_str(), pieces, titleRegex)) {
+          newObject->setTitle(pieces.str(2));
+        }
+
+        try {
+          newObject->validate();
+          newObject->setVirtual(true);
+          playlistItems->push_back(newObject);
+        }
+        catch (const Exception &ex) {
+          log_warning("Failed to validate newly created Configured Playlist item: %s\n", ex.getMessage().c_str());
+          continue;
+        }
+      }
+    }
+  }
+  return playlistItems;
+}
+
+std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> StreamingContentService::parseM3U(std::shared_ptr<InMemoryPlaylist>& playlist) {
+  struct timespec ts;
+  auto playlistItems = std::make_shared<std::vector<zmm::Ref<CdsItemExternalURL>>>();
+  auto playlistLines = playlist->getContentVector();
+
+  std::regex titleRegex("^(#EXTINF:)([-]?[\\d]+),(.*)$");
+
+  for(unsigned long i = 0; i < playlistLines.size(); i++) {
+    auto line = playlistLines.at(i);
+    std::cmatch pieces;
+    if (std::regex_match(line.c_str(), pieces, titleRegex)) {
+      Ref<CdsItemExternalURL> newObject = zmm::Ref<CdsItemExternalURL>(new CdsItemExternalURL());
+      if(pieces.size() >= 4) {
+        newObject->setTitle(pieces.str(3));
+        newObject->setClass("object.item.audioItem");
+
+        // Add HTTP Protocol
+        Ref<CdsResource> resource(new CdsResource(CH_DEFAULT));
+        String protocolInfo = renderProtocolInfo(MIMETYPE_DEFAULT, PROTOCOL);
+        resource->addAttribute(MetadataHandler::getResAttrName(R_PROTOCOLINFO), protocolInfo);
+        newObject->addResource(resource);
+
+        // Add last update timestamp
+        getTimespecNow(&ts);
+        newObject->setAuxData(_(ONLINE_SERVICE_LAST_UPDATE), String::from(ts.tv_sec));
+
+        // Get the URL
+        line = playlistLines.at(++i);
+        newObject->setURL(line);
+
+        try {
+          newObject->validate();
+          newObject->setVirtual(true);
+          playlistItems->push_back(newObject);
+        }
+        catch (const Exception &ex) {
+          log_warning("Failed to validate newly created Configured Playlist item: %s\n", ex.getMessage().c_str());
+          continue;
+        }
+      }
+    }
+  }
+  return playlistItems;
+}
+
+std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> StreamingContentService::parseXSPF(std::shared_ptr<InMemoryPlaylist>& playlist) {
+  struct timespec ts;
+  auto playlistItems = std::make_shared<std::vector<zmm::Ref<CdsItemExternalURL>>>();
+  auto playlistContent = playlist->getContent();
+
+  Ref<Parser> parser(new Parser());
+  zmm::Ref<mxml::Document> rootDoc =  parser->parseString(playlistContent);
+  zmm::Ref<mxml::Element> root = rootDoc->getRoot();
+  Ref<XPath> rootXPath(new XPath(root));
+  Ref<Element> trackList = rootXPath->getElement("/trackList");
+
+  Ref<Element> track;
+  for (int e = 0; e < trackList->elementChildCount(); e++) {
+    track = trackList->getElementChild(e);
+    Ref<Element> location = track->getChildByName("location");
+    Ref<Element> title = track->getChildByName("title");
+
+    Ref<CdsItemExternalURL> newObject = zmm::Ref<CdsItemExternalURL>(new CdsItemExternalURL());
+    newObject->setTitle(title->getText());
+    newObject->setClass("object.item.audioItem");
+
+    // Add HTTP Protocol
+    Ref<CdsResource> resource(new CdsResource(CH_DEFAULT));
+    String protocolInfo = renderProtocolInfo(MIMETYPE_DEFAULT, PROTOCOL);
+    resource->addAttribute(MetadataHandler::getResAttrName(R_PROTOCOLINFO), protocolInfo);
+    newObject->addResource(resource);
+
+    // Add last update timestamp
+    getTimespecNow(&ts);
+    newObject->setAuxData(_(ONLINE_SERVICE_LAST_UPDATE), String::from(ts.tv_sec));
+
+    // Get the URL
+    newObject->setURL(location->getText());
+
+    try {
+      newObject->validate();
+      newObject->setVirtual(true);
+      playlistItems->push_back(newObject);
+    }
+    catch (const Exception &ex) {
+      log_warning("Failed to validate newly created Configured Playlist item: %s\n", ex.getMessage().c_str());
+      continue;
+    }
+
+  }
+  return playlistItems;
+}

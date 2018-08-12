@@ -109,7 +109,7 @@ TEST_F(StreamingContentServiceTest, UsingRemotePlaylistDownloadPlaylistIntoMemor
   EXPECT_STREQ(result->getContent().c_str(), expectedContent.c_str());
 }
 
-TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistContentCreatesCdsObjectsIncludingParentContainer) {
+TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromPLS) {
   std::string playlistContent = mockPlaylist("fixtures/remote-playlist.pls");
   std::shared_ptr<InMemoryPlaylist> inMemoryPlaylist = std::make_shared<InMemoryPlaylist>("Name of Playlist", std::move(playlistContent));
 
@@ -122,6 +122,52 @@ TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistContentCreatesCdsObject
 
   // Verify children objects
   EXPECT_EQ(result->getChildObjects()->size(), 12);
+  for (const auto &obj : (*result->getChildObjects())) {
+    EXPECT_STREQ(obj->getClass().c_str(), "object.item.audioItem"); // TODO: Playlist Item?
+    EXPECT_GT(obj->getResourceCount(), 0);
+    zmm::Ref<CdsResource> resource = obj->getResource(0);
+    EXPECT_EQ(resource->getAttribute(MetadataHandler::getResAttrName(R_PROTOCOLINFO)), "http-get:*:application/octet-stream:*");
+    ASSERT_TRUE(obj->getAuxData(ONLINE_SERVICE_LAST_UPDATE).length() > 0);
+    ASSERT_TRUE(obj->isVirtual());
+  }
+}
+
+TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromM3U) {
+  std::string playlistContent = mockPlaylist("fixtures/example.m3u");
+  std::shared_ptr<InMemoryPlaylist> inMemoryPlaylist = std::make_shared<InMemoryPlaylist>("Name of Playlist", std::move(playlistContent));
+
+  std::shared_ptr<PlaylistParseResult> result = subject->parsePlaylist(std::move(inMemoryPlaylist));
+
+  EXPECT_NE(result, nullptr);
+  EXPECT_NE(result->getParentContainer(), nullptr);
+  EXPECT_EQ(result->getParentContainer()->getTitle(), "Name of Playlist");
+  EXPECT_EQ(result->getParentContainer()->getParentID(), 0);
+
+  // Verify children objects
+  EXPECT_EQ(result->getChildObjects()->size(), 8);
+  for (const auto &obj : (*result->getChildObjects())) {
+    EXPECT_STREQ(obj->getClass().c_str(), "object.item.audioItem"); // TODO: Playlist Item?
+    EXPECT_GT(obj->getResourceCount(), 0);
+    zmm::Ref<CdsResource> resource = obj->getResource(0);
+    EXPECT_EQ(resource->getAttribute(MetadataHandler::getResAttrName(R_PROTOCOLINFO)), "http-get:*:application/octet-stream:*");
+    ASSERT_TRUE(obj->getAuxData(ONLINE_SERVICE_LAST_UPDATE).length() > 0);
+    ASSERT_TRUE(obj->isVirtual());
+  }
+}
+
+TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromXSPF) {
+  std::string playlistContent = mockPlaylist("fixtures/example.xspf");
+  std::shared_ptr<InMemoryPlaylist> inMemoryPlaylist = std::make_shared<InMemoryPlaylist>("Name of Playlist", std::move(playlistContent));
+
+  std::shared_ptr<PlaylistParseResult> result = subject->parsePlaylist(std::move(inMemoryPlaylist));
+
+  EXPECT_NE(result, nullptr);
+  EXPECT_NE(result->getParentContainer(), nullptr);
+  EXPECT_EQ(result->getParentContainer()->getTitle(), "Name of Playlist");
+  EXPECT_EQ(result->getParentContainer()->getParentID(), 0);
+
+  // Verify children objects
+  EXPECT_EQ(result->getChildObjects()->size(), 2);
   for (const auto &obj : (*result->getChildObjects())) {
     EXPECT_STREQ(obj->getClass().c_str(), "object.item.audioItem"); // TODO: Playlist Item?
     EXPECT_GT(obj->getResourceCount(), 0);

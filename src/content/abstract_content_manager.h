@@ -31,7 +31,7 @@
 class AbstractContentManager {
 
  public:
-  virtual ~AbstractContentManager() {}
+  virtual ~AbstractContentManager() = default;
   virtual int addContainer(int parentID, zmm::String title, zmm::String upnpClass) = 0;
   virtual void addObject(zmm::Ref<CdsObject> obj) = 0;
   virtual int addContainerChain(zmm::String chain, zmm::String lastClass, int lastRefID, zmm::Ref<Dictionary> lastMetadata) = 0;

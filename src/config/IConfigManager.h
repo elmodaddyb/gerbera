@@ -33,7 +33,7 @@
 class IConfigManager {
 
 public:
-    virtual ~IConfigManager() {}
+    virtual ~IConfigManager() = default;
 #ifdef ONLINE_SERVICES
     virtual std::shared_ptr<StreamingOptions> getStreamingOptions() = 0;
 #endif

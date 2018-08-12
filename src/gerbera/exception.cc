@@ -74,11 +74,9 @@ void Exception::printStackTrace(FILE *file) const {
     fprintf(file, "Exception: %s\n", message.c_str());
   }
 #if defined HAVE_BACKTRACE
-
   for(auto const& value: stackTrace) {
     fprintf(file, "%s\n", value.c_str());
   }
-
   fflush(file);
 #endif // HAVE_BACKTRACE
 }

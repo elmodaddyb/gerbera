@@ -33,6 +33,16 @@
 #include "streaming_content.h"
 #include "downloader.h"
 
+#define REGEX_PLAYLIST  "^\\[playlist\\]$"
+#define REGEX_PLS_FILE  "^File(\\d)+?=(.*)$"
+#define REGEX_PLS_TITLE "^Title(\\d)+?=(.*)$"
+#define REGEX_M3U       "^#EXTM3U$"
+#define REGEX_M3U_TITLE "^(#EXTINF:)([-]?[\\d]+),(.*)$"
+#define REGEX_XSPF_XML  ".*xmlns=\"http://xspf.org/ns/0/\".*"
+#define XSPF_TRACKLIST  "/trackList"
+#define XSPF_LOCATION   "location"
+#define XSPF_TITLE      "title"
+
 enum PlaylistType {
     PLS, M3U, XSPF, UNKNOWN
 };
@@ -44,7 +54,7 @@ public:
         std::shared_ptr<Downloader> curlDownloader,
         AbstractContentManager* contentManager,
         AbstractStorage* storage);
-    ~StreamingContentService() = default;
+    ~StreamingContentService() override = default;
     void processConfiguredPlaylists() override;
     std::shared_ptr<InMemoryPlaylist> downloadPlaylist(std::string name, std::string url) override;
     std::shared_ptr<PlaylistParseResult> parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) override;
@@ -64,6 +74,7 @@ private:
     std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parseM3U(std::shared_ptr<InMemoryPlaylist>& playlist);
     std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parseXSPF(std::shared_ptr<InMemoryPlaylist>& playlist);
     PlaylistType determinePlaylistType(std::string firstLine);
+    zmm::Ref<CdsItemExternalURL> createExternalUrl(std::string title, std::string location);
 };
 
 

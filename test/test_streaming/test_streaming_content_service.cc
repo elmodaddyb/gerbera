@@ -123,7 +123,7 @@ TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromPLS) {
   // Verify children objects
   EXPECT_EQ(result->getChildObjects()->size(), 5);
   for (const auto &obj : (*result->getChildObjects())) {
-    EXPECT_STREQ(obj->getClass().c_str(), "object.item.audioItem"); // TODO: Playlist Item?
+    EXPECT_STREQ(obj->getClass().c_str(), UPNP_DEFAULT_CLASS_MUSIC_TRACK); // TODO: Playlist Item?
     EXPECT_GT(obj->getResourceCount(), 0);
     zmm::Ref<CdsResource> resource = obj->getResource(0);
     EXPECT_EQ(resource->getAttribute(MetadataHandler::getResAttrName(R_PROTOCOLINFO)), "http-get:*:application/octet-stream:*");
@@ -146,7 +146,7 @@ TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromM3U) {
   // Verify children objects
   EXPECT_EQ(result->getChildObjects()->size(), 8);
   for (const auto &obj : (*result->getChildObjects())) {
-    EXPECT_STREQ(obj->getClass().c_str(), "object.item.audioItem"); // TODO: Playlist Item?
+    EXPECT_STREQ(obj->getClass().c_str(), UPNP_DEFAULT_CLASS_MUSIC_TRACK);
     EXPECT_GT(obj->getResourceCount(), 0);
     zmm::Ref<CdsResource> resource = obj->getResource(0);
     EXPECT_EQ(resource->getAttribute(MetadataHandler::getResAttrName(R_PROTOCOLINFO)), "http-get:*:application/octet-stream:*");
@@ -169,7 +169,7 @@ TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromXSPF) {
   // Verify children objects
   EXPECT_EQ(result->getChildObjects()->size(), 2);
   for (const auto &obj : (*result->getChildObjects())) {
-    EXPECT_STREQ(obj->getClass().c_str(), "object.item.audioItem"); // TODO: Playlist Item?
+    EXPECT_STREQ(obj->getClass().c_str(), UPNP_DEFAULT_CLASS_MUSIC_TRACK); // TODO: Playlist Item?
     EXPECT_GT(obj->getResourceCount(), 0);
     zmm::Ref<CdsResource> resource = obj->getResource(0);
     EXPECT_EQ(resource->getAttribute(MetadataHandler::getResAttrName(R_PROTOCOLINFO)), "http-get:*:application/octet-stream:*");

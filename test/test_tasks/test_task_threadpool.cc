@@ -14,21 +14,23 @@ class TaskThreadPoolTest : public ::testing::Test {
 
 public:
 
-    TaskThreadPoolTest() {};
+    TaskThreadPoolTest() {
+      numCores = 0;
+    };
 
-    virtual ~TaskThreadPoolTest() {};
+    ~TaskThreadPoolTest() override = default;
 
-    virtual void SetUp() {
+    void SetUp() override {
       subject = std::make_unique<TaskThreadPool>();
       numCores = std::thread::hardware_concurrency();
     }
 
-    virtual void TearDown() {
+    void TearDown() override {
       subject = nullptr;
     }
 
     std::unique_ptr<TaskThreadPool> subject;
-    int numCores;
+    unsigned int numCores;
 };
 
 TEST_F(TaskThreadPoolTest, InitializesQueueToEmpty) {
@@ -67,7 +69,7 @@ TEST_F(TaskThreadPoolTest, InitializesProcessedToZero) {
 
 TEST_F(TaskThreadPoolTest, ProvidesStartMethodToInitializePool) {
   EXPECT_EQ(subject->getPoolSize(), 0);
-  int numCores = std::thread::hardware_concurrency();
+  unsigned int numCores = std::thread::hardware_concurrency();
 
   subject->start(numCores);
 

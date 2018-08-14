@@ -34,7 +34,7 @@
 #define __CONFIG_MANAGER_H__
 
 #include <streaming/streaming_options.h>
-#include <config/IConfigManager.h>
+#include <config/gerbera_conf_manager.h>
 #include "common.h"
 #include "mxml/mxml.h"
 #include "singleton.h"
@@ -180,7 +180,7 @@ typedef enum
     CFG_MAX
 } config_option_t;
 
-class ConfigManager : public Singleton<ConfigManager, std::mutex>, public IConfigManager
+class ConfigManager : public Singleton<ConfigManager, std::mutex>, public GerberaConfManager
 {
 public:
     ConfigManager();

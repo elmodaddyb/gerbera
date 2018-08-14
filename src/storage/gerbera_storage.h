@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  shoutcast_options.cc - this file is part of Gerbera.
+  gerbera_storage.h - this file is part of Gerbera.
 
   Copyright (C) 2018 Gerbera Contributors
 
@@ -20,29 +20,18 @@
   $Id$
 */
 
-/// \file shoutcast_options.cc
+/// \file gerbera_storage.h
 
-#include "shoutcast_options.h"
+#ifndef GERBERA_ABSTRACT_STORAGE_H
+#define GERBERA_ABSTRACT_STORAGE_H
 
-ShoutcastOptions::ShoutcastOptions(std::string baseUrl, std::string devId, bool enabled) {
-  this->baseUrl = baseUrl;
-  this->devId = devId;
-  this->enabled = enabled;
-}
+#include <cds_objects.h>
+class GerberaStorage {
 
-ShoutcastOptions::~ShoutcastOptions() {}
+ public:
+  virtual ~GerberaStorage() {}
+  virtual zmm::Ref<CdsObject> loadObject(int objectID) = 0;
+  virtual zmm::Ref<CdsObject> findVirtualObjectByPath(zmm::String fullpath) = 0;
+};
 
-std::string ShoutcastOptions::getBaseUrl() {
-  return baseUrl;
-}
-
-std::string ShoutcastOptions::getDevId() {
-  return devId;
-}
-
-bool ShoutcastOptions::isEnabled() {
-  return enabled;
-}
-
-
-
+#endif //GERBERA_ABSTRACT_STORAGE_H

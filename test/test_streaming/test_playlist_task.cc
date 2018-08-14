@@ -5,7 +5,6 @@
 #include <streaming/playlist_task.h>
 #include <streaming/playlist_parse_result.h>
 
-#include "streaming/configured_playlist.h"
 #include "mock/task_threadpool_mock.h"
 #include "mock/streaming_service_mock.h"
 
@@ -15,20 +14,17 @@ using namespace mxml;
 class PlaylistTaskTest : public ::testing::Test {
 
  public:
-
-  PlaylistTaskTest() {};
-
-  virtual ~PlaylistTaskTest() {};
-
-  virtual void SetUp() {
-    streamingService.reset(new ::testing::NiceMock<StreamingServiceMock>());
+  PlaylistTaskTest() = default;
+  ~PlaylistTaskTest() override = default;
+  void SetUp() override {
+    streamingService =  std::make_shared<::testing::NiceMock<StreamingServiceMock>>();
     subject = std::make_unique<PlaylistTask>("http://localhost/playlist", "Name of Playlist", streamingService.get());
   }
-  virtual void TearDown() {
+  void TearDown() override {
     subject = nullptr;
   }
 
-  std::string mockPlaylist(std::string mockFile) {
+  std::string mockPlaylist(std::string& mockFile) {
     std::ifstream t(mockFile);
     std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
     return str;
@@ -38,7 +34,7 @@ class PlaylistTaskTest : public ::testing::Test {
   std::shared_ptr<StreamingServiceMock> streamingService;
 };
 
-TEST_F(PlaylistTaskTest, CreateRemotePlaylistObject) {
+TEST_F(PlaylistTaskTest, CreatePlaylistTaskObject) {
   ASSERT_NE(subject, nullptr);
 }
 

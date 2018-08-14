@@ -11,7 +11,6 @@
 
 #include <config_manager.h>
 #include <config/config_generator.h>
-#include <streaming/streaming_playlists.h>
 #include <streaming/streaming_options.h>
 
 using namespace zmm;
@@ -161,8 +160,8 @@ TEST_F(ConfigManagerTest, LoadsDefaultStreamingOptions) {
   subject->init();
 
   auto streamingOptions = subject->getStreamingOptions();
-  auto shoutcastOption = streamingOptions->getShoutcastOptions();
-  auto playlists = streamingOptions->getPlaylists();
+  auto shoutcastOption = streamingOptions->shoutcastOptions();
+  auto playlists = streamingOptions->playlists();
 
   ASSERT_NE(streamingOptions, nullptr);
   ASSERT_NE(shoutcastOption, nullptr);

@@ -29,24 +29,15 @@
 #include "task.h"
 
 class ThreadPool {
-
 public:
-    virtual long long getPoolSize() = 0;
-
-    virtual long long getQueueSize() = 0;
-
-    virtual long long tasksReceived() = 0;
-
-    virtual long long tasksCompleted() = 0;
-
+    virtual size_t getPoolSize() = 0;
+    virtual size_t getQueueSize() = 0;
+    virtual size_t tasksReceived() = 0;
+    virtual size_t tasksCompleted() = 0;
     virtual void enqueue(std::shared_ptr<Task> t) = 0;
-
     virtual bool isShutdown() = 0;
-
     virtual void start(size_t numberOfThreads) = 0;
-
     virtual void stop() = 0;
-
     virtual ~ThreadPool() = default;
 };
 #endif //GERBERA_THREADPOOL_H

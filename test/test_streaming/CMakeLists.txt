@@ -9,10 +9,8 @@ add_executable(teststreaming
         mock/curl_downloader_mock.h
         mock/content_manager_mock.h
         mock/storage_mock.h
-        test_streaming_playlists.cc
         test_playlist_task.cc
         test_streaming_options.cc
-        test_shoutcast_options.cc
         test_streaming_content_service.cc
         test_inmemory_playlist.cc
         test_curldownloader.cc)

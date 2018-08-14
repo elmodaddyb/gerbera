@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  shoutcast_options.h - this file is part of Gerbera.
+  gerbera_content_manager.h - this file is part of Gerbera.
 
   Copyright (C) 2018 Gerbera Contributors
 
@@ -20,23 +20,22 @@
   $Id$
 */
 
-/// \file shoutcast_options.h
+/// \file gerbera_content_manager.cc
 
-#ifndef GERBERA_SHOUTCAST_OPTIONS_H
-#define GERBERA_SHOUTCAST_OPTIONS_H
+#ifndef GERBERA_ICONTENTMANAGER_H
+#define GERBERA_ICONTENTMANAGER_H
 
-#include <string>
-class ShoutcastOptions {
+#include "zmm/zmm.h"
+#include "cds_objects.h"
+
+class GerberaContentManager {
+
  public:
-  ShoutcastOptions(std::string baseUrl, std::string devId, bool enabled);
-  ~ShoutcastOptions();
-  std::string getBaseUrl();
-  std::string getDevId();
-  bool isEnabled();
- private:
-  std::string baseUrl;
-  std::string devId;
-  bool enabled = false;
+  virtual ~GerberaContentManager() = default;
+  virtual int addContainer(int parentID, zmm::String title, zmm::String upnpClass) = 0;
+  virtual void addObject(zmm::Ref<CdsObject> obj) = 0;
+  virtual int addContainerChain(zmm::String chain, zmm::String lastClass, int lastRefID, zmm::Ref<Dictionary> lastMetadata) = 0;
 };
 
-#endif //GERBERA_SHOUTCAST_OPTIONS_H
+
+#endif //GERBERA_ICONTENTMANAGER_H

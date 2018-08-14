@@ -25,11 +25,11 @@
 
 #ifndef GERBERA_CONTENT_MANAGER_MOCK_H
 #define GERBERA_CONTENT_MANAGER_MOCK_H
-#include <content/abstract_content_manager.h>
+#include <content/gerbera_content_manager.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-class ContentManagerMock : public AbstractContentManager {
+class ContentManagerMock : public GerberaContentManager {
  public:
   MOCK_METHOD3(addContainer, int(int parentID, const zmm::String title, const zmm::String upnpClass));
   MOCK_METHOD1(addObject, void(zmm::Ref<CdsObject> obj));

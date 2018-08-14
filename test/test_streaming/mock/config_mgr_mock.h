@@ -4,11 +4,11 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include <config/IConfigManager.h>
+#include <config/gerbera_conf_manager.h>
 
 using namespace ::testing;
 
-class ConfigManagerMock : public IConfigManager {
+class ConfigManagerMock : public GerberaConfManager {
 public:
     MOCK_METHOD0(getStreamingOptions, std::shared_ptr<StreamingOptions>());
 };

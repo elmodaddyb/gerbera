@@ -26,9 +26,6 @@ Gerbera - https://gerbera.io/
 #include "task_threadpool.h"
 #include "task_worker.h"
 
-TaskThreadPool::TaskThreadPool() {
-}
-
 TaskThreadPool::~TaskThreadPool() {
   if(!shutdown) {
     this->stop();
@@ -76,22 +73,22 @@ bool TaskThreadPool::isShutdown() {
   return this->shutdown;
 }
 
-long long TaskThreadPool::tasksReceived() {
+size_t TaskThreadPool::tasksReceived() {
   std::lock_guard<std::mutex> lock(mutex);
   return this->stats.received;
 }
 
-long long TaskThreadPool::tasksCompleted() {
+size_t TaskThreadPool::tasksCompleted() {
   std::lock_guard<std::mutex> lock(mutex);
   return this->stats.completed;
 }
 
-long long TaskThreadPool::getPoolSize() {
+size_t TaskThreadPool::getPoolSize() {
   std::lock_guard<std::mutex> lock(mutex);
   return this->threads.size();
 }
 
-long long TaskThreadPool::getQueueSize() {
+size_t TaskThreadPool::getQueueSize() {
   std::lock_guard<std::mutex> lock(mutex);
   return this->tasks.size();
 }

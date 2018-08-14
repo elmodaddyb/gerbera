@@ -60,13 +60,13 @@ set(libgerberaFILES
         src/common.h
         src/config/config_generator.h
         src/config/config_generator.cc
-        src/config/IConfigManager.h
+        src/config/gerbera_conf_manager.h
         src/config_manager.cc
         src/config_manager.h
         src/config_options.h
         src/content_manager.cc
         src/content_manager.h
-        src/content/abstract_content_manager.h
+        src/content/gerbera_content_manager.h
         src/contrib/md5.c
         src/contrib/md5.h
         src/curl_io_handler.cc
@@ -202,15 +202,9 @@ set(libgerberaFILES
         src/storage/sql_storage.h
         src/storage/storage_cache.cc
         src/storage/storage_cache.h
-        src/storage/abstract_storage.h
-        src/streaming/streaming_playlists.h
-        src/streaming/streaming_playlists.cc
-        src/streaming/configured_playlist.h
-        src/streaming/configured_playlist.cc
+        src/storage/gerbera_storage.h
         src/streaming/streaming_options.h
         src/streaming/streaming_options.cc
-        src/streaming/shoutcast_options.h
-        src/streaming/shoutcast_options.cc
         src/streaming/streaming_content.h
         src/streaming/streaming_content_service.cc
         src/streaming/streaming_content_service.h

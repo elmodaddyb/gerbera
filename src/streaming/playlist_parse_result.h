@@ -26,9 +26,10 @@
 #define GERBERA_PLAYLISTPARSERESULT_H
 
 #include <cds_objects.h>
+
 class PlaylistParseResult {
  public:
-  PlaylistParseResult(std::shared_ptr<CdsContainer> parent);
+  explicit PlaylistParseResult(std::shared_ptr<CdsContainer> parent);
   ~PlaylistParseResult();
   std::shared_ptr<CdsContainer> getParentContainer();
   std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> getChildObjects();

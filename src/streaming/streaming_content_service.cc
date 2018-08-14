@@ -39,25 +39,26 @@ StreamingContentService::StreamingContentService(
     std::shared_ptr<StreamingOptions> streamingOptions,
     std::shared_ptr<ThreadPool> threadPool,
     std::shared_ptr<Downloader> downloader,
-    AbstractContentManager *contentManager,
-    AbstractStorage *storage) :
+    GerberaContentManager *contentManager,
+    GerberaStorage *storage) :
     streamingOptions(std::move(streamingOptions)),
     threadPool(std::move(threadPool)),
     downloader(std::move(downloader)),
     contentManager(contentManager),
     storage(storage) {
-  int numCores = std::thread::hardware_concurrency();
-  this->threadPool->start(numCores - 2); // TODO make this number right...
+    // Number of Cores - 1 OR 1
+    int numThreads = std::max(std::thread::hardware_concurrency(), 2u) - 1u;
+    this->threadPool->start(numThreads);
 }
 
 void StreamingContentService::processConfiguredPlaylists() {
-  std::shared_ptr<StreamingPlaylists> playlists = this->streamingOptions->getPlaylists();
-  std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> remotePlaylists = playlists->getPlaylists();
+  auto playlists = this->streamingOptions->playlists();
+  auto remotePlaylists = playlists->getPlaylists();
   makeTasks(remotePlaylists);
 }
 
-void StreamingContentService::makeTasks(std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>>& remotePlaylists) {
-  for (const auto &playlist : *remotePlaylists) {
+void StreamingContentService::makeTasks(std::shared_ptr<std::vector<std::unique_ptr<StreamingOptions::ConfiguredPlaylist>>>& configuredPlaylists) {
+  for (const auto &playlist : *configuredPlaylists) {
     std::shared_ptr<PlaylistTask> task = std::make_shared<PlaylistTask>(playlist->getUrl(), playlist->getName(), this);
     this->threadPool->enqueue(task);
   }
@@ -105,7 +106,7 @@ unsigned long StreamingContentService::persistPlaylist(std::shared_ptr<PlaylistP
   unsigned long objectsAdded = 0;
 
   // Create the wrapping container
-  std::string rootVirtualPath = this->streamingOptions->getPlaylists()->getRootVirtualPath();
+  std::string rootVirtualPath = this->streamingOptions->playlists()->getRootVirtualPath();
   int containerId = createRootContainer(rootVirtualPath);
 
   // Create the playlist container

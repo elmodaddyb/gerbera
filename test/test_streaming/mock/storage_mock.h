@@ -24,11 +24,11 @@
 
 #ifndef GERBERA_STORAGE_MOCK_H
 #define GERBERA_STORAGE_MOCK_H
-#include <storage/abstract_storage.h>
+#include <storage/gerbera_storage.h>
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-class StorageMock : public AbstractStorage {
+class StorageMock : public GerberaStorage {
  public:
     MOCK_METHOD1(loadObject, zmm::Ref<CdsObject>(int objectID));
     MOCK_METHOD1(findVirtualObjectByPath, zmm::Ref<CdsObject>(zmm::String fullpath));

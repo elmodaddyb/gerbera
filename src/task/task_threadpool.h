@@ -36,17 +36,12 @@ Gerbera - https://gerbera.io/
 
 class TaskThreadPool : public ThreadPool {
 public:
-    TaskThreadPool();
-
-    ~TaskThreadPool();
-
-    long long getPoolSize() override;
-
-    long long getQueueSize() override;
-
-    long long tasksReceived() override;
-
-    long long tasksCompleted() override;
+    TaskThreadPool() = default;
+    ~TaskThreadPool() override;
+    size_t getPoolSize() override;
+    size_t getQueueSize() override;
+    size_t tasksReceived() override;
+    size_t tasksCompleted() override;
 
     void enqueue(std::shared_ptr<Task> t) override;
 
@@ -61,7 +56,6 @@ protected:
     std::queue<std::shared_ptr<Task>> tasks;
 private:
     friend class Worker;
-
     std::mutex mutex;
     std::condition_variable cond;
     bool shutdown = true;

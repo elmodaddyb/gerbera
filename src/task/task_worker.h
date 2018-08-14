@@ -30,7 +30,7 @@
 
 class Worker {
 public:
-    Worker(TaskThreadPool &s);
+    explicit Worker(TaskThreadPool &s);
     void operator()();
 private:
     TaskThreadPool &pool;

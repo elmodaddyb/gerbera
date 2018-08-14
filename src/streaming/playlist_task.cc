@@ -45,7 +45,3 @@ void PlaylistTask::run() {
   completionMsg << "Playlist Items: " << itemsAdded << "\n";
   log_info(completionMsg.str().c_str());
 }
-
-std::string PlaylistTask::getUrl() {
-  return this->url;
-}

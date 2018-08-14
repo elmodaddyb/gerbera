@@ -26,20 +26,59 @@
 #define GERBERA_STREAMING_OPTIONS_H
 
 #include <mxml/mxml.h>
-#include "streaming_playlists.h"
-#include "shoutcast_options.h"
+
 using namespace mxml;
 
 class StreamingOptions {
- public:
-  StreamingOptions(zmm::Ref<Element> streamingElement);
-  ~StreamingOptions();
-  std::shared_ptr<StreamingPlaylists> getPlaylists();
-  std::shared_ptr<ShoutcastOptions> getShoutcastOptions();
+public:
+    class ConfiguredPlaylist {
+    public:
+        ConfiguredPlaylist() = default;
+        explicit ConfiguredPlaylist(std::string url, std::string name);
+        virtual ~ConfiguredPlaylist() = default;
+        std::string getUrl();
+        std::string getName();
+    private:
+        std::string url;
+        std::string name;
+    };
 
- private:
-  std::shared_ptr<StreamingPlaylists> playlists;
-  std::shared_ptr<ShoutcastOptions> shoutcast;
+    class Playlists {
+    public:
+        explicit Playlists(std::string rootVirtualPath);
+        ~Playlists() = default;
+        unsigned long getSize();
+        void addPlaylist(std::unique_ptr<ConfiguredPlaylist> playlist);
+        std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> getPlaylists();
+        std::string getRootVirtualPath();
+
+    private:
+        std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> confPlaylists;
+        std::string rootVirtualPath;
+    };
+
+    class Shoutcast {
+    public:
+        Shoutcast(std::string baseUrl, std::string devId, bool enabled);
+        ~Shoutcast() = default;
+        std::string getBaseUrl();
+        std::string getDevId();
+        bool isEnabled();
+
+    private:
+        std::string baseUrl;
+        std::string devId;
+        bool enabled = false;
+    };
+
+    explicit StreamingOptions(zmm::Ref<Element> streamingElement);
+    ~StreamingOptions();
+    std::shared_ptr<Playlists> playlists();
+    std::shared_ptr<Shoutcast> shoutcastOptions();
+
+private:
+    std::shared_ptr<Playlists> _playlists;
+    std::shared_ptr<Shoutcast> shoutcast;
 };
 
 #endif //GERBERA_STREAMING_OPTIONS_H

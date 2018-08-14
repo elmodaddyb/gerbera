@@ -36,7 +36,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <streaming/streaming_content_service.h>
-#include <content/abstract_content_manager.h>
+#include <content/gerbera_content_manager.h>
 
 #include "common.h"
 #include "cds_objects.h"
@@ -162,7 +162,7 @@ public:
 };
 */
 
-class ContentManager : public Timer::Subscriber, public Singleton<ContentManager, std::recursive_mutex>, public AbstractContentManager
+class ContentManager : public Timer::Subscriber, public Singleton<ContentManager, std::recursive_mutex>, public GerberaContentManager
 {
 public:
     ContentManager();

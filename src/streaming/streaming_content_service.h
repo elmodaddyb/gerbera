@@ -26,10 +26,10 @@
 #define GERBERA_STREAMING_CONTENT_SERVICE_H
 
 
-#include <config/IConfigManager.h>
+#include <config/gerbera_conf_manager.h>
 #include <task/threadpool.h>
-#include <content/abstract_content_manager.h>
-#include <storage/abstract_storage.h>
+#include <content/gerbera_content_manager.h>
+#include <storage/gerbera_storage.h>
 #include "streaming_content.h"
 #include "downloader.h"
 
@@ -52,8 +52,8 @@ public:
     StreamingContentService(std::shared_ptr<StreamingOptions>,
         std::shared_ptr<ThreadPool> threadPool,
         std::shared_ptr<Downloader> curlDownloader,
-        AbstractContentManager* contentManager,
-        AbstractStorage* storage);
+        GerberaContentManager* contentManager,
+        GerberaStorage* storage);
     ~StreamingContentService() override = default;
     void processConfiguredPlaylists() override;
     std::shared_ptr<InMemoryPlaylist> downloadPlaylist(std::string name, std::string url) override;
@@ -63,11 +63,11 @@ protected:
     std::shared_ptr<StreamingOptions> streamingOptions;
     std::shared_ptr<ThreadPool> threadPool;
     std::shared_ptr<Downloader> downloader;
-    AbstractContentManager* contentManager;
-    AbstractStorage* storage;
+    GerberaContentManager* contentManager;
+    GerberaStorage* storage;
     std::mutex mutex;
 private:
-    void makeTasks(std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>>& playlists);
+    void makeTasks(std::shared_ptr<std::vector<std::unique_ptr<StreamingOptions::ConfiguredPlaylist>>>& playlists);
     std::shared_ptr<CdsContainer> createPlaylistContainer(std::string playlistName);
     int createRootContainer(std::string containerChain);
     std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parsePLS(std::shared_ptr<InMemoryPlaylist>& playlist);

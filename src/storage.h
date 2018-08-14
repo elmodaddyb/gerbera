@@ -36,7 +36,7 @@
 #include <unordered_set>
 #include <vector>
 #include <string>
-#include <storage/abstract_storage.h>
+#include <storage/gerbera_storage.h>
 
 #include "zmm/zmmf.h"
 #include "singleton.h"
@@ -123,7 +123,7 @@ public:
     int getRequestedCount() { return requestedCount; };
 };
 
-class Storage : public Singleton<Storage, std::mutex>, public AbstractStorage
+class Storage : public Singleton<Storage, std::mutex>, public GerberaStorage
 {
 public:
     static zmm::Ref<Storage> getInstance();

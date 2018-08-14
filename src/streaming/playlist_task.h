@@ -26,17 +26,15 @@
 #define GERBERA_PLAYLISTTASK_H
 
 
-#include <task/task.h>
-#include "configured_playlist.h"
-#include "streaming_content_service.h"
 #include <string>
+#include <task/task.h>
+#include "streaming_content_service.h"
 
 class PlaylistTask : public Task {
 public:
     PlaylistTask(std::string url, std::string name, StreamingContent* streamingContentService);
     ~PlaylistTask() = default;
     void run() override;
-    std::string getUrl();
 
 private:
     StreamingContent* streamingContentService;

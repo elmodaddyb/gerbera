@@ -9,7 +9,6 @@
 #include <metadata_handler.h>
 #include <online_service.h>
 
-#include "streaming/configured_playlist.h"
 #include "mock/task_threadpool_mock.h"
 #include "mock/content_manager_mock.h"
 #include "mock/storage_mock.h"

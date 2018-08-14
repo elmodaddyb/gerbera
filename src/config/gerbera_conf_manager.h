@@ -1,7 +1,7 @@
 /*GRB*
   Gerbera - https://gerbera.io/
 
-  abstract_content_manager.h - this file is part of Gerbera.
+  gerbera_conf_manager.h - this file is part of Gerbera.
 
   Copyright (C) 2018 Gerbera Contributors
 
@@ -20,22 +20,22 @@
   $Id$
 */
 
-/// \file abstract_content_manager.cc
+/// \file gerbera_conf_manager.h
 
-#ifndef GERBERA_ICONTENTMANAGER_H
-#define GERBERA_ICONTENTMANAGER_H
+#ifndef GERBERA_ICONFIGMANAGER_H
 
-#include "zmm/zmm.h"
-#include "cds_objects.h"
+#define GERBERA_ICONFIGMANAGER_H
+#include <streaming/streaming_options.h>
 
-class AbstractContentManager {
 
- public:
-  virtual ~AbstractContentManager() = default;
-  virtual int addContainer(int parentID, zmm::String title, zmm::String upnpClass) = 0;
-  virtual void addObject(zmm::Ref<CdsObject> obj) = 0;
-  virtual int addContainerChain(zmm::String chain, zmm::String lastClass, int lastRefID, zmm::Ref<Dictionary> lastMetadata) = 0;
+class GerberaConfManager {
+
+public:
+    virtual ~GerberaConfManager() = default;
+#ifdef ONLINE_SERVICES
+    virtual std::shared_ptr<StreamingOptions> getStreamingOptions() = 0;
+#endif
 };
 
 
-#endif //GERBERA_ICONTENTMANAGER_H
+#endif //GERBERA_ICONFIGMANAGER_H

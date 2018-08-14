@@ -25,6 +25,8 @@
 #ifndef GERBERA_STREAMING_OPTIONS_H
 #define GERBERA_STREAMING_OPTIONS_H
 
+#include <memory>
+#include <vector>
 #include <mxml/mxml.h>
 
 using namespace mxml;

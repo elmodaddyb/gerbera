@@ -23,6 +23,7 @@ Gerbera - https://gerbera.io/
 
 /// \file task_threadpool.cc
 
+#include <logger.h>
 #include "task_threadpool.h"
 #include "task_worker.h"
 
@@ -35,6 +36,7 @@ TaskThreadPool::~TaskThreadPool() {
 void TaskThreadPool::start(size_t numberOfThreads) {
   std::unique_lock<std::mutex> lock(mutex);
   if(shutdown) {
+    log_debug("Starting thread pool with %d threads\n", numberOfThreads);
     shutdown = false;
     for (size_t i = 0; i < numberOfThreads; i++) {
       threads.emplace_back(std::thread(Worker(*this)));

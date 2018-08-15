@@ -37,6 +37,7 @@ std::string CurlDownloader::download(const std::shared_ptr<URL>& url) {
   std::string result;
   try {
     result = url->download(&retcode, curl_handle, false, false, true);
+    log_debug("cURL downloader response return code: %d\n", retcode);
     if (retcode != 200) {
       result = "";
     }

@@ -47,7 +47,7 @@ StreamingContentService::StreamingContentService(
     contentManager(contentManager),
     storage(storage) {
     // Number of Cores - 1 OR 1
-    int numThreads = std::max(std::thread::hardware_concurrency(), 2u) - 1u;
+    size_t numThreads = std::max(std::thread::hardware_concurrency(), 2u) - 1u;
     this->threadPool->start(numThreads);
 }
 
@@ -62,11 +62,13 @@ void StreamingContentService::makeTasks(std::shared_ptr<std::vector<std::unique_
     std::shared_ptr<PlaylistTask> task = std::make_shared<PlaylistTask>(playlist->getUrl(), playlist->getName(), this);
     this->threadPool->enqueue(task);
   }
+  log_debug("Queue %d tasks for processing configured playlists\n", configuredPlaylists->size());
 }
 
 std::shared_ptr<InMemoryPlaylist> StreamingContentService::downloadPlaylist(std::string name, std::string url) {
   auto remoteUrl = std::make_shared<gerbera::URL>(url);
   std::string content = this->downloader->download(remoteUrl);
+  log_debug("Downloaded playlist from: %s --> total bytes = %d\n", url.c_str(), content.size());
   return std::make_shared<InMemoryPlaylist>(name, content);
 }
 
@@ -91,10 +93,12 @@ std::shared_ptr<PlaylistParseResult> StreamingContentService::parsePlaylist(std:
       break;
     }
     default: {
+      log_error("Unable to identify playlist type from line: \n%s\n", firstLine.c_str());
       playlistItems = std::make_shared<std::vector<zmm::Ref<CdsItemExternalURL>>>();
     }
   }
 
+  log_debug("Parsed %d playlist items with playlist type: %d\n", playlistItems->size(), type);
   for (const auto &item : *playlistItems) {
     parseResult->addItem(item);
   }
@@ -131,7 +135,7 @@ int StreamingContentService::createRootContainer(std::string containerChain) {
   std::unique_lock<std::mutex> lock(mutex);
 
   int containerId;
-  log_debug("Searching for root container for configured playlists: %s", containerChain.c_str());
+  log_debug("Searching for root container for configured playlists: %s\n", containerChain.c_str());
   zmm::Ref<CdsObject> object = this->storage->findVirtualObjectByPath(containerChain);
 
   if(object == nullptr) {
@@ -171,10 +175,12 @@ PlaylistType StreamingContentService::determinePlaylistType(std::string firstLin
   } else {
     type = UNKNOWN;
   }
+  log_debug("Playlist type: %d\n", type);
   return type;
 }
 
 std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> StreamingContentService::parsePLS(std::shared_ptr<InMemoryPlaylist>& playlist) {
+  log_debug("Begin parsing playlist: PLS type received %d bytes\n", playlist->getContent().size());
   auto playlistItems = std::make_shared<std::vector<zmm::Ref<CdsItemExternalURL>>>();
   auto playlistLines = playlist->getContentVector();
 
@@ -211,6 +217,7 @@ std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> StreamingContentServi
 }
 
 std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> StreamingContentService::parseM3U(std::shared_ptr<InMemoryPlaylist>& playlist) {
+  log_debug("Begin parsing playlist: M3U type received %d bytes\n", playlist->getContent().size());
   auto playlistItems = std::make_shared<std::vector<zmm::Ref<CdsItemExternalURL>>>();
   auto playlistLines = playlist->getContentVector();
 
@@ -238,6 +245,7 @@ std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> StreamingContentServi
 }
 
 std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> StreamingContentService::parseXSPF(std::shared_ptr<InMemoryPlaylist>& playlist) {
+  log_debug("Begin parsing playlist: XSPF type received %d bytes\n", playlist->getContent().size());
   auto playlistItems = std::make_shared<std::vector<zmm::Ref<CdsItemExternalURL>>>();
   auto playlistContent = playlist->getContent();
 

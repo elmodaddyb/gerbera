@@ -35,6 +35,7 @@ class GerberaContentManager {
   virtual int addContainer(int parentID, zmm::String title, zmm::String upnpClass) = 0;
   virtual void addObject(zmm::Ref<CdsObject> obj) = 0;
   virtual int addContainerChain(zmm::String chain, zmm::String lastClass, int lastRefID, zmm::Ref<Dictionary> lastMetadata) = 0;
+  virtual void removeObject(int objectID, bool async, bool all) = 0;
 };
 
 

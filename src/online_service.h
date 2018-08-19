@@ -53,6 +53,7 @@ typedef enum
     OS_SopCast      = 2,
 
     OS_ATrailers    = 4,
+    OS_Playlists    = 5,
     OS_Max
 } service_type_t;
 

@@ -228,7 +228,7 @@ void Server::upnp_init()
     // initializing ContentManager
     ContentManager::getInstance();
     if(config->getStreamingOptions()) {
-        ContentManager::getInstance()->processStreamingPlaylists();
+        ContentManager::getInstance()->initializeStreamingContent();
     }
 
 

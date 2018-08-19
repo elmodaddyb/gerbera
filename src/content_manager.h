@@ -216,7 +216,7 @@ public:
                 bool cancellable=true);
 
     int ensurePathExistence(zmm::String path);
-    void removeObject(int objectID, bool async=true, bool all=false);
+    void removeObject(int objectID, bool async=true, bool all=false) override;
     void rescanDirectory(int objectID, int scanID, ScanMode scanMode,
                          zmm::String descPath = nullptr, bool cancellable = true);
 
@@ -238,7 +238,7 @@ public:
 
     void cleanupOnlineServiceObjects(zmm::Ref<OnlineService> service);
 
-    void processStreamingPlaylists();
+    void initializeStreamingContent();
 
 #endif//ONLINE_SERVICES
 

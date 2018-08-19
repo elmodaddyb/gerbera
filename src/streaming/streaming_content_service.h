@@ -30,6 +30,7 @@
 #include <task/threadpool.h>
 #include <content/gerbera_content_manager.h>
 #include <storage/gerbera_storage.h>
+#include <timer.h>
 #include "streaming_content.h"
 #include "downloader.h"
 
@@ -47,7 +48,7 @@ enum PlaylistType {
     PLS, M3U, XSPF, UNKNOWN
 };
 
-class StreamingContentService : public StreamingContent {
+class StreamingContentService : public StreamingContent, public Timer::Subscriber {
 public:
     StreamingContentService(std::shared_ptr<StreamingOptions>,
         std::shared_ptr<ThreadPool> threadPool,
@@ -55,10 +56,13 @@ public:
         GerberaContentManager* contentManager,
         GerberaStorage* storage);
     ~StreamingContentService() override = default;
+    bool shouldProcessPlaylist(std::string name, int purgeInterval) override;
     void processConfiguredPlaylists() override;
+    void startupPlaylists() override;
     std::shared_ptr<InMemoryPlaylist> downloadPlaylist(std::string name, std::string url) override;
     std::shared_ptr<PlaylistParseResult> parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) override;
-    unsigned long persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult) override;
+    unsigned long persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult, int purgeAfter) override;
+    void timerNotify(zmm::Ref<Timer::Parameter> parameter) override;
 protected:
     std::shared_ptr<StreamingOptions> streamingOptions;
     std::shared_ptr<ThreadPool> threadPool;
@@ -68,13 +72,17 @@ protected:
     std::mutex mutex;
 private:
     void makeTasks(std::shared_ptr<std::vector<std::unique_ptr<StreamingOptions::ConfiguredPlaylist>>>& playlists);
-    std::shared_ptr<CdsContainer> createPlaylistContainer(std::string playlistName);
+    std::shared_ptr<CdsContainer> generatePlaylistContainer(std::string playlistName);
     int createRootContainer(std::string containerChain);
     std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parsePLS(std::shared_ptr<InMemoryPlaylist>& playlist);
     std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parseM3U(std::shared_ptr<InMemoryPlaylist>& playlist);
     std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parseXSPF(std::shared_ptr<InMemoryPlaylist>& playlist);
     PlaylistType determinePlaylistType(std::string firstLine);
+    zmm::Ref<CdsContainer> createPlaylistContainer(int parentId, std::string containerName, std::string playlistName,
+            std::string upnpClass, int purgeAfter);
+    zmm::Ref<CdsObject> newContainer(int parentId, std::string playlistName, std::string upnpClass);
     zmm::Ref<CdsItemExternalURL> createExternalUrl(std::string title, std::string location);
+    bool isExpired(long playlistTs, long purgeInterval);
 };
 
 

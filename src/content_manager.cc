@@ -1422,8 +1422,8 @@ void ContentManager::cleanupOnlineServiceObjects(zmm::Ref<OnlineService> service
     }
 }
 
-void ContentManager::processStreamingPlaylists() {
-  this->streamingContentService->processConfiguredPlaylists();
+void ContentManager::initializeStreamingContent() {
+  this->streamingContentService->startupPlaylists();
 }
 #endif
 

@@ -159,7 +159,7 @@ public:
     /// It will be escaped.
     virtual zmm::String buildContainerPath(int parentID, zmm::String title) = 0;
     
-    virtual void updateObject(zmm::Ref<CdsObject> object, int *changedContainer) = 0;
+    void updateObject(zmm::Ref<CdsObject> object, int *changedContainer) override = 0;
     
     virtual zmm::Ref<zmm::Array<CdsObject> > browse(zmm::Ref<BrowseParam> param) = 0;
     virtual zmm::Ref<zmm::Array<zmm::StringBase> > getMimeTypes() = 0;

@@ -34,6 +34,7 @@ class ContentManagerMock : public GerberaContentManager {
   MOCK_METHOD3(addContainer, int(int parentID, const zmm::String title, const zmm::String upnpClass));
   MOCK_METHOD1(addObject, void(zmm::Ref<CdsObject> obj));
   MOCK_METHOD4(addContainerChain, int(zmm::String chain, zmm::String lastClass, int lastRefID, zmm::Ref<Dictionary> lastMetadata));
+  MOCK_METHOD3(removeObject, void(int objectID, bool async, bool all));
 };
 
 #endif //GERBERA_CONTENT_MANAGER_MOCK_H

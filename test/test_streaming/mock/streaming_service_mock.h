@@ -31,8 +31,10 @@
 class StreamingServiceMock : public StreamingContent {
  public:
   MOCK_METHOD0(processConfiguredPlaylists, void());
+  MOCK_METHOD0(startupPlaylists, void());
+  MOCK_METHOD2(shouldProcessPlaylist, bool(std::string name, int purgeAfter));
   MOCK_METHOD2(downloadPlaylist, std::shared_ptr<InMemoryPlaylist>(std::string name, std::string url));
   MOCK_METHOD1(parsePlaylist, std::shared_ptr<PlaylistParseResult>(std::shared_ptr<InMemoryPlaylist> playlist));
-  MOCK_METHOD1(persistPlaylist, unsigned long(std::shared_ptr<PlaylistParseResult> parseResult));
+  MOCK_METHOD2(persistPlaylist, unsigned long(std::shared_ptr<PlaylistParseResult> parseResult, int purgeAfter));
 };
 #endif //GERBERA_STREAMING_CONTENT_SVC_MOCK_H

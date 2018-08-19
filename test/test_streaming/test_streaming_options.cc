@@ -31,10 +31,12 @@ class StreamingOptionsTest : public ::testing::Test {
     Ref<Element> playlists(new Element(_("playlists")));
     streaming->appendElementChild(playlists);
     playlists->setAttribute(_("root-virtual-path"), _("/Radio Playlists"));
+    playlists->setAttribute(_("update-at-start"), _("yes"));
 
     Ref<Element> playlist(new Element(_("playlist")));
     playlist->setAttribute(_("url"), _("http://localhost/playlist"));
     playlist->setAttribute(_("name"), _("Name of Playlist"));
+    playlist->setAttribute(_("purge-after"), _("43200"));
     playlists->appendElementChild(playlist);
 
     Ref<Element> shoutcast(new Element(_("shoutcast")));
@@ -82,6 +84,20 @@ TEST_F(StreamingOptionsTest, ContainsRootVirtualPathForPlaylists) {
   ASSERT_STREQ(playlists->getRootVirtualPath().c_str(), "/Radio Playlists");
 }
 
+TEST_F(StreamingOptionsTest, ContainsUpdateAtStartForPlaylists) {
+  Ref<Element> config = mockConfig("no");
+  subject = make_unique<StreamingOptions>(config);
+  auto playlists = subject->playlists();
+  ASSERT_TRUE(playlists->isUpdateAtStart());
+}
+
+TEST_F(StreamingOptionsTest, ContainsPurgeAfterForEachConfiguredPlaylist) {
+  Ref<Element> config = mockConfig("no");
+  subject = make_unique<StreamingOptions>(config);
+  auto playlists = subject->playlists();
+  ASSERT_THAT(playlists->getPlaylists()->at(0)->purgeAfter(), ::testing::Eq(43200));
+}
+
 TEST_F(StreamingOptionsTest, CreatesStreamingPlaylistWithPlaylists) {
   Ref<Element> config = mockConfig("yes");
   subject = make_unique<StreamingOptions>(config);
@@ -92,7 +108,7 @@ TEST_F(StreamingOptionsTest, CreatesStreamingPlaylistWithPlaylists) {
 TEST_F(StreamingOptionsTest, AllowsToAddConfiguredPlaylists) {
   Ref<Element> config = mockConfig("yes");
   subject = make_unique<StreamingOptions>(config);
-  auto playlist = make_unique<StreamingOptions::ConfiguredPlaylist>("http://localhost", "Name of Playlist");
+  auto playlist = make_unique<StreamingOptions::ConfiguredPlaylist>("http://localhost", "Name of Playlist", 43200);
   auto playlistOptions = subject->playlists();
 
   playlistOptions->addPlaylist(std::move(playlist));
@@ -103,7 +119,7 @@ TEST_F(StreamingOptionsTest, AllowsToAddConfiguredPlaylists) {
 TEST_F(StreamingOptionsTest, ProvidesListOfAllPlaylists) {
   Ref<Element> config = mockConfig("yes");
   subject = make_unique<StreamingOptions>(config);
-  auto playlist = make_unique<StreamingOptions::ConfiguredPlaylist>("http://localhost", "Name of Playlist");
+  auto playlist = make_unique<StreamingOptions::ConfiguredPlaylist>("http://localhost", "Name of Playlist", 43200);
   auto playlistOptions = subject->playlists();
 
   playlistOptions->addPlaylist(std::move(playlist));
@@ -117,11 +133,11 @@ TEST_F(StreamingOptionsTest, ProvidesListOfAllPlaylists) {
 TEST_F(StreamingOptionsTest, AllowsToAddSeveralConfiguredPlaylists) {
   Ref<Element> config = mockConfig("yes");
   subject = make_unique<StreamingOptions>(config);
-  auto playlist = make_unique<StreamingOptions::ConfiguredPlaylist>("http://localhost/playlist1", "Name of Playlist");
+  auto playlist = make_unique<StreamingOptions::ConfiguredPlaylist>("http://localhost/playlist1", "Name of Playlist", 43200);
   auto playlistOptions = subject->playlists();
   playlistOptions->addPlaylist(std::move(playlist));
 
-  playlist = make_unique<StreamingOptions::ConfiguredPlaylist>("http://localhost/playlist2", "Name of Playlist");
+  playlist = make_unique<StreamingOptions::ConfiguredPlaylist>("http://localhost/playlist2", "Name of Playlist", 43200);
   playlistOptions->addPlaylist(std::move(playlist));
 
   ASSERT_EQ(3, playlistOptions->getSize());
@@ -143,7 +159,7 @@ TEST_F(StreamingOptionsTest, ContainsVirtualPathForAllPlaylists) {
 TEST_F(StreamingOptionsTest, EachPlaylistHasName) {
   Ref<Element> config = mockConfig("yes");
   subject = make_unique<StreamingOptions>(config);
-  auto playlist = make_unique<StreamingOptions::ConfiguredPlaylist>("http://localhost/playlist1", "Name of Playlist");
+  auto playlist = make_unique<StreamingOptions::ConfiguredPlaylist>("http://localhost/playlist1", "Name of Playlist", 43200);
   auto playlistOptions = subject->playlists();
   playlistOptions->addPlaylist(std::move(playlist));
 

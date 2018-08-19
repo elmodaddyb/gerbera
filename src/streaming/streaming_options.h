@@ -36,27 +36,31 @@ public:
     class ConfiguredPlaylist {
     public:
         ConfiguredPlaylist() = default;
-        explicit ConfiguredPlaylist(std::string url, std::string name);
+        explicit ConfiguredPlaylist(std::string url, std::string name, int purgeAfter);
         virtual ~ConfiguredPlaylist() = default;
         std::string getUrl();
         std::string getName();
+        int purgeAfter();
     private:
-        std::string url;
-        std::string name;
+        std::string _url;
+        std::string _name;
+        int _purgeAfter;
     };
 
     class Playlists {
     public:
-        explicit Playlists(std::string rootVirtualPath);
+        explicit Playlists(std::string rootVirtualPath, bool updateAtStart);
         ~Playlists() = default;
         unsigned long getSize();
         void addPlaylist(std::unique_ptr<ConfiguredPlaylist> playlist);
         std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> getPlaylists();
         std::string getRootVirtualPath();
+        bool isUpdateAtStart();
 
     private:
         std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> confPlaylists;
-        std::string rootVirtualPath;
+        std::string _rootVirtualPath;
+        bool _updateAtStart;
     };
 
     class Shoutcast {
@@ -68,9 +72,9 @@ public:
         bool isEnabled();
 
     private:
-        std::string baseUrl;
-        std::string devId;
-        bool enabled = false;
+        std::string _baseUrl;
+        std::string _devId;
+        bool _enabled = false;
     };
 
     explicit StreamingOptions(zmm::Ref<Element> streamingElement);
@@ -80,7 +84,7 @@ public:
 
 private:
     std::shared_ptr<Playlists> _playlists;
-    std::shared_ptr<Shoutcast> shoutcast;
+    std::shared_ptr<Shoutcast> _shoutcast;
 };
 
 #endif //GERBERA_STREAMING_OPTIONS_H

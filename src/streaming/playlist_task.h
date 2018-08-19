@@ -32,7 +32,7 @@
 
 class PlaylistTask : public Task {
 public:
-    PlaylistTask(std::string url, std::string name, StreamingContent* streamingContentService);
+    PlaylistTask(std::string url, std::string name, int purgeAfter, StreamingContent* streamingContentService);
     ~PlaylistTask() = default;
     void run() override;
 
@@ -40,6 +40,7 @@ private:
     StreamingContent* streamingContentService;
     std::string url;
     std::string name;
+    int purgeAfter;
 };
 
 

@@ -29,19 +29,21 @@
 #include <thread>
 #include "playlist_task.h"
 
-PlaylistTask::PlaylistTask(std::string url, std::string name, StreamingContent* streamingContentService) :
-        streamingContentService(streamingContentService), url(std::move(url)), name(std::move(name)){
+PlaylistTask::PlaylistTask(std::string url, std::string name, int purgeAfter, StreamingContent* streamingContentService) :
+        streamingContentService(streamingContentService), url(std::move(url)), name(std::move(name)), purgeAfter(purgeAfter){
 }
 
 void PlaylistTask::run() {
-  auto inMemoryPlaylist = this->streamingContentService->downloadPlaylist(this->name, this->url);
-  auto parseResult = this->streamingContentService->parsePlaylist(inMemoryPlaylist);
-  unsigned long itemsAdded = this->streamingContentService->persistPlaylist(parseResult);
+  if(this->streamingContentService->shouldProcessPlaylist(this->name, this->purgeAfter)) {
+    auto inMemoryPlaylist = this->streamingContentService->downloadPlaylist(this->name, this->url);
+    auto parseResult = this->streamingContentService->parsePlaylist(inMemoryPlaylist);
+    unsigned long itemsAdded = this->streamingContentService->persistPlaylist(parseResult, this->purgeAfter);
 
-  std::ostringstream completionMsg;
-  completionMsg << "\n";
-  completionMsg << "Playlist Task : COMPLETE\n";
-  completionMsg << "Playlist Name : `" << parseResult->getParentContainer()->getTitle() << "`\n";
-  completionMsg << "Playlist Items: " << itemsAdded << "\n";
-  log_info(completionMsg.str().c_str());
+    std::ostringstream completionMsg;
+    completionMsg << "\n";
+    completionMsg << "Playlist Task : COMPLETE\n";
+    completionMsg << "Playlist Name : `" << parseResult->getParentContainer()->getTitle() << "`\n";
+    completionMsg << "Playlist Items: " << itemsAdded << "\n";
+    log_info(completionMsg.str().c_str());
+  }
 }

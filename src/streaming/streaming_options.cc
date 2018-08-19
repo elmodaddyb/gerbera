@@ -30,12 +30,17 @@ using namespace zmm;
 StreamingOptions::StreamingOptions(Ref<Element> streamingConfig) {
   Ref<Element> cfgPlaylists = streamingConfig->getChildByName(_("playlists"));
   std::string rootVirtualPath = cfgPlaylists->getAttribute("root-virtual-path").c_str();
-  _playlists = std::make_shared<Playlists>(rootVirtualPath);
+  bool updateStart = cfgPlaylists->getAttribute("update-at-start") == "yes" != 0;
+  _playlists = std::make_shared<Playlists>(rootVirtualPath, updateStart);
   std::unique_ptr<ConfiguredPlaylist> playlist;
   Ref<Element> item;
   for (int e = 0; e < cfgPlaylists->elementChildCount(); e++) {
     item = cfgPlaylists->getElementChild(e);
-    playlist = std::make_unique<ConfiguredPlaylist>(item->getAttribute(_("url")).c_str(), item->getAttribute(_("name")).c_str());
+    std::string url = item->getAttribute(_("url")).c_str();
+    std::string name = item->getAttribute(_("name")).c_str();
+    std::string purgeAfterStr = item->getAttribute(_("purge-after")).c_str();
+    int purgeAfter = std::stoi(purgeAfterStr);
+    playlist = std::make_unique<ConfiguredPlaylist>(url, name, purgeAfter);
     _playlists->addPlaylist(std::move(playlist));
   }
 
@@ -43,23 +48,23 @@ StreamingOptions::StreamingOptions(Ref<Element> streamingConfig) {
   std::string baseUrl = cfgShoutcast->getAttribute(_("base-url")).c_str();
   std::string devId = cfgShoutcast->getAttribute(_("dev-id")).c_str();
   std::string enabled = cfgShoutcast->getAttribute(_("enabled")).c_str();
-  shoutcast = std::make_shared<Shoutcast>(baseUrl, devId, enabled.compare("yes") == 0);
+  _shoutcast = std::make_shared<Shoutcast>(baseUrl, devId, enabled == "yes");
 }
 
 StreamingOptions::~StreamingOptions() {
   _playlists = nullptr;
-  shoutcast = nullptr;
+  _shoutcast = nullptr;
 }
 
-StreamingOptions::ConfiguredPlaylist::ConfiguredPlaylist(std::string url, std::string name) :
-url(std::move(url)), name(std::move(name)) {}
+StreamingOptions::ConfiguredPlaylist::ConfiguredPlaylist(std::string url, std::string name, int purgeAfter = -1) :
+_url(std::move(url)), _name(std::move(name)), _purgeAfter(purgeAfter){}
 
 std::string StreamingOptions::ConfiguredPlaylist::getUrl() {
-  return this->url;
+  return this->_url;
 }
 
 std::string StreamingOptions::ConfiguredPlaylist::getName() {
-  return this->name;
+  return this->_name;
 }
 
 std::shared_ptr<StreamingOptions::Playlists> StreamingOptions::playlists() {
@@ -67,10 +72,11 @@ std::shared_ptr<StreamingOptions::Playlists> StreamingOptions::playlists() {
 }
 
 std::shared_ptr<StreamingOptions::Shoutcast> StreamingOptions::shoutcastOptions() {
-  return shoutcast;
+  return _shoutcast;
 }
 
-StreamingOptions::Playlists::Playlists(std::string rootVirtualPath): rootVirtualPath(std::move(rootVirtualPath)) {
+StreamingOptions::Playlists::Playlists(std::string rootVirtualPath, bool updateAtStart):
+  _rootVirtualPath(std::move(rootVirtualPath)), _updateAtStart(updateAtStart) {
   confPlaylists = std::make_shared<std::vector<std::unique_ptr<ConfiguredPlaylist>>>();
 }
 
@@ -87,21 +93,28 @@ std::shared_ptr<std::vector<std::unique_ptr<StreamingOptions::ConfiguredPlaylist
 }
 
 std::string StreamingOptions::Playlists::getRootVirtualPath() {
-  return rootVirtualPath;
+  return _rootVirtualPath;
+}
+
+bool StreamingOptions::Playlists::isUpdateAtStart() {
+  return _updateAtStart;
 }
 
 StreamingOptions::Shoutcast::Shoutcast(std::string baseUrl, std::string devId, bool enabled) :
-        baseUrl(std::move(baseUrl)), devId(std::move(devId)), enabled(enabled) { }
+        _baseUrl(std::move(baseUrl)), _devId(std::move(devId)), _enabled(enabled) { }
 
 std::string StreamingOptions::Shoutcast::getBaseUrl() {
-  return baseUrl;
+  return _baseUrl;
 }
 
 std::string StreamingOptions::Shoutcast::getDevId() {
-  return devId;
+  return _devId;
 }
 
 bool StreamingOptions::Shoutcast::isEnabled() {
-  return enabled;
+  return _enabled;
 }
 
+int StreamingOptions::ConfiguredPlaylist::purgeAfter() {
+  return _purgeAfter;
+}

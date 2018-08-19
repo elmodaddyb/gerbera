@@ -46,9 +46,39 @@ StreamingContentService::StreamingContentService(
     downloader(std::move(downloader)),
     contentManager(contentManager),
     storage(storage) {
-    // Number of Cores - 1 OR 1
+    // Threads = (Number of Cores - 1) or 1
     size_t numThreads = std::max(std::thread::hardware_concurrency(), 2u) - 1u;
     this->threadPool->start(numThreads);
+}
+
+void StreamingContentService::startupPlaylists() {
+  if(this->streamingOptions->playlists()->isUpdateAtStart()) {
+    this->processConfiguredPlaylists();
+  }
+}
+
+bool StreamingContentService::shouldProcessPlaylist(std::string playlistName, int purgeInterval) {
+  bool result;
+  std::string playlistContainerChain = this->streamingOptions->playlists()->getRootVirtualPath() + DIR_SEPARATOR + playlistName;
+  auto object = this->storage->findVirtualObjectByPath(playlistContainerChain);
+
+  if(object == nullptr || purgeInterval <= 0) {
+    log_debug("No playlist object found for container path: %s\n", playlistContainerChain.c_str());
+    result = true;
+  } else {
+    zmm::String lastUpdateTime = object->getAuxData(_(ONLINE_SERVICE_LAST_UPDATE));
+    if (!string_ok(lastUpdateTime)) {
+      result = true;
+    } else {
+      result = this->isExpired(lastUpdateTime.toLong(), purgeInterval);
+    }
+    std::ostringstream msg;
+    msg << "Playlist with container path: " << playlistContainerChain.c_str();
+    msg << " --> Last Update: " << lastUpdateTime.c_str();
+    msg << " is " << (result ? "expired" : "not expired") << "\n";
+    log_debug(msg.str().c_str());
+  }
+  return result;
 }
 
 void StreamingContentService::processConfiguredPlaylists() {
@@ -57,9 +87,20 @@ void StreamingContentService::processConfiguredPlaylists() {
   makeTasks(remotePlaylists);
 }
 
+void StreamingContentService::timerNotify(Ref<Timer::Parameter> parameter) {
+  if (parameter == nullptr) {
+    return;
+  } else {
+    if(parameter->whoami() == Timer::Parameter::IDOnlineContent && parameter->getID() == OS_Playlists) {
+        this->processConfiguredPlaylists();
+    }
+  }
+}
+
 void StreamingContentService::makeTasks(std::shared_ptr<std::vector<std::unique_ptr<StreamingOptions::ConfiguredPlaylist>>>& configuredPlaylists) {
   for (const auto &playlist : *configuredPlaylists) {
-    std::shared_ptr<PlaylistTask> task = std::make_shared<PlaylistTask>(playlist->getUrl(), playlist->getName(), this);
+    std::shared_ptr<PlaylistTask> task = std::make_shared<PlaylistTask>(playlist->getUrl(),
+            playlist->getName(), playlist->purgeAfter(), this);
     this->threadPool->enqueue(task);
   }
   log_debug("Queue %d tasks for processing configured playlists\n", configuredPlaylists->size());
@@ -73,7 +114,7 @@ std::shared_ptr<InMemoryPlaylist> StreamingContentService::downloadPlaylist(std:
 }
 
 std::shared_ptr<PlaylistParseResult> StreamingContentService::parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) {
-  auto parentCds = createPlaylistContainer(playlist->getName());
+  auto parentCds = generatePlaylistContainer(playlist->getName());
   auto parseResult = std::make_shared<PlaylistParseResult>(parentCds);
 
   std::string firstLine = playlist->getContentVector().at(0);
@@ -106,7 +147,7 @@ std::shared_ptr<PlaylistParseResult> StreamingContentService::parsePlaylist(std:
   return parseResult;
 }
 
-unsigned long StreamingContentService::persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult) {
+unsigned long StreamingContentService::persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult, int purgeAfter) {
   unsigned long objectsAdded = 0;
 
   // Create the wrapping container
@@ -114,16 +155,16 @@ unsigned long StreamingContentService::persistPlaylist(std::shared_ptr<PlaylistP
   int containerId = createRootContainer(rootVirtualPath);
 
   // Create the playlist container
-  std::shared_ptr<CdsContainer> playlistContainer = parseResult->getParentContainer();
-  int playlistContainerId = contentManager->addContainer(containerId, playlistContainer->getTitle(), playlistContainer->getClass());
-  playlistContainer->setParentID(containerId);
-  playlistContainer->setID(playlistContainerId);
+  auto playlistContainer = parseResult->getParentContainer();
+  std::string playlistName = playlistContainer->getTitle().c_str();
+  std::string upnpClass = playlistContainer->getClass().c_str();
+  auto newContainer = createPlaylistContainer(containerId, rootVirtualPath, playlistName, upnpClass, purgeAfter);
 
   // Create the child streams
   auto childItems = parseResult->getChildObjects();
 
   for (auto &cdsObj : *childItems) {
-    cdsObj->setParentID(playlistContainer->getID());
+    cdsObj->setParentID(newContainer->getID());
     contentManager->addObject(RefCast(cdsObj, CdsObject));
     objectsAdded++;
   }
@@ -150,9 +191,46 @@ int StreamingContentService::createRootContainer(std::string containerChain) {
   return containerId;
 }
 
-std::shared_ptr<CdsContainer> StreamingContentService::createPlaylistContainer(std::string playlistName) {
-  int parentID = 0; // TODO lookup parentId?
-  std::shared_ptr<CdsContainer> parent = std::make_shared<CdsContainer>();
+zmm::Ref<CdsContainer> StreamingContentService::createPlaylistContainer(int parentId, std::string containerName,
+        std::string playlistName, std::string upnpClass, int purgeAfter) {
+
+  std::string containerChain = containerName + DIR_SEPARATOR + playlistName;
+  auto existingPlaylist = storage->findVirtualObjectByPath(containerChain);
+  if(existingPlaylist == nullptr) {
+    existingPlaylist = this->newContainer(parentId, playlistName, upnpClass);
+  } else {
+    bool toDelete;
+    zmm::String lastUpdateTime = existingPlaylist->getAuxData(_(ONLINE_SERVICE_LAST_UPDATE));
+    if (!string_ok(lastUpdateTime)) {
+      toDelete = true;
+    } else {
+      toDelete = this->isExpired(lastUpdateTime.toLong(), purgeAfter);
+    }
+
+    if(toDelete) {
+      log_debug("Delete existing playlist %s with container ID: %d --> Last Updated: %s\n", playlistName.c_str(),
+              existingPlaylist->getID(), lastUpdateTime.c_str());
+      contentManager->removeObject(existingPlaylist->getID(), false, true);
+      existingPlaylist = this->newContainer(parentId, playlistName, upnpClass);
+    }
+  }
+  return RefCast(existingPlaylist, CdsContainer);
+}
+
+zmm::Ref<CdsObject> StreamingContentService::newContainer(int parentId, std::string name, std::string upnpClass) {
+  struct timespec ts;
+  getTimespecNow(&ts);
+  int containerId = contentManager->addContainer(parentId, name, upnpClass);
+  auto newObject = storage->loadObject(containerId);
+  newObject->setAuxData(_(ONLINE_SERVICE_LAST_UPDATE), String::from(ts.tv_sec));
+  int containerChanged = INVALID_OBJECT_ID;
+  storage->updateObject(newObject, &containerChanged);
+  return newObject;
+}
+
+std::shared_ptr<CdsContainer> StreamingContentService::generatePlaylistContainer(std::string playlistName) {
+  int parentID = -1; // TODO lookup parentId?
+  auto parent = std::make_shared<CdsContainer>();
   parent->setClass("object.container");
   parent->setParentID(parentID);
   parent->setTitle(playlistName);
@@ -277,12 +355,12 @@ std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> StreamingContentServi
 
 zmm::Ref<CdsItemExternalURL> StreamingContentService::createExternalUrl(std::string title, std::string location) {
   struct timespec ts;
-  Ref<CdsItemExternalURL> newObject = zmm::Ref<CdsItemExternalURL>(new CdsItemExternalURL());
+  auto newObject = zmm::Ref<CdsItemExternalURL>(new CdsItemExternalURL());
   newObject->setTitle(title);
   newObject->setClass(UPNP_DEFAULT_CLASS_MUSIC_TRACK);
 
   // Add HTTP Protocol
-  Ref<CdsResource> resource(new CdsResource(CH_DEFAULT));
+  zmm::Ref<CdsResource> resource(new CdsResource(CH_DEFAULT));
   String protocolInfo = renderProtocolInfo(MIMETYPE_DEFAULT, PROTOCOL);
   resource->addAttribute(MetadataHandler::getResAttrName(R_PROTOCOLINFO), protocolInfo);
   newObject->addResource(resource);
@@ -293,4 +371,22 @@ zmm::Ref<CdsItemExternalURL> StreamingContentService::createExternalUrl(std::str
   newObject->setVirtual(true);
   newObject->validate();
   return newObject;
+}
+
+bool StreamingContentService::isExpired(long timeSpec, long purgeInterval) {
+  bool result;
+  struct timespec current, last;
+  getTimespecNow(&current);
+  last.tv_nsec = 0;
+  last.tv_sec = timeSpec;
+
+  long timeDiff = current.tv_sec - last.tv_sec;
+
+  if (timeDiff > purgeInterval) {
+    result = true;
+  } else {
+    result = false;
+  }
+  log_debug("Item expired = %d with time difference: %d\n", result, timeDiff);
+  return result;
 }

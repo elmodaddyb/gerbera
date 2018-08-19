@@ -18,7 +18,7 @@ class PlaylistTaskTest : public ::testing::Test {
   ~PlaylistTaskTest() override = default;
   void SetUp() override {
     streamingService =  std::make_shared<::testing::NiceMock<StreamingServiceMock>>();
-    subject = std::make_unique<PlaylistTask>("http://localhost/playlist", "Name of Playlist", streamingService.get());
+    subject = std::make_unique<PlaylistTask>("http://localhost/playlist", "Name of Playlist", 300, streamingService.get());
   }
   void TearDown() override {
     subject = nullptr;
@@ -45,9 +45,19 @@ TEST_F(PlaylistTaskTest, CallStreamingServiceToProcessPlaylist) {
   std::shared_ptr<PlaylistParseResult> parseResult = std::make_shared<PlaylistParseResult>(parentCds);
   unsigned long expItemsAdded = 13;
 
+  EXPECT_CALL(*streamingService, shouldProcessPlaylist(Eq("Name of Playlist"), Eq(300))).WillOnce(Return(true));
   EXPECT_CALL(*streamingService, downloadPlaylist(Eq("Name of Playlist"), Eq("http://localhost/playlist"))).WillOnce(Return(inMemoryPlaylist));
   EXPECT_CALL(*streamingService, parsePlaylist(_)).WillOnce(Return(parseResult));
-  EXPECT_CALL(*streamingService, persistPlaylist(_)).WillOnce(Return(expItemsAdded));
+  EXPECT_CALL(*streamingService, persistPlaylist(_,_)).WillOnce(Return(expItemsAdded));
+
+  subject->run();
+}
+
+TEST_F(PlaylistTaskTest, DoesNothingWhenPlaylistShouldNotBeUpdated) {
+  EXPECT_CALL(*streamingService, shouldProcessPlaylist(_,_)).WillOnce(Return(false));
+  EXPECT_CALL(*streamingService, downloadPlaylist(_,_)).Times(0);
+  EXPECT_CALL(*streamingService, parsePlaylist(_)).Times(0);
+  EXPECT_CALL(*streamingService, persistPlaylist(_,_)).Times(0);
 
   subject->run();
 }

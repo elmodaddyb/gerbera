@@ -32,6 +32,7 @@ class StorageMock : public GerberaStorage {
  public:
     MOCK_METHOD1(loadObject, zmm::Ref<CdsObject>(int objectID));
     MOCK_METHOD1(findVirtualObjectByPath, zmm::Ref<CdsObject>(zmm::String fullpath));
+    MOCK_METHOD2(updateObject, void(zmm::Ref<CdsObject> object, int *changedContainer));
 };
 
 #endif //GERBERA_STORAGE_MOCK_H

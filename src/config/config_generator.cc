@@ -330,6 +330,7 @@ Ref<Element> ConfigGenerator::generateOnlineContent() {
   Ref<Element> stream(new Element(_("streaming")));
   Ref<Element> playlists(new Element(_("playlists")));
   playlists->setAttribute("root-virtual-path", "/Remote Playlists");
+  playlists->setAttribute("update-at-start", "no");
   stream->appendElementChild(playlists);
 
   Ref<Element> shoutcast(new Element(_("shoutcast")));

@@ -32,6 +32,7 @@ class GerberaStorage {
   virtual ~GerberaStorage() {}
   virtual zmm::Ref<CdsObject> loadObject(int objectID) = 0;
   virtual zmm::Ref<CdsObject> findVirtualObjectByPath(zmm::String fullpath) = 0;
+  virtual void updateObject(zmm::Ref<CdsObject> object, int *changedContainer) = 0;
 };
 
 #endif //GERBERA_ABSTRACT_STORAGE_H

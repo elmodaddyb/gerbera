@@ -55,7 +55,7 @@ public:
         std::shared_ptr<Downloader> curlDownloader,
         GerberaContentManager* contentManager,
         GerberaStorage* storage);
-    ~StreamingContentService() override = default;
+    ~StreamingContentService() override;
     bool shouldProcessPlaylist(std::string name, int purgeInterval) override;
     void processConfiguredPlaylists() override;
     void startupPlaylists() override;
@@ -70,6 +70,7 @@ protected:
     GerberaContentManager* contentManager;
     GerberaStorage* storage;
     std::mutex mutex;
+    zmm::Ref<Timer::Parameter> playlistTimer;
 private:
     void makeTasks(std::shared_ptr<std::vector<std::unique_ptr<StreamingOptions::ConfiguredPlaylist>>>& playlists);
     std::shared_ptr<CdsContainer> generatePlaylistContainer(std::string playlistName);

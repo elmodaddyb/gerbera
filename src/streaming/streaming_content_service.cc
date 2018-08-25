@@ -51,15 +51,22 @@ StreamingContentService::StreamingContentService(
     this->threadPool->start(numThreads);
 }
 
+StreamingContentService::~StreamingContentService() {
+  if(playlistTimer != nullptr) {
+    // TODO: Make GerberaTimer and replace this singleton with instance level reference...
+    Timer::getInstance()->removeTimerSubscriber(this, playlistTimer);
+  }
+}
+
 void StreamingContentService::startupPlaylists() {
   if(this->streamingOptions->playlists()->isUpdateAtStart()) {
     this->processConfiguredPlaylists();
   }
   unsigned int refresh = this->streamingOptions->playlists()->getRefresh();
   if(refresh > 0) {
-    Ref<Timer::Parameter> streaming_param(new Timer::Parameter(Timer::Parameter::IDOnlineContent, OS_Playlists));
+    playlistTimer = Ref<Timer::Parameter>(new Timer::Parameter(Timer::Parameter::IDOnlineContent, OS_Playlists));
     // TODO: Make GerberaTimer and replace this singleton with instance level reference...
-    Timer::getInstance()->addTimerSubscriber(this, refresh, streaming_param, false);
+    Timer::getInstance()->addTimerSubscriber(this, refresh, playlistTimer, false);
   }
 }
 

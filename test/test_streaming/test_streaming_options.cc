@@ -32,6 +32,7 @@ class StreamingOptionsTest : public ::testing::Test {
     streaming->appendElementChild(playlists);
     playlists->setAttribute(_("root-virtual-path"), _("/Radio Playlists"));
     playlists->setAttribute(_("update-at-start"), _("yes"));
+    playlists->setAttribute(_("refresh"), _("43200"));
 
     Ref<Element> playlist(new Element(_("playlist")));
     playlist->setAttribute(_("url"), _("http://localhost/playlist"));
@@ -154,6 +155,16 @@ TEST_F(StreamingOptionsTest, ContainsVirtualPathForAllPlaylists) {
   std::string result = playlistOptions->getRootVirtualPath();
 
   ASSERT_STREQ(result.c_str(), "/Radio Playlists");
+}
+
+TEST_F(StreamingOptionsTest, ContainsRefreshTimeToRefreshPlaylistsViaTimer) {
+  Ref<Element> config = mockConfig("yes");
+  subject = make_unique<StreamingOptions>(config);
+  auto playlistOptions = subject->playlists();
+
+  unsigned int result = playlistOptions->getRefresh();
+
+  ASSERT_EQ(result, 43200);
 }
 
 TEST_F(StreamingOptionsTest, EachPlaylistHasName) {

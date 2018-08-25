@@ -49,18 +49,20 @@ public:
 
     class Playlists {
     public:
-        explicit Playlists(std::string rootVirtualPath, bool updateAtStart);
+        explicit Playlists(std::string rootVirtualPath, bool updateAtStart, unsigned int refresh);
         ~Playlists() = default;
         unsigned long getSize();
         void addPlaylist(std::unique_ptr<ConfiguredPlaylist> playlist);
         std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> getPlaylists();
         std::string getRootVirtualPath();
+        unsigned int getRefresh();
         bool isUpdateAtStart();
 
     private:
         std::shared_ptr<std::vector<std::unique_ptr<ConfiguredPlaylist>>> confPlaylists;
         std::string _rootVirtualPath;
         bool _updateAtStart;
+        unsigned int _refresh;
     };
 
     class Shoutcast {

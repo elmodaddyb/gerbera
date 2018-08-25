@@ -751,6 +751,7 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:attribute>
+            <xs:attribute name="refresh" type="xs:nonNegativeInteger" default="43200"/>
         </xs:complexType>
     </xs:element>
 

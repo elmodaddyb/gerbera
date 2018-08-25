@@ -55,6 +55,12 @@ void StreamingContentService::startupPlaylists() {
   if(this->streamingOptions->playlists()->isUpdateAtStart()) {
     this->processConfiguredPlaylists();
   }
+  unsigned int refresh = this->streamingOptions->playlists()->getRefresh();
+  if(refresh > 0) {
+    Ref<Timer::Parameter> streaming_param(new Timer::Parameter(Timer::Parameter::IDOnlineContent, OS_Playlists));
+    // TODO: Make GerberaTimer and replace this singleton with instance level reference...
+    Timer::getInstance()->addTimerSubscriber(this, refresh, streaming_param, false);
+  }
 }
 
 bool StreamingContentService::shouldProcessPlaylist(std::string playlistName, int purgeInterval) {

@@ -31,7 +31,14 @@ StreamingOptions::StreamingOptions(Ref<Element> streamingConfig) {
   Ref<Element> cfgPlaylists = streamingConfig->getChildByName(_("playlists"));
   std::string rootVirtualPath = cfgPlaylists->getAttribute("root-virtual-path").c_str();
   bool updateStart = cfgPlaylists->getAttribute("update-at-start") == "yes" != 0;
-  _playlists = std::make_shared<Playlists>(rootVirtualPath, updateStart);
+  String refreshStr = cfgPlaylists->getAttribute("refresh");
+  unsigned int refresh;
+  if(refreshStr != nullptr) {
+    refresh = ((unsigned)std::stoi(refreshStr.c_str()));
+  } else {
+    refresh = 0;
+  }
+  _playlists = std::make_shared<Playlists>(rootVirtualPath, updateStart, refresh);
   std::unique_ptr<ConfiguredPlaylist> playlist;
   Ref<Element> item;
   for (int e = 0; e < cfgPlaylists->elementChildCount(); e++) {
@@ -75,8 +82,8 @@ std::shared_ptr<StreamingOptions::Shoutcast> StreamingOptions::shoutcastOptions(
   return _shoutcast;
 }
 
-StreamingOptions::Playlists::Playlists(std::string rootVirtualPath, bool updateAtStart):
-  _rootVirtualPath(std::move(rootVirtualPath)), _updateAtStart(updateAtStart) {
+StreamingOptions::Playlists::Playlists(std::string rootVirtualPath, bool updateAtStart, unsigned int refresh):
+  _rootVirtualPath(std::move(rootVirtualPath)), _updateAtStart(updateAtStart), _refresh(refresh) {
   confPlaylists = std::make_shared<std::vector<std::unique_ptr<ConfiguredPlaylist>>>();
 }
 
@@ -98,6 +105,10 @@ std::string StreamingOptions::Playlists::getRootVirtualPath() {
 
 bool StreamingOptions::Playlists::isUpdateAtStart() {
   return _updateAtStart;
+}
+
+unsigned int StreamingOptions::Playlists::getRefresh() {
+  return _refresh;
 }
 
 StreamingOptions::Shoutcast::Shoutcast(std::string baseUrl, std::string devId, bool enabled) :

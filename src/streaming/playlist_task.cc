@@ -40,10 +40,9 @@ void PlaylistTask::run() {
     unsigned long itemsAdded = this->streamingContentService->persistPlaylist(parseResult, this->purgeAfter);
 
     std::ostringstream completionMsg;
-    completionMsg << "\n";
-    completionMsg << "Playlist Task : COMPLETE\n";
-    completionMsg << "Playlist Name : `" << parseResult->getParentContainer()->getTitle() << "`\n";
-    completionMsg << "Playlist Items: " << itemsAdded << "\n";
+    completionMsg << "Playlist Task : COMPLETE - ";
+    completionMsg << "`" << parseResult->getParentContainer()->getTitle() << "` ";
+    completionMsg << "added " << itemsAdded << " items\n";
     log_info(completionMsg.str().c_str());
   }
 }

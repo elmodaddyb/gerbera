@@ -33,20 +33,7 @@
 #include <timer.h>
 #include "streaming_content.h"
 #include "downloader.h"
-
-#define REGEX_PLAYLIST  "^\\[playlist\\]$"
-#define REGEX_PLS_FILE  "^File(\\d)+?=(.*)$"
-#define REGEX_PLS_TITLE "^Title(\\d)+?=(.*)$"
-#define REGEX_M3U       "^#EXTM3U$"
-#define REGEX_M3U_TITLE "^(#EXTINF:)([-]?[\\d]+),(.*)$"
-#define REGEX_XSPF_XML  ".*xmlns=\"http://xspf.org/ns/0/\".*"
-#define XSPF_TRACKLIST  "/trackList"
-#define XSPF_LOCATION   "location"
-#define XSPF_TITLE      "title"
-
-enum PlaylistType {
-    PLS, M3U, XSPF, UNKNOWN
-};
+#include "playlist_parser.h"
 
 class StreamingContentService : public StreamingContent, public Timer::Subscriber {
 public:
@@ -71,18 +58,14 @@ protected:
     GerberaStorage* storage;
     std::mutex mutex;
     zmm::Ref<Timer::Parameter> playlistTimer;
+    std::unique_ptr<PlaylistParser> playlistParser;
 private:
     void makeTasks(std::shared_ptr<std::vector<std::unique_ptr<StreamingOptions::ConfiguredPlaylist>>>& playlists);
     std::shared_ptr<CdsContainer> generatePlaylistContainer(std::string playlistName);
     int createRootContainer(std::string containerChain);
-    std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parsePLS(std::shared_ptr<InMemoryPlaylist>& playlist);
-    std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parseM3U(std::shared_ptr<InMemoryPlaylist>& playlist);
-    std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> parseXSPF(std::shared_ptr<InMemoryPlaylist>& playlist);
-    PlaylistType determinePlaylistType(std::string firstLine);
     zmm::Ref<CdsContainer> createPlaylistContainer(int parentId, std::string containerName, std::string playlistName,
             std::string upnpClass, int purgeAfter);
     zmm::Ref<CdsObject> newContainer(int parentId, std::string playlistName, std::string upnpClass);
-    zmm::Ref<CdsItemExternalURL> createExternalUrl(std::string title, std::string location);
     bool isExpired(long playlistTs, long purgeInterval);
 };
 

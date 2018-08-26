@@ -26,6 +26,7 @@
 
 #include <curl/curl.h>
 #include <memory>
+#include <string>
 
 #ifndef GERBERA_URL_H
 #define GERBERA_URL_H

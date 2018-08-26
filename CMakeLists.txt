@@ -217,6 +217,8 @@ set(libgerberaFILES
         src/streaming/curl_downloader.cc
         src/streaming/playlist_parse_result.h
         src/streaming/playlist_parse_result.cc
+        src/streaming/playlist_parser.h
+        src/streaming/playlist_parser.cc
         src/string_converter.cc
         src/string_converter.h
         src/subscription_request.cc

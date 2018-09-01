@@ -138,7 +138,7 @@ TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromPLS) {
   std::string playlistContent = mockPlaylist("fixtures/example.pls");
   std::shared_ptr<InMemoryPlaylist> inMemoryPlaylist = std::make_shared<InMemoryPlaylist>("Name of Playlist", std::move(playlistContent));
 
-  std::shared_ptr<PlaylistParseResult> result = subject->parsePlaylist(std::move(inMemoryPlaylist));
+  std::shared_ptr<PlaylistParseResult> result = subject->parsePlaylist(inMemoryPlaylist);
 
   EXPECT_NE(result, nullptr);
   EXPECT_NE(result->getParentContainer(), nullptr);
@@ -161,7 +161,7 @@ TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromM3U) {
   std::string playlistContent = mockPlaylist("fixtures/example.m3u");
   std::shared_ptr<InMemoryPlaylist> inMemoryPlaylist = std::make_shared<InMemoryPlaylist>("Name of Playlist", std::move(playlistContent));
 
-  std::shared_ptr<PlaylistParseResult> result = subject->parsePlaylist(std::move(inMemoryPlaylist));
+  std::shared_ptr<PlaylistParseResult> result = subject->parsePlaylist(inMemoryPlaylist);
 
   EXPECT_NE(result, nullptr);
   EXPECT_NE(result->getParentContainer(), nullptr);
@@ -184,7 +184,7 @@ TEST_F(StreamingContentServiceTest, UsingInMemoryPlaylistCreateFromXSPF) {
   std::string playlistContent = mockPlaylist("fixtures/example.xspf");
   std::shared_ptr<InMemoryPlaylist> inMemoryPlaylist = std::make_shared<InMemoryPlaylist>("Name of Playlist", std::move(playlistContent));
 
-  std::shared_ptr<PlaylistParseResult> result = subject->parsePlaylist(std::move(inMemoryPlaylist));
+  std::shared_ptr<PlaylistParseResult> result = subject->parsePlaylist(inMemoryPlaylist);
 
   EXPECT_NE(result, nullptr);
   EXPECT_NE(result->getParentContainer(), nullptr);

@@ -125,7 +125,7 @@ std::shared_ptr<InMemoryPlaylist> StreamingContentService::downloadPlaylist(std:
   return std::make_shared<InMemoryPlaylist>(name, content);
 }
 
-std::shared_ptr<PlaylistParseResult> StreamingContentService::parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) {
+std::shared_ptr<PlaylistParseResult> StreamingContentService::parsePlaylist(std::shared_ptr<InMemoryPlaylist>& playlist) {
   auto parentCds = generatePlaylistContainer(playlist->getName());
   auto parseResult = std::make_shared<PlaylistParseResult>(parentCds);
   std::shared_ptr<std::vector<zmm::Ref<CdsItemExternalURL>>> playlistItems = playlistParser->parsePlaylist(playlist);
@@ -135,7 +135,7 @@ std::shared_ptr<PlaylistParseResult> StreamingContentService::parsePlaylist(std:
   return parseResult;
 }
 
-unsigned long StreamingContentService::persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult, int purgeAfter) {
+unsigned long StreamingContentService::persistPlaylist(std::shared_ptr<PlaylistParseResult>& parseResult, int purgeAfter) {
   unsigned long objectsAdded = 0;
 
   // Create the wrapping container

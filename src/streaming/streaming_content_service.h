@@ -47,8 +47,8 @@ public:
     void processConfiguredPlaylists() override;
     void startupPlaylists() override;
     std::shared_ptr<InMemoryPlaylist> downloadPlaylist(std::string name, std::string url) override;
-    std::shared_ptr<PlaylistParseResult> parsePlaylist(std::shared_ptr<InMemoryPlaylist> playlist) override;
-    unsigned long persistPlaylist(std::shared_ptr<PlaylistParseResult> parseResult, int purgeAfter) override;
+    std::shared_ptr<PlaylistParseResult> parsePlaylist(std::shared_ptr<InMemoryPlaylist>& playlist) override;
+    unsigned long persistPlaylist(std::shared_ptr<PlaylistParseResult>& parseResult, int purgeAfter) override;
     void timerNotify(zmm::Ref<Timer::Parameter> parameter) override;
 protected:
     std::shared_ptr<StreamingOptions> streamingOptions;

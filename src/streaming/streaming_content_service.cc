@@ -74,13 +74,13 @@ bool StreamingContentService::shouldProcessPlaylist(std::string playlistName, in
   std::string playlistContainerChain = this->streamingOptions->playlists()->getRootVirtualPath() + DIR_SEPARATOR + playlistName;
   auto object = this->storage->findVirtualObjectByPath(playlistContainerChain);
 
-  if(object == nullptr || purgeInterval <= 0) {
+  if(object == nullptr) {
     log_debug("No playlist object found for container path: %s\n", playlistContainerChain.c_str());
     result = true;
-  } else {
+  } else if (purgeInterval >= 0) {
     zmm::String lastUpdateTime = object->getAuxData(_(ONLINE_SERVICE_LAST_UPDATE));
     if (!string_ok(lastUpdateTime)) {
-      result = true;
+      result = false;
     } else {
       result = this->isExpired(lastUpdateTime.toLong(), purgeInterval);
     }
@@ -89,6 +89,8 @@ bool StreamingContentService::shouldProcessPlaylist(std::string playlistName, in
     msg << " --> Last Update: " << lastUpdateTime.c_str();
     msg << " is " << (result ? "expired" : "not expired") << "\n";
     log_debug(msg.str().c_str());
+  } else {
+    result = false;
   }
   return result;
 }

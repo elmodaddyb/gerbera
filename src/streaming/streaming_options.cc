@@ -45,8 +45,21 @@ StreamingOptions::StreamingOptions(Ref<Element> streamingConfig) {
     item = cfgPlaylists->getElementChild(e);
     std::string url = item->getAttribute(_("url")).c_str();
     std::string name = item->getAttribute(_("name")).c_str();
-    std::string purgeAfterStr = item->getAttribute(_("purge-after")).c_str();
-    int purgeAfter = std::stoi(purgeAfterStr);
+
+    int purgeAfter;
+    if(item->getAttribute(_("purge-after")) == nullptr) {
+      purgeAfter = -1;
+    } else {
+      std::string purgeAfterStr = item->getAttribute(_("purge-after")).c_str();
+      try {
+        purgeAfter = std::stoi(purgeAfterStr);
+      }
+      catch (const std::invalid_argument& ia) {
+        log_error("`playlist/attribute::purge-after=%s must be integer -- using default value -1\n", purgeAfterStr.c_str());
+        purgeAfter = -1;
+      }
+    }
+
     playlist = std::make_unique<ConfiguredPlaylist>(url, name, purgeAfter);
     _playlists->addPlaylist(std::move(playlist));
   }

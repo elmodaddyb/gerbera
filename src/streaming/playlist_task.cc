@@ -34,15 +34,16 @@ PlaylistTask::PlaylistTask(std::string url, std::string name, int purgeAfter, St
 }
 
 void PlaylistTask::run() {
+  std::ostringstream completionMsg;
   if(this->streamingContentService->shouldProcessPlaylist(this->name, this->purgeAfter)) {
     auto inMemoryPlaylist = this->streamingContentService->downloadPlaylist(this->name, this->url);
     auto parseResult = this->streamingContentService->parsePlaylist(inMemoryPlaylist);
     unsigned long itemsAdded = this->streamingContentService->persistPlaylist(parseResult, this->purgeAfter);
-
-    std::ostringstream completionMsg;
     completionMsg << "Playlist Task : COMPLETE - ";
     completionMsg << "`" << parseResult->getParentContainer()->getTitle() << "` ";
     completionMsg << "added " << itemsAdded << " items\n";
-    log_info(completionMsg.str().c_str());
+  } else {
+    completionMsg << "Playlist Task : COMPLETE - `" << this->name << "` no changes.\n";
   }
+  log_info(completionMsg.str().c_str());
 }

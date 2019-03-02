@@ -17,6 +17,7 @@ using namespace zmm;
 using namespace mxml;
 
 static int rmFiles(const char *pathname, const struct stat *sbuf, int type, struct FTW *ftwb) {
+  printf("\nRemoving file: %s", pathname);
   if(remove(pathname) < 0) {
     perror("ERROR: remove");
     return -1;

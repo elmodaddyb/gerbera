@@ -107,6 +107,7 @@ class ConfigManagerTest : public ::testing::Test {
 
   virtual void TearDown() {
     // cleanup temporary directory
+    printf("Deleting directory: %s", gerberaDir.c_str());
     if (nftw(gerberaDir.c_str(), rmFiles,10, FTW_DEPTH|FTW_MOUNT|FTW_PHYS) < 0) {
       perror("ERROR: ntfw");
       exit(1);

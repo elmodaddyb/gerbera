@@ -36,12 +36,14 @@
 #include "tools.h"
 #include "web/pages.h"
 #include <ctime>
+#include <handler/headers.h>
 
 using namespace zmm;
 using namespace mxml;
 
 WebRequestHandler::WebRequestHandler()
-    : RequestHandler(), checkRequestCalled(false)
+    : RequestHandler()
+    , checkRequestCalled(false)
 {
     params = Ref<Dictionary>(new Dictionary());
 }
@@ -87,13 +89,12 @@ String WebRequestHandler::renderXMLHeader()
     return _("<?xml version=\"1.0\" encoding=\"") + DEFAULT_INTERNAL_CHARSET + "\"?>\n";
 }
 
-void WebRequestHandler::get_info(IN const char* filename, OUT UpnpFileInfo* info)
+void WebRequestHandler::getInfo(IN const char *filename, OUT UpnpFileInfo *info)
 {
     this->filename = filename;
-    this->mode = mode;
 
     String path, parameters;
-    split_url(filename, URL_UI_PARAM_SEPARATOR, path, parameters);
+    splitUrl(filename, URL_UI_PARAM_SEPARATOR, path, parameters);
 
     params->decode(parameters);
 
@@ -116,7 +117,9 @@ void WebRequestHandler::get_info(IN const char* filename, OUT UpnpFileInfo* info
     contentType = mimetype + "; charset=" + DEFAULT_INTERNAL_CHARSET;
 
     UpnpFileInfo_set_ContentType(info, ixmlCloneDOMString(contentType.c_str()));
-    UpnpFileInfo_set_ExtraHeaders(info, ixmlCloneDOMString("Cache-Control: no-cache, must-revalidate\n"));
+    Headers headers;
+    headers.addHeader(std::string{"Cache-Control: no-cache, must-revalidate"});
+    headers.writeHeaders(info);
 }
 
 Ref<IOHandler> WebRequestHandler::open(IN enum UpnpOpenFileMode mode)
@@ -148,7 +151,6 @@ Ref<IOHandler> WebRequestHandler::open(IN enum UpnpOpenFileMode mode)
         error_code = 300;
     } catch (const ObjectNotFoundException& e) {
         error = e.getMessage();
-        ;
         error_code = 200;
     } catch (const SessionException& e) {
         error = e.getMessage();
@@ -184,7 +186,7 @@ Ref<IOHandler> WebRequestHandler::open(IN enum UpnpOpenFileMode mode)
             // make sure we can generate JSON w/o exceptions
             XML2JSON::getJSON(root);
             //log_debug("JSON-----------------------\n\n\n%s\n\n\n\n", XML2JSON::getJSON(root).c_str());
-        } catch (const Exception e) {
+        } catch (const Exception& e) {
             e.printStackTrace();
         }
 #endif
@@ -192,7 +194,7 @@ Ref<IOHandler> WebRequestHandler::open(IN enum UpnpOpenFileMode mode)
     } else {
         try {
             output = XML2JSON::getJSON(root);
-        } catch (const Exception e) {
+        } catch (const Exception& e) {
             e.printStackTrace();
         }
     }
@@ -225,7 +227,7 @@ Ref<IOHandler> WebRequestHandler::open(IN const char* filename,
     this->mode = mode;
 
     String path, parameters;
-    split_url(filename, URL_UI_PARAM_SEPARATOR, path, parameters);
+    splitUrl(filename, URL_UI_PARAM_SEPARATOR, path, parameters);
 
     params->decode(parameters);
 
@@ -279,14 +281,4 @@ String WebRequestHandler::mapAutoscanType(int type)
         return _("persistent");
     else
         return _("none");
-}
-
-int WebRequestHandler::remapAutoscanType(String type)
-{
-    if (type == "ui")
-        return 1;
-    else if (type == "persistent")
-        return 2;
-    else
-        return 0;
 }

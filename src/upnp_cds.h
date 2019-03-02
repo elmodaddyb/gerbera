@@ -36,6 +36,7 @@
 #include "common.h"
 #include "singleton.h"
 #include "subscription_request.h"
+#include "upnp_xml.h"
 
 /// \brief This class is responsible for the UPnP Content Directory Service operations.
 ///
@@ -60,7 +61,7 @@ protected:
     /// Browse(string ObjectID, string BrowseFlag, string Filter, ui4 StartingIndex,
     /// ui4 RequestedCount, string SortCriteria, string Result, ui4 NumberReturned,
     /// ui4 TotalMatches, ui4 UpdateID)
-    void upnp_action_Browse(zmm::Ref<ActionRequest> request);
+    void doBrowse(zmm::Ref<ActionRequest> request);
 
     /// \brief UPnP standard defined action: Search()
     /// \param request Incoming ActionRequest.
@@ -68,33 +69,34 @@ protected:
     /// Search(string ContainerID, string SearchCriteria, string Filter, ui4 StartingIndex,
     /// ui4 RequestedCount, string SortCriteria, string Result, ui4 NumberReturned,
     /// ui4 TotalMatches, ui4 UpdateID)
-    void upnp_action_Search(zmm::Ref<ActionRequest> request);
-
+    void doSearch(zmm::Ref<ActionRequest> request);
 
     /// \brief UPnP standard defined action: GetSearchCapabilities()
     /// \param request Incoming ActionRequest.
     ///
     /// GetSearchCapabilities(string SearchCaps)
-    void upnp_action_GetSearchCapabilities(zmm::Ref<ActionRequest> request);
+    void doGetSearchCapabilities(zmm::Ref<ActionRequest> request);
 
     /// \brief UPnP standard defined action: GetSortCapabilities()
     /// \param request Incoming ActionRequest.
     ///
     /// GetSortCapabilities(string SortCaps)
-    void upnp_action_GetSortCapabilities(zmm::Ref<ActionRequest> request);
+    void doGetSortCapabilities(zmm::Ref<ActionRequest> request);
 
     /// \brief UPnP standard defined action: GetSystemUpdateID()
     /// \param request Incoming ActionRequest.
     ///
     /// GetSystemUpdateID(ui4 Id)
-    void upnp_action_GetSystemUpdateID(zmm::Ref<ActionRequest> request);
+    void doGetSystemUpdateID(zmm::Ref<ActionRequest> request);
 
     UpnpDevice_Handle deviceHandle;
+
+    UpnpXMLBuilder* xmlBuilder;
 
 public:
     /// \brief Constructor for the CDS, saves the service type and service id
     /// in internal variables.
-    explicit ContentDirectoryService(UpnpDevice_Handle deviceHandle);
+    explicit ContentDirectoryService(UpnpXMLBuilder* builder, UpnpDevice_Handle deviceHandle, int stringLimit);
     ~ContentDirectoryService();
 
     /// \brief Dispatches the ActionRequest between the available actions.
@@ -102,14 +104,14 @@ public:
     ///
     /// This function looks at the incoming ActionRequest and passes it on
     /// to the appropriate action for processing.
-    void process_action_request(zmm::Ref<ActionRequest> request);
+    void processActionRequest(zmm::Ref<ActionRequest> request);
 
     /// \brief Processes an incoming SubscriptionRequest.
     /// \param request SubscriptionRequest to be processed by the function.
     ///
     /// Looks at the incoming SubscriptionRequest and accepts the subscription
     /// if everything is ok.
-    void process_subscription_request(zmm::Ref<SubscriptionRequest> request);
+    void processSubscriptionRequest(zmm::Ref<SubscriptionRequest> request);
 
     /// \brief Sends out an event to all subscribed devices.
     /// \param containerUpdateIDs_CSV Comma Separated Value list of container update ID's (as defined in the UPnP CDS specs)
@@ -117,7 +119,7 @@ public:
     /// When something in the content directory chagnes, we will send out
     /// an event to all subscribed devices. Container updates are supported,
     /// and of course the mimimum required - systemUpdateID.
-    void subscription_update(zmm::String containerUpdateIDs_CSV);
+    void sendSubscriptionUpdate(zmm::String containerUpdateIDs_CSV);
 };
 
 #endif // __UPNP_CDS_H__

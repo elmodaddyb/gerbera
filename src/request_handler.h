@@ -29,23 +29,20 @@
 
 /// \file request_handler.h
 /// \brief Definition of the RequestHandler class.
-/// \todo genych, opishi ty etot request handler...
+/// \todo genych, describe you this request handler...
 #ifndef __REQUEST_HANDLER_H__
 #define __REQUEST_HANDLER_H__
 
 #include "common.h"
 #include "io_handler.h"
 
-class RequestHandler : public zmm::Object
-{
+class RequestHandler : public zmm::Object {
 public:
-    virtual void get_info(IN const char *filename, 
-                          OUT UpnpFileInfo *info) = 0;
-    virtual zmm::Ref<IOHandler> open(IN const char *filename,
-                                     IN enum UpnpOpenFileMode mode,
-                                     IN zmm::String range) = 0;
+    virtual void getInfo(IN const char *filename, OUT UpnpFileInfo *info) = 0;
 
-    /// \brief Splits the url into a path and parameters string. 
+    virtual zmm::Ref<IOHandler> open(IN const char* filename, IN enum UpnpOpenFileMode mode, IN zmm::String range) = 0;
+
+    /// \brief Splits the url into a path and parameters string.
     /// Only '?' and '/' separators are allowed, otherwise an exception will
     /// be thrown.
     /// \param url URL that has to be processed
@@ -53,12 +50,10 @@ public:
     /// \param parameters variable where the parameters portion will be saved
     ///
     /// This function splits the url into it's path and parameter components.
-    /// content/media SEPARATOR object_id=12345&transcode=wav would be transformed to: 
+    /// content/media SEPARATOR object_id=12345&transcode=wav would be transformed to:
     /// path = "content/media"
     /// parameters = "object_id=12345&transcode=wav"
-    static void split_url(const char *url, char separator, 
-                          zmm::String &path, zmm::String &parameters);
+    static void splitUrl(const char *url, char separator, zmm::String &path, zmm::String &parameters);
 };
-
 
 #endif // __REQUEST_HANDLER_H__

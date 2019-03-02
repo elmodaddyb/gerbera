@@ -32,6 +32,7 @@
 #ifndef __ZMM_STRINGS_H__
 #define __ZMM_STRINGS_H__
 
+#include <optional>
 #include <string>
 
 #include <stdio.h>
@@ -216,6 +217,7 @@ public:
     static String take(const char *data);
     static String refer(const char *str);
     static String refer(const char *str, int len);
+    static String refer(const std::optional<std::string> &str);
     static String copy(const char *str);
 protected:
     String(int capacity);
@@ -241,7 +243,7 @@ struct hash<zmm::String>
 
 template <typename T>
 std::basic_ostream<T> &operator<<(std::basic_ostream<T> &oss, const zmm::String &s) {
-    oss << s.c_str();
+    oss << (s.c_str() == nullptr ? "" : s.c_str());
     return oss;
 }
 

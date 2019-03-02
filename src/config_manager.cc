@@ -100,11 +100,12 @@ void ConfigManager::setStaticArgs(String _filename, String _userhome,
 
 ConfigManager::ConfigManager()
     : Singleton<ConfigManager, std::mutex>()
-{}
+{
+}
 
 void ConfigManager::init()
 {
-    options = Ref<Array<ConfigOption> >(new Array<ConfigOption>(CFG_MAX));
+    options = Ref<Array<ConfigOption>>(new Array<ConfigOption>(CFG_MAX));
 
     String home = userhome + DIR_SEPARATOR + config_dir;
 
@@ -113,7 +114,14 @@ void ConfigManager::init()
         if (check_path(home + DIR_SEPARATOR + DEFAULT_CONFIG_NAME)) {
             filename = home + DIR_SEPARATOR + DEFAULT_CONFIG_NAME;
         } else {
-            throw _Exception(_("\nThe server configuration file could not be found in ~/.config/gerbera\n") + "Gerbera could not find a default configuration file.\n" + "Try specifying an alternative configuration file on the command line.\n" + "For a list of options run: gerbera -h\n");
+            std::ostringstream expErrMsg;
+            expErrMsg << "\nThe server configuration file could not be found in: ";
+            expErrMsg << home << "\n";
+            expErrMsg << "Gerbera could not find a default configuration file.\n";
+            expErrMsg << "Try specifying an alternative configuration file on the command line.\n";
+            expErrMsg << "For a list of options run: gerbera -h\n";
+
+            throw _Exception(expErrMsg.str());
         }
     }
 
@@ -490,7 +498,7 @@ void ConfigManager::validate(String serverhome)
     }
 
     // create the array from either user or default settings
-    Ref<Array<StringBase> > menu_opts(new Array<StringBase>());
+    Ref<Array<StringBase>> menu_opts(new Array<StringBase>());
     for (int j = 0; j < element->elementChildCount(); j++) {
         Ref<Element> child = element->getElementChild(j);
         if (child->getName() == "option")
@@ -572,6 +580,7 @@ void ConfigManager::validate(String serverhome)
         mime_content->put(_("video/mp4"), _(CONTENT_TYPE_MP4));
         mime_content->put(_("application/ogg"), _(CONTENT_TYPE_OGG));
         mime_content->put(_("audio/x-flac"), _(CONTENT_TYPE_FLAC));
+        mime_content->put(_("audio/flac"), _(CONTENT_TYPE_FLAC));
         mime_content->put(_("image/jpeg"), _(CONTENT_TYPE_JPG));
         mime_content->put(_("audio/x-mpegurl"), _(CONTENT_TYPE_PLAYLIST));
         mime_content->put(_("audio/x-scpls"), _(CONTENT_TYPE_PLAYLIST));
@@ -647,7 +656,6 @@ void ConfigManager::validate(String serverhome)
     NEW_OPTION(charset);
     SET_OPTION(CFG_IMPORT_PLAYLIST_CHARSET);
 
-#ifdef EXTEND_PROTOCOLINFO
     temp = getOption(_("/server/protocolInfo/attribute::extend"),
         _(DEFAULT_EXTEND_PROTOCOLINFO));
     if (!validateYesNo(temp))
@@ -675,7 +683,6 @@ void ConfigManager::validate(String serverhome)
 
     NEW_BOOL_OPTION(temp == "yes" ? true : false);
     SET_BOOL_OPTION(CFG_SERVER_EXTEND_PROTOCOLINFO_SM_HACK);
-#endif
 
     temp = getOption(_("/server/pc-directory/attribute::upnp-hide"),
         _(DEFAULT_HIDE_PC_DIRECTORY));
@@ -993,13 +1000,12 @@ void ConfigManager::validate(String serverhome)
 #endif
 
 #if defined(HAVE_FFMPEG)
-   el = getElement(_("/import/library-options/ffmpeg/auxdata"));
-   if (el == nullptr)
-   {
-       getOption(_("/import/library-options/ffmpeg/auxdata"), _(""));
-   }
-   NEW_STRARR_OPTION(createArrayFromNodeset(el, _("add-data"), _("tag")));
-   SET_STRARR_OPTION(CFG_IMPORT_LIBOPTS_FFMPEG_AUXDATA_TAGS_LIST);
+    el = getElement(_("/import/library-options/ffmpeg/auxdata"));
+    if (el == nullptr) {
+        getOption(_("/import/library-options/ffmpeg/auxdata"), _(""));
+    }
+    NEW_STRARR_OPTION(createArrayFromNodeset(el, _("add-data"), _("tag")));
+    SET_STRARR_OPTION(CFG_IMPORT_LIBOPTS_FFMPEG_AUXDATA_TAGS_LIST);
 #endif
 
 #if defined(HAVE_FFMPEG) && defined(HAVE_FFMPEGTHUMBNAILER)
@@ -1146,7 +1152,7 @@ void ConfigManager::validate(String serverhome)
     NEW_OPTION(temp);
     SET_OPTION(CFG_SERVER_EXTOPTS_MARK_PLAYED_ITEMS_STRING);
 
-    Ref<Array<StringBase> > mark_content_list(new Array<StringBase>());
+    Ref<Array<StringBase>> mark_content_list(new Array<StringBase>());
     tmpEl = getElement(_("/server/extended-runtime-options/mark-played-items/mark"));
 
     int contentElementCount = 0;
@@ -1371,7 +1377,7 @@ String ConfigManager::getOption(String xpath, String def)
     String pathPart = XPath::getPathPart(xpath);
     String axisPart = XPath::getAxisPart(xpath);
 
-    Ref<Array<StringBase> > parts = split_string(pathPart, '/');
+    Ref<Array<StringBase>> parts = split_string(pathPart, '/');
 
     Ref<Element> cur = root;
     String attr = nullptr;
@@ -1473,6 +1479,27 @@ void ConfigManager::writeBookmark(String ip, String port)
         throw _Exception(_("write_Bookmark: failed to write to: ") + path);
 }
 
+void ConfigManager::emptyBookmark()
+{
+    String data = _("<html><body><h1>Gerbera Media Server is not running.</h1><p>Please start it and try again.</p></body></html>");
+
+    String filename = getOption(CFG_SERVER_BOOKMARK_FILE);
+    String path = construct_path(filename);
+
+    log_debug("Clearing bookmark file at: %s\n", path.c_str());
+
+    FILE* f = fopen(path.c_str(), "w");
+    if (f == nullptr) {
+        throw _Exception(_("emptyBookmark: failed to open: ") + path);
+    }
+
+    int size = fwrite(data.c_str(), sizeof(char), data.length(), f);
+    fclose(f);
+
+    if (size < data.length())
+        throw _Exception(_("emptyBookmark: failed to write to: ") + path);
+}
+
 String ConfigManager::checkOptionString(String xpath)
 {
     String temp = getOption(xpath);
@@ -1523,7 +1550,7 @@ Ref<TranscodingProfileList> ConfigManager::createTranscodingProfileListFromNodes
     if (element == nullptr)
         return list;
 
-    Ref<Array<DictionaryElement> > mt_mappings(new Array<DictionaryElement>());
+    Ref<Array<DictionaryElement>> mt_mappings(new Array<DictionaryElement>());
 
     String mt;
     String pname;
@@ -1612,7 +1639,7 @@ Ref<TranscodingProfileList> ConfigManager::createTranscodingProfileListFromNodes
                 throw _Exception(_("error in configuration: invalid mode given for avi-fourcc-list: \"") + mode + _("\""));
 
             if (fcc_mode != FCC_None) {
-                Ref<Array<StringBase> > fcc_list(new Array<StringBase>());
+                Ref<Array<StringBase>> fcc_list(new Array<StringBase>());
                 for (int f = 0; f < avi_fcc->elementChildCount(); f++) {
                     Ref<Element> fourcc = avi_fcc->getElementChild(f);
                     if (fourcc->getName() != "fourcc")
@@ -1888,7 +1915,6 @@ Ref<AutoscanList> ConfigManager::createAutoscanListFromNodeset(zmm::Ref<mxml::El
         unsigned int interval = 0;
         ScanLevel level;
 
-
         if (mode == ScanMode::Timed) {
             temp = child->getAttribute(_("level"));
             if (!string_ok(temp)) {
@@ -1984,10 +2010,10 @@ void ConfigManager::dumpOptions()
 #endif
 }
 
-Ref<Array<StringBase> > ConfigManager::createArrayFromNodeset(Ref<mxml::Element> element, String nodeName, String attrName)
+Ref<Array<StringBase>> ConfigManager::createArrayFromNodeset(Ref<mxml::Element> element, String nodeName, String attrName)
 {
     String attrValue;
-    Ref<Array<StringBase> > arr(new Array<StringBase>());
+    Ref<Array<StringBase>> arr(new Array<StringBase>());
 
     if (element != nullptr) {
         for (int i = 0; i < element->elementChildCount(); i++) {
@@ -2038,18 +2064,18 @@ Ref<Dictionary> ConfigManager::getDictionaryOption(config_option_t option)
     return options->get(option)->getDictionaryOption();
 }
 
-Ref<Array<StringBase> > ConfigManager::getStringArrayOption(config_option_t option)
+Ref<Array<StringBase>> ConfigManager::getStringArrayOption(config_option_t option)
 {
     return options->get(option)->getStringArrayOption();
 }
 
-Ref<ObjectDictionary<zmm::Object> > ConfigManager::getObjectDictionaryOption(config_option_t option)
+Ref<ObjectDictionary<zmm::Object>> ConfigManager::getObjectDictionaryOption(config_option_t option)
 {
     return options->get(option)->getObjectDictionaryOption();
 }
 
 #ifdef ONLINE_SERVICES
-Ref<Array<Object> > ConfigManager::getObjectArrayOption(config_option_t option)
+Ref<Array<Object>> ConfigManager::getObjectArrayOption(config_option_t option)
 {
     return options->get(option)->getObjectArrayOption();
 }
@@ -2066,10 +2092,10 @@ Ref<TranscodingProfileList> ConfigManager::getTranscodingProfileListOption(confi
 }
 
 #ifdef ONLINE_SERVICES
-Ref<Array<Object> > ConfigManager::createServiceTaskList(service_type_t service,
+Ref<Array<Object>> ConfigManager::createServiceTaskList(service_type_t service,
     Ref<Element> element)
 {
-    Ref<Array<Object> > arr(new Array<Object>());
+    Ref<Array<Object>> arr(new Array<Object>());
 
     if (element == nullptr)
         return arr;

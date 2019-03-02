@@ -40,18 +40,19 @@
 #include "session_manager.h"
 #include "update_manager.h"
 
+#include "handler/headers.h"
 #include "transcoding/transcode_dispatcher.h"
 
 using namespace zmm;
 using namespace mxml;
 
-FileRequestHandler::FileRequestHandler()
+FileRequestHandler::FileRequestHandler(UpnpXMLBuilder* xmlBuilder)
     : RequestHandler()
-{
-}
+    , xmlBuilder(xmlBuilder) {};
 
-void FileRequestHandler::get_info(IN const char* filename, OUT UpnpFileInfo* info)
+void FileRequestHandler::getInfo(IN const char* filename, OUT UpnpFileInfo* info)
 {
+    Headers headers;
     log_debug("start\n");
 
     String mimeType;
@@ -67,15 +68,14 @@ void FileRequestHandler::get_info(IN const char* filename, OUT UpnpFileInfo* inf
     Ref<Dictionary> dict(new Dictionary());
     dict->decodeSimple(parameters);
 
-    log_debug("full url (filename): %s, parameters: %s\n",
-        filename, parameters.c_str());
+    log_debug("full url (filename): %s, parameters: %s\n", filename, parameters.c_str());
 
     String objID = dict->get(_("object_id"));
     if (objID == nullptr) {
         //log_error("object_id not found in url\n");
-        throw _Exception(_("get_info: object_id not found"));
-    } else
-        objectID = objID.toInt();
+        throw _Exception(_("getInfo: object_id not found"));
+    }
+    objectID = objID.toInt();
 
     //log_debug("got ObjectID: [%s]\n", object_id.c_str());
 
@@ -215,20 +215,7 @@ void FileRequestHandler::get_info(IN const char* filename, OUT UpnpFileInfo* inf
         UpnpFileInfo_set_FileLength(info, -1);
     } else {
         UpnpFileInfo_set_FileLength(info, statbuf.st_size);
-        // if we are dealing with a regular file we should add the
-        // Accept-Ranges: bytes header, in order to indicate that we support
-        // seeking
-        if (S_ISREG(statbuf.st_mode)) {
-            if (string_ok(header))
-                header = header + _("\r\n");
 
-            header = header + _("Accept-Ranges: bytes");
-            /// \todo turned out that we are not always allowed to add this
-            /// header, since chunked encoding may be active and we do not
-            /// know that here
-        }
-
-#ifdef EXTEND_PROTOCOLINFO
         Ref<ConfigManager> cfg = ConfigManager::getInstance();
         if (cfg->getBoolOption(CFG_SERVER_EXTEND_PROTOCOLINFO_SM_HACK)) {
             if (item->getMimeType().startsWith(_("video"))) {
@@ -258,40 +245,31 @@ void FileRequestHandler::get_info(IN const char* filename, OUT UpnpFileInfo* inf
                 if (validext.length() > 0) {
                     String burlpath = _(filename);
                     burlpath = burlpath.substring(0, burlpath.rindex('.'));
-                    Ref<Server> server = Server::getInstance();
-                    String url = _("http://")
-                        + server->getIP() + ":" + server->getPort()
-                        + burlpath + validext;
-
-                    if (string_ok(header))
-                        header = header + _("\r\n");
-                    header = header + "CaptionInfo.sec: " + url;
+                    Ref<Server> server = Server::getInstance(); // FIXME server sigleton usage
+                    String url = _("http://") + server->getIP() + ":" + server->getPort() + burlpath + validext;
+                    headers.addHeader(_("CaptionInfo.sec: ") + url);
                 }
             }
         }
-#endif
+        Ref<Dictionary> mappings = cfg->getDictionaryOption(
+            CFG_IMPORT_MAPPINGS_MIMETYPE_TO_CONTENTTYPE_LIST);
+        headers.addHeader(getDLNAcontentHeader(mappings->get(item->getMimeType())));
     }
 
     if (!string_ok(mimeType))
         mimeType = item->getMimeType();
+    headers.addHeader(getDLNAtransferHeader(mimeType));
 
-        //log_debug("sizeof off_t %d, statbuf.st_size %d\n", sizeof(off_t), sizeof(statbuf.st_size));
-        //log_debug("get_info: file_length: " OFF_T_SPRINTF "\n", statbuf.st_size);
-
-#ifdef EXTEND_PROTOCOLINFO
-    header = getDLNAtransferHeader(mimeType, header);
-#endif
-
-    if (string_ok(header))
-        UpnpFileInfo_set_ExtraHeaders(info,
-            ixmlCloneDOMString(header.c_str()));
+    //log_debug("sizeof off_t %d, statbuf.st_size %d\n", sizeof(off_t), sizeof(statbuf.st_size));
+    //log_debug("getInfo: file_length: " OFF_T_SPRINTF "\n", statbuf.st_size);
 
     UpnpFileInfo_set_LastModified(info, statbuf.st_mtime);
     UpnpFileInfo_set_IsDirectory(info, S_ISDIR(statbuf.st_mode));
-    UpnpFileInfo_set_ContentType(info,
-        ixmlCloneDOMString(mimeType.c_str()));
+    UpnpFileInfo_set_ContentType(info, ixmlCloneDOMString(mimeType.c_str()));
 
-    // log_debug("get_info: Requested %s, ObjectID: %s, Location: %s\n, MimeType: %s\n",
+    headers.writeHeaders(info);
+
+    // log_debug("getInfo: Requested %s, ObjectID: %s, Location: %s\n, MimeType: %s\n",
     //      filename, object_id.c_str(), path.c_str(), info->content_type);
 
     log_debug("web_get_info(): end\n");
@@ -343,7 +321,7 @@ Ref<IOHandler> FileRequestHandler::open(IN const char* filename,
     if (IS_CDS_ACTIVE_ITEM(objectType) && (res_id == 0)) { // check - if thumbnails, then no action, just show
         Ref<CdsActiveItem> aitem = RefCast(obj, CdsActiveItem);
 
-        Ref<Element> inputElement = UpnpXML_DIDLRenderObject(obj, true);
+        Ref<Element> inputElement = xmlBuilder->renderObject(obj, true);
 
         inputElement->setAttribute(_(XML_DC_NAMESPACE_ATTR), _(XML_DC_NAMESPACE));
         inputElement->setAttribute(_(XML_UPNP_NAMESPACE_ATTR), _(XML_UPNP_NAMESPACE));
@@ -372,7 +350,7 @@ Ref<IOHandler> FileRequestHandler::open(IN const char* filename,
         Ref<CdsObject> clone = CdsObject::createObject(objectType);
         aitem->copyTo(clone);
 
-        UpnpXML_DIDLUpdateObject(clone, output);
+        xmlBuilder->updateObject(clone, output);
 
         if (!aitem->equals(clone, true)) // check for all differences
         {
@@ -512,10 +490,8 @@ Ref<IOHandler> FileRequestHandler::open(IN const char* filename,
                 header = header + _("Accept-Ranges: bytes");
             }
 
-
-#ifdef EXTEND_PROTOCOLINFO
             header = getDLNAtransferHeader(mimeType, header);
-#endif
+
             if (string_ok(header))
                 info->http_header = ixmlCloneDOMString(header.c_str());
             */

@@ -4,7 +4,7 @@
 
     gerbera.menu.js - this file is part of Gerbera.
 
-    Copyright (C) 2016-2018 Gerbera Contributors
+    Copyright (C) 2016-2019 Gerbera Contributors
 
     Gerbera is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 2
@@ -34,6 +34,9 @@ GERBERA.Menu = (function () {
       allLinks.click(GERBERA.Menu.click)
       allLinks.removeClass('disabled')
       $('#nav-home').click()
+      if(GERBERA.App.serverConfig.friendlyName) {
+        $('#nav-home').text('Home [' + GERBERA.App.serverConfig.friendlyName +']');
+      }
     } else {
      disable()
     }
@@ -53,9 +56,6 @@ GERBERA.Menu = (function () {
       case 'SELECT_TYPE':
         selectType(menuItem)
         break
-      case 'LEAVE_BETA':
-        leaveBeta()
-        break
       case 'HOME':
         home()
         break
@@ -68,13 +68,6 @@ GERBERA.Menu = (function () {
     GERBERA.Tree.destroy()
     GERBERA.Trail.destroy()
     GERBERA.Items.destroy()
-  }
-
-  var leaveBeta = function () {
-    GERBERA.Tree.destroy()
-    GERBERA.Trail.destroy()
-    GERBERA.Items.destroy()
-    GERBERA.App.reload('/old.html')
   }
 
   var selectType = function (menuItem) {

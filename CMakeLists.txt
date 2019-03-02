@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 set(GERBERA_MAJOR_VERSION 1)
-set(GERBERA_MINOR_VERSION 3)
+set(GERBERA_MINOR_VERSION 4)
 set(GERBERA_PATCH_VERSION 0)
 set(GERBERA_RELEASE "alpha")
 set(GERBERA_VERSION "${GERBERA_MAJOR_VERSION}.${GERBERA_MINOR_VERSION}.${GERBERA_PATCH_VERSION}${GERBERA_RELEASE}")
@@ -10,7 +10,7 @@ project(Gerbera
         VERSION "${GERBERA_MAJOR_VERSION}.${GERBERA_MINOR_VERSION}.${GERBERA_PATCH_VERSION}")
 
 # Leverage a modern C++
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -27,14 +27,12 @@ set(WITH_AVCODEC        0 CACHE BOOL "Enable ffmpeg/libav")
 set(WITH_FFMPEGTHUMBNAILER 0 CACHE BOOL "Enable Thumbnail generation")
 set(WITH_EXIF           1 CACHE BOOL "Use libexif to extract image metadata")
 set(WITH_EXIV2          0 CACHE BOOL "Use libexiv2 to extract image metadata")
-set(WITH_PROTOCOL_EXTENSIONS 1 CACHE BOOL "Add incomplete DLNA protocol extensions to resposnses")
 set(WITH_SYSTEMD        1 CACHE BOOL "Install Systemd unit file")
 set(WITH_LASTFM         0 CACHE BOOL "Enable LastFM")
 set(WITH_DEBUG          1 CACHE BOOL "Enables debug logging")
 set(WITH_TESTS          0 CACHE BOOL "Enables Unit Tests")
 set(WITH_SHOUTCAST      0 CACHE BOOL "Enable Shoutcast Service")
 set(WITH_BACKTRACE      0 CACHE BOOL "Enable Backtrace")
-
 
 set(libgerberaFILES
         src/action_request.cc
@@ -55,8 +53,6 @@ set(libgerberaFILES
         src/cds_objects.h
         src/cds_resource.cc
         src/cds_resource.h
-        src/cds_resource_manager.cc
-        src/cds_resource_manager.h
         src/common.h
         src/config/config_generator.h
         src/config/config_generator.cc
@@ -91,6 +87,8 @@ set(libgerberaFILES
         src/gerbera/exception.cc
         src/gerbera/url.h
         src/gerbera/url.cc
+        src/handler/headers.h
+        src/handler/headers.cc
         src/io_handler_buffer_helper.cc
         src/io_handler_buffer_helper.h
         src/io_handler.cc
@@ -305,6 +303,9 @@ target_include_directories(libgerbera PRIVATE "${CMAKE_SOURCE_DIR}/src")
 add_executable(gerbera src/main.cc $<TARGET_OBJECTS:libgerbera>)
 target_include_directories(gerbera PRIVATE "${CMAKE_SOURCE_DIR}/src")
 
+target_compile_features(gerbera PUBLIC cxx_std_17)
+target_compile_features(libgerbera PUBLIC cxx_std_17)
+
 # Warnings are nice
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
@@ -340,12 +341,15 @@ target_compile_definitions(gerbera PRIVATE -DCOMPILE_INFO="${COMPILE_INFO}")
 target_compile_definitions(gerbera PRIVATE -DGIT_BRANCH="${GIT_BRANCH}")
 target_compile_definitions(gerbera PRIVATE -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}")
 
-if (WITH_DEBUG)
-    add_definitions(-DTOMBDEBUG)
+# Check for C++17 STL Optional
+include(CheckIncludeFileCXX)
+check_include_file_cxx(optional HAS_STL_OPTIONAL)
+if (NOT HAS_STL_OPTIONAL)
+    message(FATAL_ERROR "gerbera requires C++17 Optional to be available. Check your compiler is >=GCC 7.1 or >=libc++ 5")
 endif()
 
-if (WITH_PROTOCOL_EXTENSIONS)
-    add_definitions(-DEXTEND_PROTOCOLINFO)
+if (WITH_DEBUG)
+    add_definitions(-DTOMBDEBUG)
 endif()
 
 find_package(Threads REQUIRED)

@@ -13,7 +13,7 @@ suite(() => {
 
   before(async () => {
     const chromeOptions = new chrome.Options();
-    chromeOptions.addArguments(['--window-size=1280,1024']);
+    chromeOptions.addArguments(['--headless', '--window-size=1280,1024']);
     driver = new Builder()
       .forBrowser('chrome')
       .setChromeOptions(chromeOptions)
@@ -69,6 +69,17 @@ suite(() => {
       await homePage.clickMenu('nav-home');
       const tree = await homePage.treeItems();
       expect(tree.length).to.equal(0);
+    });
+
+    it('shows the friendly name in the Home menu', async () => {
+      const homeMenu = await homePage.getHomeMenu();
+      const text = await homeMenu.getText();
+      expect(text).to.equal('Home [Gerbera Media Server]')
+    });
+
+    it('shows the friendly name in the document title', async () => {
+      const title = await homePage.getTitle();
+      expect(title).to.equal('Gerbera Media Server | Gerbera Media Server')
     });
 
     it('loads the parent database container list when clicking Database Icon', async () => {

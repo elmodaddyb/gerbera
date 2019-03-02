@@ -70,10 +70,10 @@ Server friendly name, you will see this on your devices that you use to access t
 
 .. code-block:: xml
 
-    <manufacturerURL>http://mediatomb.org/</manufacturerURL>
+    <manufacturerURL>http://gerbera.io/</manufacturerURL>
 
 * Optional
-* Default: **http://mediatomb.cc/**
+* Default: **http://gerbera.io/**
 
 This tag sets the manufacturer URL of a UPnP device, a custom setting may be necessary to trick some renderers in order
 to enable special features that otherwise are only active with the vendor implemented server.
@@ -168,14 +168,14 @@ page of the device.
 
 .. code-block:: xml
 
-    <udn/>
+    <udn>uuid:[generated-uuid]</udn>
 
 * Required
-* Default: **automatically generated if the tag is empty**
+* Default: **none**
 
 Unique Device Name, according to the UPnP spec it must be consistent throughout reboots. You can fill in something
-yourself, but we suggest that you leave this tag empty - it will be filled out and saved automatically after the
-first launch of the server.
+yourself.  Review the :ref:`Generating Configuration <generateConfig>` section of the documentation to see how to use
+``gerbera`` to create a default configuration file.
 
 ``home``
 ~~~~~~~~

@@ -3,7 +3,7 @@
 
   import_structured.js - this file is part of Gerbera.
 
-  Copyright (C) 2018 Gerbera Contributors
+  Copyright (C) 2018-2019 Gerbera Contributors
 
   Gerbera is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License version 2
@@ -59,12 +59,13 @@ function addAudio(obj) {
     var date = obj.meta[M_DATE];
     if (!date) {
         date = '-Unknown-';
-	    decade = '-Unknown-';
+        decade = '-Unknown-';
     }
     else {
         date = getYear(date);
+        obj.meta[M_UPNP_DATE] = date;
         desc = desc + ', ' + date;
-	    decade = date.substring(0,3) + '0 - ' + String(10 * (parseInt(date.substring(0,3))) + 9) ;
+        decade = date.substring(0,3) + '0 - ' + String(10 * (parseInt(date.substring(0,3))) + 9) ;
     }
     
     var genre = obj.meta[M_GENRE];

@@ -3,8 +3,55 @@
 Compile Gerbera
 ===============
 
-The project has been ported to `CMake <https://cmake.org/>`_.
+Gerbera uses the excellent `CMake <https://cmake.org/>`_ build system.
 
+
+.. _gerbera-requirements:
+
+Dependencies
+~~~~~~~~~~~~
+
+.. Note:: Remember to install associated development packages, because development headers are needed for compilation!
+
+In order to compile Gerbera you will have to install the following packages:
+
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| Library           | Version   | Required?     | Note                       | Compile-time option    | Default  |
++===================+===========+===============+============================+========================+==========+
+| libupnp           | 1.8.3     | Required      | `pupnp <https://github.com/mrjimenez/pupnp>`_       |          |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| libuuid           |           | Depends on OS | On BSD native libuuid is   |                        |          |
+|                   |           |               | used others require        |                        |          |
+|                   |           |               | e2fsprogs-libuuid          |                        |          |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| expat             |           | Required      |                            |                        |          |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| libiconv          |           | Required      |                            |                        |          |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| sqlite3           |           | Required      | Database storage           |                        |          |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| duktape           | 2.1.0     | Optional      | Scripting Support          | WITH_JS                | Enabled  |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| mysql             |           | Optional      | Alternate database storage | WITH_MYSQL             | Disabled |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| curl              |           | Optional      | Enables web services       | WITH_CURL              | Enabled  |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| taglib            | 1.11.1    | Optional      | Audio tag support          | WITH_TAGLIB            | Enabled  |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| libmagic          |           | Optional      | File type detection        | WITH_MAGIC             | Enabled  |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| ffmpeg/libav      |           | Optional      | File metadata              | WITH_AVCODEC           | Disabled |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| libexif           |           | Optional      | JPEG Exif metadata         | WITH_EXIF              | Enabled  |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| libexiv2          |           | Optional      | Exif, IPTC, XMP metadata   | WITH_EXIV2             | Disabled |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| lastfmlib         | 0.4.0     | Optional      | Enables scrobbling         | WITH_LASTFM            | Disabled |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| ffmpegthumbnailer |           | Optional      | Generate video thumbnails  | WITH_FFMPEGTHUMBNAILER | Disabled |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
+| inotify           |           | Optional      | Efficient file monitoring  | WITH_INOTIFY           | Enabled  |
++-------------------+-----------+---------------+----------------------------+------------------------+----------+
 
 .. index:: Quick Start Build
 
@@ -90,9 +137,9 @@ Build On FreeBSD
 Build On macOS
 ~~~~~~~~~~~~~~
 
-`The following has been tested on macOS Sierra 10.12.6`
+`The following has been tested on macOS High Sierra 10.13.4`
 
-1. Install :ref:`prerequisites <gerbera-requirements>` using homebrew
-2. Install **ossp-uuid** using homebrew
-3. Install **pupnp** and **duktape** using the scripts provided.
-4. Use the cmake option ``-DCMAKE_FIND_FRAMEWORK=LAST`` to avoid Clang linkage errors
+The Gerbera Team maintains a Homebrew Tap to build and install Gerbera Media Server.  Take a look
+at the Homebrew formula to see an example of how to compile Gerbera on macOS.
+
+`homebrew-gerbera/gerbera.rb <https://github.com/gerbera/homebrew-gerbera/blob/master/gerbera.rb>`_

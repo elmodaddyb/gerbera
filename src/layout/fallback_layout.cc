@@ -218,16 +218,20 @@ void FallbackLayout::addAudio(zmm::Ref<CdsObject> obj)
     desc = desc + title;
 
     String date = meta->get(MetadataHandler::getMetaFieldName(M_DATE));
-    if (string_ok(date))
-    {
+    String albumDate;
+    if (string_ok(date)) {
         int i = date.index('-');
         if (i > 0)
             date = date.substring(0, i);
 
         desc = desc + _(", ") + date;
-    }
-    else
+        albumDate = esc(date);
+    } else {
         date = _("Unknown");
+        albumDate = _("Unknown");
+    }
+
+    meta->put(MetadataHandler::getMetaFieldName(M_UPNP_DATE), albumDate);
 
     String genre = meta->get(MetadataHandler::getMetaFieldName(M_GENRE));
     if (string_ok(genre))
@@ -241,6 +245,22 @@ void FallbackLayout::addAudio(zmm::Ref<CdsObject> obj)
     {
         meta->put(MetadataHandler::getMetaFieldName(M_DESCRIPTION), desc);
         obj->setMetadata(meta);
+    }
+
+    String composer = meta->get(MetadataHandler::getMetaFieldName(M_COMPOSER));
+    if (!string_ok(composer))
+    {
+        composer = _("None");
+    }
+
+    String conductor = meta->get(MetadataHandler::getMetaFieldName(M_CONDUCTOR));
+    if (!string_ok(conductor)) {
+        conductor = _("None");
+    }
+
+    String orchestra = meta->get(MetadataHandler::getMetaFieldName(M_ORCHESTRA));
+    if (!string_ok(orchestra)) {
+        orchestra = _("None");
     }
 
     id = ContentManager::getInstance()->addContainerChain(_("/Audio/All Audio"));
@@ -291,6 +311,10 @@ void FallbackLayout::addAudio(zmm::Ref<CdsObject> obj)
 
     chain = _("/Audio/Genres/") + esc(genre);
     id = ContentManager::getInstance()->addContainerChain(chain, _(UPNP_DEFAULT_CLASS_MUSIC_GENRE));
+    add(obj, id);
+
+    chain = _("/Audio/Composers/") + esc(composer);
+    id = ContentManager::getInstance()->addContainerChain(chain, _(UPNP_DEFAULT_CLASS_MUSIC_COMPOSER));
     add(obj, id);
 
     chain = _("/Audio/Year/") + esc(date);

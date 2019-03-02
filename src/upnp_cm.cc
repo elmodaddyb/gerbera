@@ -36,20 +36,20 @@
 using namespace zmm;
 using namespace mxml;
 
-ConnectionManagerService::ConnectionManagerService(UpnpDevice_Handle _deviceHandle) : deviceHandle(_deviceHandle)
+ConnectionManagerService::ConnectionManagerService(UpnpXMLBuilder* xmlBuilder, UpnpDevice_Handle deviceHandle)
+    : xmlBuilder(xmlBuilder)
+    , deviceHandle(deviceHandle)
 {
 }
 
-ConnectionManagerService::~ConnectionManagerService()
-{
-}
+ConnectionManagerService::~ConnectionManagerService() = default;
 
-void ConnectionManagerService::upnp_action_GetCurrentConnectionIDs(Ref<ActionRequest> request)
+void ConnectionManagerService::doGetCurrentConnectionIDs(Ref<ActionRequest> request)
 {
     log_debug("start\n");
 
     Ref<Element> response;
-    response = UpnpXML_CreateResponse(request->getActionName(), _(DESC_CM_SERVICE_TYPE));
+    response = xmlBuilder->createResponse(request->getActionName(), _(DESC_CM_SERVICE_TYPE));
     response->appendTextChild(_("ConnectionID"), _("0"));
 
     request->setResponse(response);
@@ -58,21 +58,21 @@ void ConnectionManagerService::upnp_action_GetCurrentConnectionIDs(Ref<ActionReq
     log_debug("end\n");
 }
 
-void ConnectionManagerService::upnp_action_GetCurrentConnectionInfo(Ref<ActionRequest> request)
+void ConnectionManagerService::doGetCurrentConnectionInfo(Ref<ActionRequest> request)
 {
     log_debug("start\n");
 
     request->setErrorCode(UPNP_E_NOT_EXIST);
 
-    log_debug("upnp_action_GetCurrentConnectionInfo: end\n");
+    log_debug("doGetCurrentConnectionInfo: end\n");
 }
 
-void ConnectionManagerService::upnp_action_GetProtocolInfo(Ref<ActionRequest> request)
+void ConnectionManagerService::doGetProtocolInfo(Ref<ActionRequest> request)
 {
     log_debug("start\n");
 
     Ref<Element> response;
-    response = UpnpXML_CreateResponse(request->getActionName(), _(DESC_CM_SERVICE_TYPE));
+    response = xmlBuilder->createResponse(request->getActionName(), _(DESC_CM_SERVICE_TYPE));
 
     Ref<Array<StringBase>> mimeTypes = Storage::getInstance()->getMimeTypes();
     String CSV = mime_types_to_CSV(mimeTypes);
@@ -86,16 +86,16 @@ void ConnectionManagerService::upnp_action_GetProtocolInfo(Ref<ActionRequest> re
     log_debug("end\n");
 }
 
-void ConnectionManagerService::process_action_request(Ref<ActionRequest> request)
+void ConnectionManagerService::processActionRequest(Ref<ActionRequest> request)
 {
     log_debug("start\n");
 
     if (request->getActionName() == "GetCurrentConnectionIDs") {
-        upnp_action_GetCurrentConnectionIDs(request);
+        doGetCurrentConnectionIDs(request);
     } else if (request->getActionName() == "GetCurrentConnectionInfo") {
-        upnp_action_GetCurrentConnectionInfo(request);
+        doGetCurrentConnectionInfo(request);
     } else if (request->getActionName() == "GetProtocolInfo") {
-        upnp_action_GetProtocolInfo(request);
+        doGetProtocolInfo(request);
     } else {
         // invalid or unsupported action
         log_debug("unrecognized action %s\n", request->getActionName().c_str());
@@ -106,7 +106,7 @@ void ConnectionManagerService::process_action_request(Ref<ActionRequest> request
     log_debug("end\n");
 }
 
-void ConnectionManagerService::process_subscription_request(zmm::Ref<SubscriptionRequest> request)
+void ConnectionManagerService::processSubscriptionRequest(zmm::Ref<SubscriptionRequest> request)
 {
     int err;
     IXML_Document* event = nullptr;
@@ -116,7 +116,7 @@ void ConnectionManagerService::process_subscription_request(zmm::Ref<Subscriptio
     Ref<Array<StringBase>> mimeTypes = Storage::getInstance()->getMimeTypes();
     String CSV = mime_types_to_CSV(mimeTypes);
 
-    propset = UpnpXML_CreateEventPropertySet();
+    propset = xmlBuilder->createEventPropertySet();
     property = propset->getFirstElementChild();
     property->appendTextChild(_("CurrentConnectionIDs"), _("0"));
     property->appendTextChild(_("SinkProtocolInfo"), _(""));
@@ -135,14 +135,14 @@ void ConnectionManagerService::process_subscription_request(zmm::Ref<Subscriptio
     ixmlDocument_free(event);
 }
 
-void ConnectionManagerService::subscription_update(String sourceProtocol_CSV)
+void ConnectionManagerService::sendSubscriptionUpdate(String sourceProtocol_CSV)
 {
     int err;
     IXML_Document* event = nullptr;
 
     Ref<Element> propset, property;
 
-    propset = UpnpXML_CreateEventPropertySet();
+    propset = xmlBuilder->createEventPropertySet();
     property = propset->getFirstElementChild();
     property->appendTextChild(_("SourceProtocolInfo"), sourceProtocol_CSV);
 

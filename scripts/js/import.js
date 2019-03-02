@@ -59,6 +59,7 @@ function addAudio(obj) {
         date = 'Unknown';
     } else {
         date = getYear(date);
+        obj.meta[M_UPNP_DATE] = date;
         desc = desc + ', ' + date;
     }
     
@@ -71,7 +72,22 @@ function addAudio(obj) {
     
     var description = obj.meta[M_DESCRIPTION];
     if (!description) {
-        obj.meta[M_DESCRIPTION] = desc;
+        obj.description = desc;
+    }
+
+    var composer = obj.meta[M_COMPOSER];
+    if (!composer) {
+        composer = 'None';
+    }
+
+    var conductor = obj.meta[M_CONDUCTOR];
+    if (!conductor) {
+        conductor = 'None';
+    }
+
+    var orchestra = obj.meta[M_ORCHESTRA];
+    if (!orchestra) {
+        orchestra = 'None';
     }
 
 // uncomment this if you want to have track numbers in front of the title
@@ -91,6 +107,19 @@ function addAudio(obj) {
     // comment the following line out if you uncomment the stuff above  :)
     var track = '';
 
+// uncomment this if you want to have channel numbers in front of the title
+/*
+    var channels = obj.res[R_NRAUDIOCHANNELS];
+    if (channels) {
+        if (channels === "1") {
+            track = track + '[MONO]';
+        } else if (channels === "2") {
+            track = track + '[STEREO]';
+        } else {
+            track = track + '[MULTI]';
+        }
+    }
+*/
     var chain = ['Audio', 'All Audio'];
     obj.title = title;
     addCdsObject(obj, createContainerChain(chain));
@@ -129,6 +158,9 @@ function addAudio(obj) {
     
     chain = ['Audio', 'Year', date];
     addCdsObject(obj, createContainerChain(chain));
+
+    chain = ['Audio', 'Composers', composer];
+    addCdsObject(obj, createContainerChain(chain), UPNP_CLASS_CONTAINER_MUSIC_COMPOSER);
 }
 
 function addVideo(obj) {

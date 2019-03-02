@@ -4,7 +4,7 @@ Gerbera - https://gerbera.io/
 
     config_generator.cc - this file is part of Gerbera.
 
-    Copyright (C) 2016-2018 Gerbera Contributors
+    Copyright (C) 2016-2019 Gerbera Contributors
 
     Gerbera is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 2
@@ -29,7 +29,11 @@ Gerbera - https://gerbera.io/
 #include <common.h>
 #include <tools.h>
 #include <metadata_handler.h>
+#ifdef BSD_NATIVE_UUID
+#include <uuid.h>
+#else
 #include <uuid/uuid.h>
+#endif
 #include "config_generator.h"
 
 using namespace zmm;
@@ -53,15 +57,12 @@ std::string ConfigGenerator::generate(std::string userHome, std::string configDi
     "),true));
 
   config->appendChild(RefCast(docinfo, Node));
-
   config->appendElementChild(generateServer(userHome, configDir, prefixDir));
-
   config->appendElementChild(generateImport(prefixDir, magicFile));
-
   config->appendElementChild(generateTranscoding());
-
   config->indent();
-  return std::string(config->print().c_str());
+
+  return std::string((config->print() + "\n").c_str());
 }
 
 Ref<Element> ConfigGenerator::generateServer(std::string userHome, std::string configDir, std::string prefixDir) {
@@ -276,6 +277,9 @@ Ref<Element> ConfigGenerator::generateMappings() {
   ext2mt->appendElementChild(map_from_to("flv", "video/x-flv"));
   ext2mt->appendElementChild(map_from_to("mkv", "video/x-matroska"));
   ext2mt->appendElementChild(map_from_to("mka", "audio/x-matroska"));
+  ext2mt->appendElementChild(map_from_to("dsf", "audio/x-dsd"));
+  ext2mt->appendElementChild(map_from_to("dff", "audio/x-dsd"));
+  ext2mt->appendElementChild(map_from_to("wv", "audio/x-wavpack"));
 
   Ref<Comment> ps3info(new Comment(_(" Uncomment the line below for PS3 divx support "), true));
   Ref<Comment> ps3avi(new Comment(_(" <map from=\"avi\" to=\"video/divx\"/> "), true));
@@ -300,6 +304,7 @@ Ref<Element> ConfigGenerator::generateMappings() {
   mtcontent->appendElementChild(treat_as("application/ogg", CONTENT_TYPE_OGG));
   mtcontent->appendElementChild(treat_as("audio/ogg", CONTENT_TYPE_OGG));
   mtcontent->appendElementChild(treat_as("audio/x-flac", CONTENT_TYPE_FLAC));
+  mtcontent->appendElementChild(treat_as("audio/flac", CONTENT_TYPE_FLAC));
   mtcontent->appendElementChild(treat_as("audio/x-ms-wma", CONTENT_TYPE_WMA));
   mtcontent->appendElementChild(treat_as("audio/x-wavpack", CONTENT_TYPE_WAVPACK));
   mtcontent->appendElementChild(treat_as("image/jpeg", CONTENT_TYPE_JPG));
@@ -312,6 +317,7 @@ Ref<Element> ConfigGenerator::generateMappings() {
   mtcontent->appendElementChild(treat_as("audio/mp4", CONTENT_TYPE_MP4));
   mtcontent->appendElementChild(treat_as("video/x-matroska", CONTENT_TYPE_MKV));
   mtcontent->appendElementChild(treat_as("audio/x-matroska", CONTENT_TYPE_MKA));
+  mtcontent->appendElementChild(treat_as("audio/x-dsd", CONTENT_TYPE_DSD));
   mappings->appendElementChild(mtcontent);
 
   return mappings;
@@ -362,41 +368,36 @@ Ref<Element> ConfigGenerator::generateTranscoding() {
   mt_prof_map->appendElementChild(prof_theora);
 
   Ref<Element> prof_ogg(new Element(_("transcode")));
-  prof_ogg->setAttribute(_("mimetype"), _("application/ogg"));
-  prof_ogg->setAttribute(_("using"), _("oggflac2raw"));
+  prof_ogg->setAttribute(_("mimetype"), _("audio/ogg"));
+  prof_ogg->setAttribute(_("using"), _("ogg2mp3"));
   mt_prof_map->appendElementChild(prof_ogg);
-
-  Ref<Element> prof_flac(new Element(_("transcode")));
-  prof_flac->setAttribute(_("mimetype"), _("audio/x-flac"));
-  prof_flac->setAttribute(_("using"), _("oggflac2raw"));
-  mt_prof_map->appendElementChild(prof_flac);
 
   transcoding->appendElementChild(mt_prof_map);
 
   Ref<Element> profiles(new Element(_("profiles")));
 
-  Ref<Element> oggflac(new Element(_("profile")));
-  oggflac->setAttribute(_("name"), _("oggflac2raw"));
-  oggflac->setAttribute(_("enabled"), _(NO));
-  oggflac->setAttribute(_("type"), _("external"));
+  Ref<Element> oggmp3(new Element(_("profile")));
+  oggmp3->setAttribute(_("name"), _("ogg2mp3"));
+  oggmp3->setAttribute(_("enabled"), _(NO));
+  oggmp3->setAttribute(_("type"), _("external"));
 
-  oggflac->appendTextChild(_("mimetype"), _("audio/L16"));
-  oggflac->appendTextChild(_("accept-url"), _(NO));
-  oggflac->appendTextChild(_("first-resource"), _(YES));
-  oggflac->appendTextChild(_("accept-ogg-theora"), _(NO));
+  oggmp3->appendTextChild(_("mimetype"), _("audio/mpeg"));
+  oggmp3->appendTextChild(_("accept-url"), _(NO));
+  oggmp3->appendTextChild(_("first-resource"), _(YES));
+  oggmp3->appendTextChild(_("accept-ogg-theora"), _(NO));
 
-  Ref<Element> oggflac_agent(new Element(_("agent")));
-  oggflac_agent->setAttribute(_("command"), _("ogg123"));
-  oggflac_agent->setAttribute(_("arguments"), _("-d raw -o byteorder:big -f %out %in"));
-  oggflac->appendElementChild(oggflac_agent);
+  Ref<Element> oggmp3_agent(new Element(_("agent")));
+  oggmp3_agent->setAttribute(_("command"), _("ffmpeg"));
+  oggmp3_agent->setAttribute(_("arguments"), _("-y -i %in -f mp3 %out"));
+  oggmp3->appendElementChild(oggmp3_agent);
 
-  Ref<Element> oggflac_buffer(new Element(_("buffer")));
-  oggflac_buffer->setAttribute(_("size"), String::from(DEFAULT_AUDIO_BUFFER_SIZE));
-  oggflac_buffer->setAttribute(_("chunk-size"), String::from(DEFAULT_AUDIO_CHUNK_SIZE));
-  oggflac_buffer->setAttribute(_("fill-size"), String::from(DEFAULT_AUDIO_FILL_SIZE));
-  oggflac->appendElementChild(oggflac_buffer);
+  Ref<Element> oggmp3_buffer(new Element(_("buffer")));
+  oggmp3_buffer->setAttribute(_("size"), String::from(DEFAULT_AUDIO_BUFFER_SIZE));
+  oggmp3_buffer->setAttribute(_("chunk-size"), String::from(DEFAULT_AUDIO_CHUNK_SIZE));
+  oggmp3_buffer->setAttribute(_("fill-size"), String::from(DEFAULT_AUDIO_FILL_SIZE));
+  oggmp3->appendElementChild(oggmp3_buffer);
 
-  profiles->appendElementChild(oggflac);
+  profiles->appendElementChild(oggmp3);
 
   Ref<Element> vlcmpeg(new Element(_("profile")));
   vlcmpeg->setAttribute(_("name"), _("vlcmpeg"));

@@ -28,27 +28,25 @@
 */
 
 /// \file server.h
-///\brief Definitions of the server class. 
+///\brief Definitions of the server class.
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
-#include "common.h"
-#include "singleton.h"
 #include "action_request.h"
+#include "common.h"
+#include "config_manager.h"
+#include "request_handler.h"
+#include "singleton.h"
+#include "storage.h"
 #include "subscription_request.h"
 #include "upnp_cds.h"
 #include "upnp_cm.h"
 #include "upnp_mrreg.h"
-#include "config_manager.h"
-#include "storage.h"
-#include "request_handler.h"
 
 /// \brief Provides methods to initialize and shutdown
 /// and to retrieve various information about the server.
-class Server : public Singleton<Server>
-{
+class Server : public Singleton<Server> {
 public:
-    
     Server();
 
     zmm::String getName() override { return _("Server"); }
@@ -59,47 +57,39 @@ public:
     /// various variables (like server UDN and so forth).
     virtual void init() override;
 
-
     /// \brief Initializes UPnP portion, only ip or interface can be given
     ///
     /// Reads information from the config and creates a
     /// device description document. Initializes the UPnP SDK,
     /// sets up the virutal web server directories and registers
     /// web callbacks. Starts the update manager task.
-    void upnp_init();
+    void run();
 
     /// \brief Cleanup routine to shutdown the server.
     ///
     /// Unregisters the device with the SDK, shuts down the
     /// update manager task, storage task, content manager.
-    virtual void shutdown() override;
+    void shutdown() override;
 
-    /// \brief Returns the virtual web server URL.
-    ///
-    /// A special virtual URL is registered with the internal web server,
-    /// all content and all ui requests are server from there and are
-    /// handled by the web callbacks.
-    zmm::String getVirtualURL() const;
-    
     /// \brief Dispatch incoming UPnP events.
     /// \param eventtype Upnp_EventType, identifying what kind of event came in.
     /// \param event Pointer to the event.
     ///
     /// This function is called when a UPnP event is received,
-    /// it then looks at the event type (either an action invocation or 
+    /// it then looks at the event type (either an action invocation or
     /// a subscription request) and dispatches the event accordingly.
     /// The event that is coming from the SDK is converted to our internal
     /// data structures (ActionRequest or SubscriptionRequest) and is then
-    /// passed on to the appropriate request handler - to upnp_actions() or
+    /// passed on to the appropriate request handler - to routeActionEvent() or
     /// upnp_subscriptions()
-    int upnp_callback(Upnp_EventType eventtype, const void *event);
+    int handleUpnpEvent(Upnp_EventType eventtype, const void *event);
 
     /// \brief Returns the IP address of the server.
     ///
-    /// Returns a string representation of the IP where the server is 
+    /// Returns a string representation of the IP where the server is
     /// running. This is useful for constructing URL's, etc.
     zmm::String getIP() const;
-    
+
     /// \brief Returns the port of the server.
     ///
     /// Returns a string representation of the server port. Allthough
@@ -107,8 +97,7 @@ public:
     /// that we actually get that port after startup. This function
     /// returns the port on which the server is actually running.
     zmm::String getPort() const;
-    
-    
+
     /// \brief Tells if the server is about to be terminated.
     ///
     /// This function returns true if the server is about to be
@@ -117,7 +106,7 @@ public:
 
     static void static_cleanup_callback();
 
-    void send_subscription_update(zmm::String updateString);
+    void sendCDSSubscriptionUpdate(zmm::String updateString);
 
 protected:
     static zmm::Ref<Storage> storage;
@@ -145,16 +134,16 @@ protected:
     zmm::String virtual_directory;
 
     /// \brief Full virtual web server url.
-    /// 
+    ///
     /// The URL is constructed upon server initialization, since
     /// the real port is not known before. The value of this variable
     /// is returned by the getVirtualURL() function.
     zmm::String virtual_url;
 
-    /// \brief Device description document is created on the fly and 
+    /// \brief Device description document is created on the fly and
     /// stored here.
     ///
-    /// All necessary values for the device description document are 
+    /// All necessary values for the device description document are
     /// read from the configuration and the device desc doc is created
     /// on the fly.
     zmm::String device_description_document;
@@ -162,24 +151,26 @@ protected:
     /// \brief Time interval to send ssdp:alive advertisements.
     ///
     /// The value is read from the configuration.
-    int alive_advertisement;
-    
+    int aliveAdvertisementInterval;
+
+    std::unique_ptr<UpnpXMLBuilder> xmlbuilder;
+
     /// \brief ContentDirectoryService instance.
-    /// 
+    ///
     /// The ContentDirectoryService class is instantiated in the
     /// constructor. The class is responsible for processing
     /// an ActionRequest or a SubscriptionRequest.
     std::unique_ptr<ContentDirectoryService> cds;
 
     /// \brief ConnectionManagerService instance.
-    /// 
+    ///
     /// The ConnectionManagerService class is instantiated in the
     /// constructor. The class is responsible for processing
     /// an ActionRequest or a SubscriptionRequest.
     std::unique_ptr<ConnectionManagerService> cmgr;
 
     /// \brief MediaReceiverRegistrarService instance.
-    /// 
+    ///
     /// This class is not fully functional, it always returns "true"
     /// on IsAuthorized and IsValidated requests. It added to ensure
     /// Xbox360 compatibility.
@@ -188,25 +179,25 @@ protected:
     /// \brief Dispatched an ActionRequest between the services.
     /// \param request Incoming ActionRequest.
     ///
-    /// Currently we only support two services (ContentDirectoryService 
+    /// Currently we only support two services (ContentDirectoryService
     /// and ConnectionManagerService), this function looks at the service id
-    /// of the request and calls the process_action_request() for the 
+    /// of the request and calls the process_action_request() for the
     /// appropriate service.
-    void upnp_actions(zmm::Ref<ActionRequest> request);
-    
+    void routeActionRequest(zmm::Ref<ActionRequest> request) const;
+
     /// \brief Dispatched a SubscriptionRequest between the services.
     /// \param request Incoming SubscriptionRequest.
     ///
-    /// Currently we only support two services (ContentDirectoryService 
+    /// Currently we only support two services (ContentDirectoryService
     /// and ConnectionManagerService), this function looks at the service id
-    /// of the request and calls the process_subscription_request() for the 
+    /// of the request and calls the process_subscription_request() for the
     /// appropriate service.
-    void upnp_subscriptions(zmm::Ref<SubscriptionRequest> request);
+    void routeSubscriptionRequest(zmm::Ref<SubscriptionRequest> request) const;
 
     /// \brief Registers callback functions for the internal web server.
     /// \param filename Incoming filename.
     ///
-    zmm::Ref<RequestHandler> create_request_handler(const char *filename);
+    zmm::Ref<RequestHandler> createRequestHandler(const char *filename) const;
 
     /// \brief Registers callback functions for the internal web server.
     ///
@@ -220,7 +211,7 @@ protected:
     /// \b web_close Close file.
     ///
     /// \return UPNP_E_SUCCESS Callbacks registered successfully, else error code.
-    int register_web_callbacks();
+    int registerVirtualDirCallbacks();
 };
 
 #endif // __SERVER_H__

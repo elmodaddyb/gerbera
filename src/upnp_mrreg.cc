@@ -39,19 +39,20 @@
 using namespace zmm;
 using namespace mxml;
 
-MRRegistrarService::MRRegistrarService(UpnpDevice_Handle deviceHandle)
-    : deviceHandle(deviceHandle)
+MRRegistrarService::MRRegistrarService(UpnpXMLBuilder* xmlBuilder, UpnpDevice_Handle deviceHandle)
+    : xmlBuilder(xmlBuilder)
+    , deviceHandle(deviceHandle)
 {
 }
 
 MRRegistrarService::~MRRegistrarService() = default;
 
-void MRRegistrarService::upnp_action_IsAuthorized(Ref<ActionRequest> request)
+void MRRegistrarService::doIsAuthorized(Ref<ActionRequest> request)
 {
     log_debug("start\n");
 
     Ref<Element> response;
-    response = UpnpXML_CreateResponse(request->getActionName(), DESC_MRREG_SERVICE_TYPE);
+    response = xmlBuilder->createResponse(request->getActionName(), DESC_MRREG_SERVICE_TYPE);
     response->appendTextChild(_("Result"), _("1"));
 
     request->setResponse(response);
@@ -60,21 +61,21 @@ void MRRegistrarService::upnp_action_IsAuthorized(Ref<ActionRequest> request)
     log_debug("end\n");
 }
 
-void MRRegistrarService::upnp_action_RegisterDevice(Ref<ActionRequest> request)
+void MRRegistrarService::doRegisterDevice(Ref<ActionRequest> request)
 {
     log_debug("start\n");
 
     request->setErrorCode(UPNP_E_NOT_EXIST);
 
-    log_debug("upnp_action_GetCurrentConnectionInfo: end\n");
+    log_debug("upnpActionGetCurrentConnectionInfo: end\n");
 }
 
-void MRRegistrarService::upnp_action_IsValidated(Ref<ActionRequest> request)
+void MRRegistrarService::doIsValidated(Ref<ActionRequest> request)
 {
     log_debug("start\n");
 
     Ref<Element> response;
-    response = UpnpXML_CreateResponse(request->getActionName(), DESC_MRREG_SERVICE_TYPE);
+    response = xmlBuilder->createResponse(request->getActionName(), DESC_MRREG_SERVICE_TYPE);
     response->appendTextChild(_("Result"), _("1"));
 
     request->setResponse(response);
@@ -83,16 +84,16 @@ void MRRegistrarService::upnp_action_IsValidated(Ref<ActionRequest> request)
     log_debug("end\n");
 }
 
-void MRRegistrarService::process_action_request(Ref<ActionRequest> request)
+void MRRegistrarService::processActionRequest(Ref<ActionRequest> request)
 {
     log_debug("start\n");
 
     if (request->getActionName() == "IsAuthorized") {
-        upnp_action_IsAuthorized(request);
+        doIsAuthorized(request);
     } else if (request->getActionName() == "RegisterDevice") {
-        upnp_action_RegisterDevice(request);
+        doRegisterDevice(request);
     } else if (request->getActionName() == "IsValidated") {
-        upnp_action_IsValidated(request);
+        doIsValidated(request);
     } else {
         // invalid or unsupported action
         log_debug("unrecognized action %s\n", request->getActionName().c_str());
@@ -103,14 +104,14 @@ void MRRegistrarService::process_action_request(Ref<ActionRequest> request)
     log_debug("end\n");
 }
 
-void MRRegistrarService::process_subscription_request(zmm::Ref<SubscriptionRequest> request)
+void MRRegistrarService::processSubscriptionRequest(zmm::Ref<SubscriptionRequest> request)
 {
     int err;
     IXML_Document* event = NULL;
 
     Ref<Element> propset, property;
 
-    propset = UpnpXML_CreateEventPropertySet();
+    propset = xmlBuilder->createEventPropertySet();
     property = propset->getFirstElementChild();
     property->appendTextChild(_("ValidationRevokedUpdateID"), _("0"));
     property->appendTextChild(_("ValidationSucceededUpdateID"), _("0"));
@@ -153,7 +154,7 @@ void MRRegistrarService::subscription_update(String sourceProtocol_CSV)
 
     }
 
-    UpnpNotifyExt(Server::getInstance()->getDeviceHandle(),
+    UpnpNotifyExt(deviceHandle,
             ConfigManager::getInstance()->getOption(CFG_SERVER_UDN).c_str(),
             serviceID.c_str(), event);
 

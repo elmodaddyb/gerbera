@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css?family=Lato');
+
+body {
+    font-family: 'Lato', sans-serif;
+}
+
+h1, h2, .rst-content .toctree-wrapper p.caption, h3, h4, h5, h6, legend {
+    font-family: 'Lato', sans-serif;
+}
+
+a {
+    color: #ff7f00;
+}
+
+.wy-nav-top {
+    background-color: #ff7f00;
+}
+
+.wy-side-nav-search {
+    background-color: #ff7f00;
+}
+
+.wy-side-nav-search > div.version {
+    color: #333;
+}
+
+.wy-side-nav-search input[type="text"] {
+    border-color: #BF5F00;
+}
+
+.wy-menu-vertical a:active {
+    background-color: #ff7f00;
+}
+
+.rst-content dl:not(.docutils) dt {
+    background: #faf4ec;
+    border-top: solid 3px #ff7f00;
+}

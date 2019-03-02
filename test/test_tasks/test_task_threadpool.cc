@@ -7,6 +7,7 @@ using namespace ::testing;
 
 class TaskMock : public Task {
 public:
+    virtual ~TaskMock() = default;
     MOCK_METHOD0(run, void());
 };
 

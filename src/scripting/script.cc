@@ -177,10 +177,18 @@ Script::Script(Ref<Runtime> runtime, std::string name) : Object(), name(name)
     {
         duk_push_string(ctx, MT_KEYS[i].upnp); duk_put_global_string(ctx, MT_KEYS[i].sym);
     }
+
+    for (int i = 0; i < R_MAX; i++)
+    {
+        duk_push_string(ctx, RES_KEYS[i].upnp); duk_put_global_string(ctx, RES_KEYS[i].sym);
+    }
  
     duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_ALBUM); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_ALBUM");
     duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_ARTIST); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_ARTIST");
     duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_GENRE); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_GENRE");
+    duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_COMPOSER); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_COMPOSER");
+    duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_CONDUCTOR); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_CONDUCTOR");
+    duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_ORCHESTRA); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_ORCHESTRA");
     duk_push_string(ctx, UPNP_DEFAULT_CLASS_CONTAINER); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER");
     duk_push_string(ctx, UPNP_DEFAULT_CLASS_ITEM); duk_put_global_string(ctx, "UPNP_CLASS_ITEM");
     duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_TRACK); duk_put_global_string(ctx, "UPNP_CLASS_ITEM_MUSIC_TRACK");
@@ -631,7 +639,27 @@ void Script::cdsObject2dukObject(Ref<CdsObject> obj)
     }
 
 
-    /// \todo add resources
+    // setting resource
+    {
+        duk_push_object(ctx);
+        // stack: js res_js
+
+        if (obj->getResourceCount() > 0) {
+            auto res = obj->getResource(0);
+
+            auto attributes = res->getAttributes();
+            auto elements = attributes->getElements();
+            auto len = elements->size();
+            for (auto i = 0; i < len; i++)
+            {
+                Ref<DictionaryElement> el = elements->get(i);
+                setProperty(el->getKey(), el->getValue());
+            }
+        }
+
+        duk_put_prop_string(ctx, -2, "res");
+        // stack: js
+    }
 
     // CdsItem
     if (IS_CDS_ITEM(objectType))

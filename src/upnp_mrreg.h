@@ -60,7 +60,7 @@ protected:
     /// IsAuthorized(string DeviceID, i4 Result)
     ///
     /// This is currently unsupported (always returns 1)
-    void upnp_action_IsAuthorized(zmm::Ref<ActionRequest> request);
+    void doIsAuthorized(zmm::Ref<ActionRequest> request);
 
     /// \brief Media Receiver Registrar service action: RegisterDevice()
     /// \param request Incoming ActionRequest.
@@ -68,20 +68,21 @@ protected:
     /// RegisterDevice(bin.base64 RegistrationReqMsg, bin.base64 RegistrationRespMsg)
     ///
     /// This action is currently unsupported.
-    void upnp_action_RegisterDevice(zmm::Ref<ActionRequest> request);
+    void doRegisterDevice(zmm::Ref<ActionRequest> request);
 
     /// \brief Media Receiver Registrar service action: IsValidated()
     /// \param request Incoming ActionRequest.
     ///
     /// IsValidated(string DeviceID, i4 Result)
-    void upnp_action_IsValidated(zmm::Ref<ActionRequest> request);
+    void doIsValidated(zmm::Ref<ActionRequest> request);
 
+    UpnpXMLBuilder* xmlBuilder;
     UpnpDevice_Handle deviceHandle;
 
 public:
     /// \brief Constructor for MRReg
     /// in internal variables.
-    MRRegistrarService(UpnpDevice_Handle deviceHandle);
+    MRRegistrarService(UpnpXMLBuilder* xmlBuilder, UpnpDevice_Handle deviceHandle);
     ~MRRegistrarService();
 
     /// \brief Dispatches the ActionRequest between the available actions.
@@ -89,14 +90,14 @@ public:
     ///
     /// This function looks at the incoming ActionRequest and passes it on
     /// to the appropriate action for processing.
-    void process_action_request(zmm::Ref<ActionRequest> request);
+    void processActionRequest(zmm::Ref<ActionRequest> request);
 
     /// \brief Processes an incoming SubscriptionRequest.
     /// \param request Incoming SubscriptionRequest.
     ///
     /// Looks at the incoming SubscriptionRequest and accepts the subscription
     /// if everything is ok. Currently we do not support any updates.
-    void process_subscription_request(zmm::Ref<SubscriptionRequest> request);
+    void processSubscriptionRequest(zmm::Ref<SubscriptionRequest> request);
 
     // subscriptions for this service are not supported
     // subscriptions for this service are not supported
@@ -105,7 +106,7 @@ public:
     /// \param sourceProtocol_CSV Comma Separated Value list of protocol information
     ///
     /// Sends out an update with protocol information to all subscribed devices
-    //    void subscription_update(zmm::String sourceProtocol_CSV);
+    //    void sendSubscriptionUpdate(zmm::String sourceProtocol_CSV);
 };
 
 #endif // __UPNP_CM_H__

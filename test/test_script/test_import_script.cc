@@ -60,8 +60,12 @@ static duk_ret_t addCdsObject(duk_context *ctx) {
     "meta['upnp:artist']",
     "meta['upnp:album']",
     "meta['dc:date']",
+    "meta['upnp:date']",
     "meta['upnp:genre']",
-    "meta['dc:description']"
+    "meta['dc:description']",
+    "meta['upnp:composer']",
+    "meta['upnp:conductor']",
+    "meta['upnp:orchestra']"
   };
   addCdsObjectParams params = ScriptTestFixture::addCdsObject(ctx, keys);
   return ImportScriptTest::commonScriptMock->addCdsObject(params.objectValues, params.containerChain, params.objectType);
@@ -111,11 +115,16 @@ TEST_F(ImportScriptTest, AddsAudioItemToVariousCdsContainerChains) {
   string mimetype = "audio/mpeg";
   string artist = "Artist";
   string album = "Album";
+  string composer = "Composer";
+  string conductor = "Conductor";
+  string orchestra = "Orchestra";
   string date = "2018-01-01";
+  string year = "2018";
   string genre = "Genre";
   string desc = "Description";
   string id = "2";
   string location = "/home/gerbera/audio.mp3";
+  string channels = "2";
   int online_service = 0;
   int theora = 0;
   map<string, string> aux;
@@ -125,8 +134,16 @@ TEST_F(ImportScriptTest, AddsAudioItemToVariousCdsContainerChains) {
       make_pair("upnp:artist", artist),
       make_pair("upnp:album", album),
       make_pair("dc:date", date),
+      make_pair("upnp:date", year),
       make_pair("upnp:genre", genre),
-      make_pair("dc:description", desc)
+      make_pair("dc:description", desc),
+      make_pair("upnp:composer", composer),
+      make_pair("upnp:conductor", conductor),
+      make_pair("upnp:orchestra", orchestra)
+  };
+
+  map<string, string> res = {
+      make_pair("res['nrAudioChannels']", channels)
   };
 
   // Represents the values passed to `addCdsObject`, extracted from keys defined there.
@@ -136,19 +153,17 @@ TEST_F(ImportScriptTest, AddsAudioItemToVariousCdsContainerChains) {
       make_pair("meta['upnp:artist']", artist),
       make_pair("meta['upnp:album']", album),
       make_pair("meta['dc:date']", date),
+      make_pair("meta['upnp:date']", year),
       make_pair("meta['upnp:genre']", genre),
-      make_pair("meta['dc:description']", desc)
+      make_pair("meta['dc:description']", desc),
+      make_pair("meta['upnp:composer']", composer),
+      make_pair("meta['upnp:conductor']", conductor),
+      make_pair("meta['upnp:orchestra']", orchestra)
   };
 
-  map<string, string> asAudioAllFullName = {
-      make_pair("title", "Artist - Album - Audio Title"),
-      make_pair("meta['dc:title']", title),
-      make_pair("meta['upnp:artist']", artist),
-      make_pair("meta['upnp:album']", album),
-      make_pair("meta['dc:date']", date),
-      make_pair("meta['upnp:genre']", genre),
-      make_pair("meta['dc:description']", desc)
-  };
+  map<string, string> asAudioAllFullName;
+  asAudioAllFullName.insert(asAudioAllAudio.begin(), asAudioAllAudio.end());
+  asAudioAllFullName["title"] =  "Artist - Album - Audio Title";
 
   // Expecting the common script calls
   // and will proxy through the mock objects
@@ -184,13 +199,18 @@ TEST_F(ImportScriptTest, AddsAudioItemToVariousCdsContainerChains) {
   EXPECT_CALL(*commonScriptMock, addCdsObject(IsIdenticalMap(asAudioAllAudio),
       "\\/Audio\\/Genres\\/Genre", UPNP_DEFAULT_CLASS_MUSIC_GENRE)).WillOnce(Return(0));
 
+  EXPECT_CALL(*commonScriptMock, createContainerChain(ElementsAre("Audio", "Composers", "Composer"))).WillOnce(Return(1));
+  EXPECT_CALL(*commonScriptMock, addCdsObject(IsIdenticalMap(asAudioAllAudio),
+                                              "\\/Audio\\/Composers\\/Composer", UPNP_DEFAULT_CLASS_MUSIC_COMPOSER)).WillOnce(Return(0));
+
+
   EXPECT_CALL(*commonScriptMock, createContainerChain(ElementsAre("Audio", "Year", "2018"))).WillOnce(Return(1));
   EXPECT_CALL(*commonScriptMock, addCdsObject(
       IsIdenticalMap(asAudioAllAudio),
       "\\/Audio\\/Year\\/2018", "undefined")).WillOnce(Return(0));
 
   addGlobalFunctions(ctx, js_global_functions);
-  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, location, online_service);
+  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, res, location, online_service);
   executeScript(ctx);
 }
 
@@ -203,6 +223,7 @@ TEST_F(ImportScriptTest, AddsVideoItemToCdsContainerChainWithDirs) {
   int theora = 0;
   map<string, string> aux;
   map<string, string> meta;
+  map<string, string> res;
 
   // Represents the values passed to `addCdsObject`, extracted from keys defined there.
   map<string, string> asVideoAllVideo = {
@@ -225,7 +246,7 @@ TEST_F(ImportScriptTest, AddsVideoItemToCdsContainerChainWithDirs) {
     "\\/Video\\/Directories\\/home\\/gerbera", "undefined")).WillOnce(Return(0));
 
   addGlobalFunctions(ctx, js_global_functions);
-  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, location, online_service);
+  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, res, location, online_service);
   executeScript(ctx);
 }
 
@@ -238,6 +259,7 @@ TEST_F(ImportScriptTest, AddsAppleTrailerVideoItemToCdsContainerChains) {
   string location = "/home/gerbera/video.mp4";
   int online_service = (int)OS_ATrailers;
   int theora = 0;
+  map<string, string> res;
 
   map<string, string> meta = {
     make_pair("dc:date", date),
@@ -277,7 +299,7 @@ TEST_F(ImportScriptTest, AddsAppleTrailerVideoItemToCdsContainerChains) {
     "\\/Online Services\\/Apple Trailers\\/Post Date\\/2018-01", "undefined")).WillOnce(Return(0));
 
   addGlobalFunctions(ctx, js_global_functions);
-  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, location, online_service);
+  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, res, location, online_service);
   executeScript(ctx);
 }
 
@@ -295,6 +317,7 @@ TEST_F(ImportScriptTest, AddsImageItemToCdsContainerChains) {
   };
 
   map<string, string> aux;
+  map<string, string> res;
 
   // Represents the values passed to `addCdsObject`, extracted from keys defined there.
   map<string, string> asImagePhotos = {
@@ -326,7 +349,7 @@ TEST_F(ImportScriptTest, AddsImageItemToCdsContainerChains) {
     "\\/Photos\\/Directories\\/home\\/gerbera", "undefined")).WillOnce(Return(0));
 
   addGlobalFunctions(ctx, js_global_functions);
-  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, location, online_service);
+  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, res, location, online_service);
   executeScript(ctx);
 }
 
@@ -339,6 +362,7 @@ TEST_F(ImportScriptTest, AddsOggTheoraVideoItemToCdsContainerChainWithDirs) {
   int theora = 1;
   map<string, string> aux;
   map<string, string> meta;
+  map<string, string> res;
 
   // Represents the values passed to `addCdsObject`, extracted from keys defined there.
   map<string, string> asVideoAllVideo = {
@@ -361,7 +385,7 @@ TEST_F(ImportScriptTest, AddsOggTheoraVideoItemToCdsContainerChainWithDirs) {
     "\\/Video\\/Directories\\/home\\/gerbera", "undefined")).WillOnce(Return(0));
 
   addGlobalFunctions(ctx, js_global_functions);
-  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, location, online_service);
+  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, res, location, online_service);
   executeScript(ctx);
 }
 
@@ -371,10 +395,15 @@ TEST_F(ImportScriptTest, AddsOggTheoraAudioItemToVariousCdsContainerChains) {
   string artist = "Artist";
   string album = "Album";
   string date = "2018-01-01";
+  string year = "2018";
   string genre = "Genre";
   string desc = "Description";
+  string composer = "Composer";
+  string conductor = "Conductor";
+  string orchestra = "Orchestra";
   string id = "2";
   string location = "/home/gerbera/audio.mp3";
+  string channels = "2";
   int online_service = 0;
   int theora = 0;
   map<string, string> aux;
@@ -384,8 +413,16 @@ TEST_F(ImportScriptTest, AddsOggTheoraAudioItemToVariousCdsContainerChains) {
     make_pair("upnp:artist", artist),
     make_pair("upnp:album", album),
     make_pair("dc:date", date),
+    make_pair("upnp:date", year),
     make_pair("upnp:genre", genre),
-    make_pair("dc:description", desc)
+    make_pair("dc:description", desc),
+    make_pair("upnp:composer", composer),
+    make_pair("upnp:conductor", conductor),
+    make_pair("upnp:orchestra", orchestra)
+  };
+
+  map<string, string> res = {
+    make_pair("res['nrAudioChannels']", channels)
   };
 
   // Represents the values passed to `addCdsObject`, extracted from keys defined there.
@@ -395,19 +432,17 @@ TEST_F(ImportScriptTest, AddsOggTheoraAudioItemToVariousCdsContainerChains) {
     make_pair("meta['upnp:artist']", artist),
     make_pair("meta['upnp:album']", album),
     make_pair("meta['dc:date']", date),
+    make_pair("meta['upnp:date']", year),
     make_pair("meta['upnp:genre']", genre),
-    make_pair("meta['dc:description']", desc)
+    make_pair("meta['dc:description']", desc),
+    make_pair("meta['upnp:composer']", composer),
+    make_pair("meta['upnp:conductor']", conductor),
+    make_pair("meta['upnp:orchestra']", orchestra)
   };
 
-  map<string, string> asAudioAllFullName = {
-    make_pair("title", "Artist - Album - Audio Title"),
-    make_pair("meta['dc:title']", title),
-    make_pair("meta['upnp:artist']", artist),
-    make_pair("meta['upnp:album']", album),
-    make_pair("meta['dc:date']", date),
-    make_pair("meta['upnp:genre']", genre),
-    make_pair("meta['dc:description']", desc)
-  };
+  map<string, string> asAudioAllFullName;
+  asAudioAllFullName.insert(asAudioAllAudio.begin(), asAudioAllAudio.end());
+  asAudioAllFullName["title"] =  "Artist - Album - Audio Title";
 
   // Expecting the common script calls
   // and will proxy through the mock objects
@@ -443,12 +478,17 @@ TEST_F(ImportScriptTest, AddsOggTheoraAudioItemToVariousCdsContainerChains) {
   EXPECT_CALL(*commonScriptMock, addCdsObject(IsIdenticalMap(asAudioAllAudio),
     "\\/Audio\\/Genres\\/Genre", UPNP_DEFAULT_CLASS_MUSIC_GENRE)).WillOnce(Return(0));
 
+  EXPECT_CALL(*commonScriptMock, createContainerChain(ElementsAre("Audio", "Composers", "Composer"))).WillOnce(Return(1));
+  EXPECT_CALL(*commonScriptMock, addCdsObject(IsIdenticalMap(asAudioAllAudio),
+                                              "\\/Audio\\/Composers\\/Composer", UPNP_DEFAULT_CLASS_MUSIC_COMPOSER)).WillOnce(Return(0));
+
+
   EXPECT_CALL(*commonScriptMock, createContainerChain(ElementsAre("Audio", "Year", "2018"))).WillOnce(Return(1));
   EXPECT_CALL(*commonScriptMock, addCdsObject(IsIdenticalMap(asAudioAllAudio),
     "\\/Audio\\/Year\\/2018", "undefined")).WillOnce(Return(0));
 
   addGlobalFunctions(ctx, js_global_functions);
-  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, location, online_service);
+  dukMockItem(ctx, mimetype, id, theora, title, meta, aux, res, location, online_service);
   executeScript(ctx);
 }
 

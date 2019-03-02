@@ -34,10 +34,12 @@ void ScriptTestFixture::TearDown() {
 }
 
 duk_ret_t ScriptTestFixture::dukMockItem(duk_context *ctx, string mimetype, string id, int theora, string title,
-  map<string, string> meta, map<string, string> aux, string location, int online_service) {
+map<string, string> meta, map<string, string> aux, map<string, string> res,
+                                         string location, int online_service) {
   duk_idx_t orig_idx;
   duk_idx_t meta_idx;
   duk_idx_t aux_idx;
+  duk_idx_t res_idx;
   const string OBJECT_NAME = "orig";
   orig_idx = duk_push_object(ctx);
   duk_push_string(ctx, mimetype.c_str()); duk_put_prop_string(ctx, orig_idx, "mimetype");
@@ -54,6 +56,16 @@ duk_ret_t ScriptTestFixture::dukMockItem(duk_context *ctx, string mimetype, stri
     duk_put_prop_string(ctx, meta_idx, val.first.c_str());
   }
   duk_put_prop_string(ctx, orig_idx, "meta");
+
+  // obj.res
+  if(!res.empty()) {
+    res_idx = duk_push_object(ctx);
+    for (auto const &val: res) {
+      duk_push_string(ctx, val.second.c_str());
+      duk_put_prop_string(ctx, res_idx, val.first.c_str());
+    }
+    duk_put_prop_string(ctx, orig_idx, "res");
+  }
 
   // obj.aux
   if(!aux.empty()) {
@@ -103,6 +115,11 @@ void ScriptTestFixture::addGlobalFunctions(duk_context *ctx, const duk_function_
     duk_push_string(ctx, MT_KEYS[i].upnp); duk_put_global_string(ctx, MT_KEYS[i].sym);
   }
 
+  for (int i = 0; i < R_MAX; i++)
+  {
+    duk_push_string(ctx, RES_KEYS[i].upnp); duk_put_global_string(ctx, RES_KEYS[i].sym);
+  }
+
   duk_push_int(ctx, OBJECT_TYPE_ITEM_EXTERNAL_URL); duk_put_global_string(ctx, "OBJECT_TYPE_ITEM_EXTERNAL_URL");
   duk_push_int(ctx, OBJECT_TYPE_ITEM_INTERNAL_URL); duk_put_global_string(ctx, "OBJECT_TYPE_ITEM_INTERNAL_URL");
   duk_push_int(ctx, OBJECT_TYPE_ITEM); duk_put_global_string(ctx, "OBJECT_TYPE_ITEM");
@@ -111,6 +128,9 @@ void ScriptTestFixture::addGlobalFunctions(duk_context *ctx, const duk_function_
   duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_ALBUM); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_ALBUM");
   duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_ARTIST); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_ARTIST");
   duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_GENRE); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_GENRE");
+  duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_COMPOSER); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_COMPOSER");
+  duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_CONDUCTOR); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_CONDUCTOR");
+  duk_push_string(ctx, UPNP_DEFAULT_CLASS_MUSIC_ORCHESTRA); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER_MUSIC_ORCHESTRA");
   duk_push_string(ctx, UPNP_DEFAULT_CLASS_CONTAINER); duk_put_global_string(ctx, "UPNP_CLASS_CONTAINER");
 
   duk_push_int(ctx, 0); duk_put_global_string(ctx, "ONLINE_SERVICE_NONE");
@@ -202,6 +222,28 @@ addCdsObjectParams ScriptTestFixture::addCdsObject(duk_context *ctx, vector<stri
   params.objectValues = dukObjValues;
   params.containerChain = containerChain;
   params.objectType = objContainer;
+
+  return params;
+}
+
+copyObjectParams ScriptTestFixture::copyObject(duk_context *ctx, map<string, string> obj, map<string, string> meta) {
+  duk_bool_t isObjectParam = duk_is_object(ctx, 0);
+  copyObjectParams params;
+  params.isObject = isObjectParam;
+
+  DukTestHelper dukHelper;
+  dukHelper.createObject(ctx, std::move(obj), std::move(meta));
+
+  return params;
+}
+
+getCdsObjectParams ScriptTestFixture::getCdsObject(duk_context *ctx, map<string, string> obj, map<string, string> meta) {
+  string location = duk_get_string(ctx, 0);
+  getCdsObjectParams params;
+  params.location = location;
+
+  DukTestHelper dukHelper;
+  dukHelper.createObject(ctx, std::move(obj), std::move(meta));
 
   return params;
 }

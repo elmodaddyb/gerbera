@@ -4,7 +4,7 @@
 
     jquery.gerbera.tree.js - this file is part of Gerbera.
 
-    Copyright (C) 2016-2018 Gerbera Contributors
+    Copyright (C) 2016-2019 Gerbera Contributors
 
     Gerbera is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 2
@@ -110,7 +110,7 @@ $.widget('grb.tree', {
 
   collapse: function (element) {
     element.children('span').first().removeClass(this.options.config.openIcon).addClass(this.options.config.closedIcon)
-    element.parent().find('ul.list-group').css('display', 'none')
+    element.find('ul.list-group').remove()
   },
 
   select: function (folderList) {

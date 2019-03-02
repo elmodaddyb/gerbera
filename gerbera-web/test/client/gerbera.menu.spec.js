@@ -1,155 +1,147 @@
 /* global GERBERA spyOn jasmine it expect describe beforeEach loadFixtures loadJSONFixtures getJSONFixture */
 
-jasmine.getFixtures().fixturesPath = 'base/test/client/fixtures'
-jasmine.getJSONFixtures().fixturesPath = 'base/test/client/fixtures'
+jasmine.getFixtures().fixturesPath = 'base/test/client/fixtures';
+jasmine.getJSONFixtures().fixturesPath = 'base/test/client/fixtures';
 
-describe('Gerbera Menu', function () {
-  'use strict'
-  describe('initialize()', function () {
+describe('Gerbera Menu', () => {
+  'use strict';
+  describe('initialize()', () => {
+    let ajaxSpy, mockConfig;
 
-    beforeEach(function () {
-      loadFixtures('index.html')
-      spyOn(GERBERA.Updates, 'getUpdates')
-    })
+    beforeEach(() => {
+      loadJSONFixtures('config.json');
+      loadFixtures('index.html');
+      mockConfig = getJSONFixture('config.json');
+      spyOn(GERBERA.Updates, 'getUpdates');
+      ajaxSpy = spyOn($, 'ajax');
+      GERBERA.App.serverConfig = mockConfig.config;
+    });
 
-    it('binds all menu items with the click event', function (done) {
-      spyOn(GERBERA.Menu, 'click')
-      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true)
+    afterEach(() => {
+      ajaxSpy.and.callThrough();
+    });
 
-      GERBERA.Menu.initialize().then(function () {
-        $('#nav-db').click()
-        expect(GERBERA.Menu.click).toHaveBeenCalledWith(jasmine.any(Object))
-        done()
-      })
-    })
+    it('binds all menu items with the click event', async () => {
+      spyOn(GERBERA.Menu, 'click');
+      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true);
 
-    it('on click of Database calls to load the containers', function (done) {
-      spyOn(GERBERA.Tree, 'selectType')
-      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true)
+      await GERBERA.Menu.initialize();
 
-      GERBERA.Menu.initialize().then(function () {
-        $('#nav-db').click()
-        expect(GERBERA.Tree.selectType).toHaveBeenCalledWith('db', 0)
-        done()
-      })
-    })
+      $('#nav-db').click();
+      expect(GERBERA.Menu.click).toHaveBeenCalledWith(jasmine.any(Object));
+    });
 
-    it('on click of menu, clears items', function (done) {
-      spyOn(GERBERA.Items, 'destroy')
-      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true)
+    it('on click of Database calls to load the containers', async () => {
+      spyOn(GERBERA.Tree, 'selectType');
+      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true);
 
-      loadJSONFixtures('parent_id-0-select_it-0.json')
-      var response = getJSONFixture('parent_id-0-select_it-0.json')
-      spyOn($, 'ajax').and.callFake(function (options) {
-        return $.Deferred().resolve(response).promise()
-      })
+      await GERBERA.Menu.initialize();
+      $('#nav-db').click();
 
-      GERBERA.Menu.initialize().then(function () {
-        $('#nav-db').click()
-        expect(GERBERA.Items.destroy).toHaveBeenCalled()
-        done()
-      })
-    })
+      expect(GERBERA.Tree.selectType).toHaveBeenCalledWith('db', 0);
+    });
 
-    it('on click of home menu, clears tree and items', function (done) {
-      spyOn(GERBERA.Items, 'destroy')
-      spyOn(GERBERA.Tree, 'destroy')
-      spyOn(GERBERA.Trail, 'destroy')
-      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true)
+    it('on click of menu, clears items', async () => {
+      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true);
+      spyOn(GERBERA.Items, 'destroy');
+      spyOn(GERBERA.Tree, 'selectType');
 
-      GERBERA.Menu.initialize().then(function () {
-        $('#nav-home').click()
-        expect(GERBERA.Items.destroy).toHaveBeenCalled()
-        expect(GERBERA.Tree.destroy).toHaveBeenCalled()
-        expect(GERBERA.Trail.destroy).toHaveBeenCalled()
-        done()
-      })
-    })
+      loadJSONFixtures('parent_id-0-select_it-0.json');
+      const response = getJSONFixture('parent_id-0-select_it-0.json');
+      ajaxSpy.and.callFake(() => {
+        return $.Deferred().resolve(response).promise();
+      });
 
-    it('on click of leave beta destroys elements, and navigates to index.html page', function (done) {
-      spyOn(GERBERA.Items, 'destroy')
-      spyOn(GERBERA.Tree, 'destroy')
-      spyOn(GERBERA.Trail, 'destroy')
-      spyOn(GERBERA.App, 'reload')
-      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true)
+      await GERBERA.Menu.initialize();
+      $('#nav-db').click();
 
-      GERBERA.Menu.initialize().then(function () {
-        $('#leave-beta').click()
-        expect(GERBERA.Tree.destroy).toHaveBeenCalled()
-        expect(GERBERA.Trail.destroy).toHaveBeenCalled()
-        expect(GERBERA.Items.destroy).toHaveBeenCalled()
-        expect(GERBERA.App.reload).toHaveBeenCalledWith('/old.html')
-        done()
-      })
-    })
-  })
+      expect(GERBERA.Items.destroy).toHaveBeenCalled();
+    });
 
-  describe('disable()', function () {
+    it('on click of home menu, clears tree and items', async () => {
+      spyOn(GERBERA.Items, 'destroy');
+      spyOn(GERBERA.Tree, 'destroy');
+      spyOn(GERBERA.Trail, 'destroy');
+      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true);
 
-    beforeEach(function () {
-      loadFixtures('index.html')
-      spyOn(GERBERA.Updates, 'getUpdates')
-    })
+      await GERBERA.Menu.initialize();
+      $('#nav-home').click();
 
-    it('disables all menu items except the report issue link', function () {
-      GERBERA.Menu.disable()
+      expect(GERBERA.Items.destroy).toHaveBeenCalled();
+      expect(GERBERA.Tree.destroy).toHaveBeenCalled();
+      expect(GERBERA.Trail.destroy).toHaveBeenCalled();
+    });
+  });
 
-      var menuItems = ['nav-home', 'nav-db', 'nav-fs']
+  describe('disable()', () => {
 
-      $.each(menuItems, function (index, value) {
-        var link = $('#'+ value)
-        expect(link.hasClass('disabled')).toBeTruthy()
-      })
-      expect( $('#report-issue').hasClass('disabled')).toBeFalsy()
-    })
-  })
+    beforeEach(() => {
+      loadFixtures('index.html');
+      spyOn(GERBERA.Updates, 'getUpdates');
+    });
 
-  describe('hideLogin()', function () {
+    it('disables all menu items except the report issue link', () => {
+      GERBERA.Menu.disable();
 
-    beforeEach(function () {
-      loadFixtures('index.html')
-      spyOn(GERBERA.Updates, 'getUpdates')
-    })
+      const menuItems = ['nav-home', 'nav-db', 'nav-fs'];
 
-    it('hides login fields when called', function () {
-      GERBERA.Menu.hideLogin()
+      $.each(menuItems, (index, value) => {
+        const link = $('#'+ value);
+        expect(link.hasClass('disabled')).toBeTruthy();
+      });
+      expect( $('#report-issue').hasClass('disabled')).toBeFalsy();
+    });
+  });
 
-      expect($('.login-field').is(':visible')).toBeFalsy()
-      expect($('#login-submit').is(':visible')).toBeFalsy()
-      expect($('#logout').is(':visible')).toBeFalsy()
-    })
-  })
+  describe('hideLogin()', () => {
 
-  describe('click()', function () {
+    beforeEach(() => {
+      loadFixtures('index.html');
+      spyOn(GERBERA.Updates, 'getUpdates');
+    });
 
-    beforeEach(function () {
-      loadFixtures('index.html')
-      spyOn(GERBERA.Tree, 'selectType')
-      spyOn(GERBERA.App, 'setType')
-      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true)
-      spyOn(GERBERA.Items, 'destroy')
-      spyOn(GERBERA.Tree, 'destroy')
-      spyOn(GERBERA.Trail, 'destroy')
-      GERBERA.Menu.initialize()
-    })
+    it('hides login fields when called', () => {
+      GERBERA.Menu.hideLogin();
 
-    it('sets the active menu item when clicked', function () {
-      var fsMenu = $('#nav-fs')
+      expect($('.login-field').is(':visible')).toBeFalsy();
+      expect($('#login-submit').is(':visible')).toBeFalsy();
+      expect($('#logout').is(':visible')).toBeFalsy();
+    });
+  });
 
+  describe('click()', () => {
+    let fsMenu;
+    let mockConfig;
+
+    beforeEach(async () => {
+      loadFixtures('index.html');
+      loadJSONFixtures('config.json');
+      spyOn(GERBERA.Tree, 'selectType');
+      spyOn(GERBERA.App, 'setType');
+      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true);
+      spyOn(GERBERA.Items, 'destroy');
+      spyOn(GERBERA.Tree, 'destroy');
+      spyOn(GERBERA.Trail, 'destroy');
+      mockConfig = getJSONFixture('config.json');
+      GERBERA.App.serverConfig = mockConfig.config;
+      await GERBERA.Menu.initialize();
+      fsMenu = $('#nav-fs');
+    });
+
+    it('sets the active menu item when clicked', () => {
       fsMenu.click();
 
-      expect(fsMenu.parent().hasClass('active')).toBeTruthy()
-      expect(GERBERA.Tree.selectType).toHaveBeenCalled()
-    })
+      expect(fsMenu.parent().hasClass('active')).toBeTruthy();
+      expect(GERBERA.Tree.selectType).toHaveBeenCalled();
+    });
 
-    it('sets the correct active menu item parent when icon is clicked', function () {
-      var fsMenu = $('#nav-fs')
-      var fsIcon = fsMenu.children('i.fa-folder-open')
+    it('sets the correct active menu item parent when icon is clicked', () => {
+      const fsIcon = fsMenu.children('i.fa-folder-open');
 
       fsIcon.click();
 
       expect(fsMenu.parent().hasClass('active')).toBeTruthy();
-      expect(GERBERA.Tree.selectType).toHaveBeenCalled()
-    })
-  })
-})
+      expect(GERBERA.Tree.selectType).toHaveBeenCalled();
+    });
+  });
+});

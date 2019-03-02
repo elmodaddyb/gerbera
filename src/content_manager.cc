@@ -163,8 +163,7 @@ ContentManager::ContentManager()
             }
         }
 
-        storage->updateAutoscanPersistentList(ScanMode::INotify,
-            config_inotify_list);
+        storage->updateAutoscanPersistentList(ScanMode::INotify, config_inotify_list);
         autoscan_inotify = storage->getAutoscanList(ScanMode::INotify);
     } else {
         // make an empty list so we do not have to do extra checks on shutdown
@@ -221,11 +220,10 @@ ContentManager::ContentManager()
                 Timer::getInstance()->addTimerSubscriber(this, i, sc->getTimerParameter(), true);
             }
         } catch (const Exception& ex) {
-            log_error("Could not setup SopCast: %s\n",
-                ex.getMessage().c_str());
+            log_error("Could not setup SopCast: %s\n", ex.getMessage().c_str());
         }
     }
-#endif //SOPCAST
+#endif // SOPCAST
 
 #ifdef ATRAILERS
     if (cm->getBoolOption(CFG_ONLINE_CONTENT_ATRAILERS_ENABLED)) {
@@ -246,12 +244,10 @@ ContentManager::ContentManager()
                 Timer::getInstance()->addTimerSubscriber(this, i, at->getTimerParameter(), true);
             }
         } catch (const Exception& ex) {
-            log_error("Could not setup Apple Trailers: %s\n",
-                ex.getMessage().c_str());
+            log_error("Could not setup Apple Trailers: %s\n", ex.getMessage().c_str());
         }
     }
-#endif //ATRAILERS
-
+#endif // ATRAILERS
     auto streamingOptions = cm->getStreamingOptions();
     if(streamingOptions) {
         auto taskThreadPool = std::make_shared<TaskThreadPool>();
@@ -263,25 +259,19 @@ ContentManager::ContentManager()
             this,
             storage.getPtr());
     }
-
-#endif //ONLINE_SERVICES
+#endif // ONLINE_SERVICES
 }
 
-ContentManager::~ContentManager()
-{
-    log_debug("ContentManager destroyed\n");
-}
+ContentManager::~ContentManager() { log_debug("ContentManager destroyed\n"); }
 
 void ContentManager::init()
 {
     reMimetype = Ref<RExp>(new RExp());
     reMimetype->compile(_(MIMETYPE_REGEXP));
 
-    int ret = pthread_create(
-        &taskThread,
+    int ret = pthread_create(&taskThread,
         nullptr, //&attr, // attr
-        ContentManager::staticThreadProc,
-        this);
+        ContentManager::staticThreadProc, this);
     if (ret != 0) {
         throw _Exception(_("Could not start task thread"));
     }
@@ -350,7 +340,7 @@ void ContentManager::timerNotify(Ref<Timer::Parameter> parameter)
     else if (parameter->whoami() == Timer::Parameter::IDOnlineContent) {
         fetchOnlineContent((service_type_t)(parameter->getID()));
     }
-#endif //ONLINE_SERVICES
+#endif // ONLINE_SERVICES
 }
 
 void ContentManager::shutdown()
@@ -404,10 +394,7 @@ void ContentManager::shutdown()
     log_debug("end\n");
 }
 
-Ref<CMAccounting> ContentManager::getAccounting()
-{
-    return acct;
-}
+Ref<CMAccounting> ContentManager::getAccounting() { return acct; }
 Ref<GenericTask> ContentManager::getCurrentTask()
 {
     Ref<GenericTask> task;
@@ -484,7 +471,7 @@ void ContentManager::addVirtualItem(Ref<CdsObject> obj, bool allow_fifo)
     addObject(obj);
 }
 
-int ContentManager::_addFile(String path, String rootpath, bool recursive, bool hidden, Ref<GenericTask> task)
+int ContentManager::_addFile(String path, String rootPath, bool recursive, bool hidden, Ref<GenericTask> task)
 {
     if (hidden == false) {
         String filename = get_filename(path);
@@ -514,10 +501,10 @@ int ContentManager::_addFile(String path, String rootpath, bool recursive, bool 
             addObject(obj);
             if (layout != nullptr) {
                 try {
-                    if (!string_ok(rootpath) && (task != nullptr))
-                        rootpath = RefCast(task, CMAddFileTask)->getRootPath();
+                    if (!string_ok(rootPath) && (task != nullptr))
+                        rootPath = RefCast(task, CMAddFileTask)->getRootPath();
 
-                    layout->processCdsObject(obj, rootpath);
+                    layout->processCdsObject(obj, rootPath);
 
                     String mimetype = RefCast(obj, CdsItem)->getMimeType();
                     String content_type = mimetype_contenttype_map->get(mimetype);
@@ -560,7 +547,7 @@ void ContentManager::_removeObject(int objectID, bool all)
     }
 
     // reload accounting
-    //loadAccounting();
+    // loadAccounting();
 }
 
 int ContentManager::ensurePathExistence(zmm::String path)
@@ -643,7 +630,7 @@ void ContentManager::_rescanDirectory(int containerID, int scanID, ScanMode scan
         log_error("Container with ID %d has no location information\n", containerID);
         return;
         //        continue;
-        //throw _Exception(_("Container has no location information!\n"));
+        // throw _Exception(_("Container has no location information!\n"));
     }
 
     DIR* dir = opendir(location.c_str());
@@ -828,7 +815,7 @@ void ContentManager::addRecursive(String path, bool hidden, Ref<GenericTask> tas
                 {
                     log_warning("file ignored: %s\n", newPath.c_str());
                 } else {
-                    //obj->setParentID(parentID);
+                    // obj->setParentID(parentID);
                     if (IS_CDS_ITEM(obj->getObjectType())) {
                         addObject(obj);
                         parentID = obj->getParentID();
@@ -859,7 +846,7 @@ void ContentManager::addRecursive(String path, bool hidden, Ref<GenericTask> tas
                     }
 
                     /// \todo Why was this statement here??? - It seems to be unnecessary
-                    //obj = createObjectFromFile(newPath);
+                    // obj = createObjectFromFile(newPath);
                 }
                 //#endif
                 if (IS_CDS_CONTAINER(obj->getObjectType())) {
@@ -921,8 +908,7 @@ void ContentManager::updateObject(int objectID, Ref<Dictionary> parameters)
         }
 
         if (string_ok(description)) {
-            cloned_item->setMetadata(MetadataHandler::getMetaFieldName(M_DESCRIPTION),
-                description);
+            cloned_item->setMetadata(MetadataHandler::getMetaFieldName(M_DESCRIPTION), description);
         } else {
             cloned_item->removeMetadata(MetadataHandler::getMetaFieldName(M_DESCRIPTION));
         }
@@ -955,8 +941,7 @@ void ContentManager::updateObject(int objectID, Ref<Dictionary> parameters)
 
         // state and description can be an empty strings - if you want to clear it
         if (string_ok(description)) {
-            cloned_item->setMetadata(MetadataHandler::getMetaFieldName(M_DESCRIPTION),
-                description);
+            cloned_item->setMetadata(MetadataHandler::getMetaFieldName(M_DESCRIPTION), description);
         } else {
             cloned_item->removeMetadata(MetadataHandler::getMetaFieldName(M_DESCRIPTION));
         }
@@ -1048,7 +1033,7 @@ int ContentManager::addContainerChain(String chain, String lastClass, int lastRe
     if (!string_ok(chain))
         throw _Exception(_("addContainerChain() called with empty chain parameter"));
 
-    log_debug("received chain: %s (%s) [%s]\n", chain.c_str(), lastClass.c_str(), lastMetadata != nullptr ? lastMetadata->encodeSimple().c_str(): "null");
+    log_debug("received chain: %s (%s) [%s]\n", chain.c_str(), lastClass.c_str(), lastMetadata != nullptr ? lastMetadata->encodeSimple().c_str() : "null");
     storage->addContainerChain(chain, lastClass, lastRefID, &containerID, &updateID, lastMetadata);
 
     // if (updateID != INVALID_OBJECT_ID)
@@ -1110,10 +1095,8 @@ Ref<CdsObject> ContentManager::createObjectFromFile(String path, bool magic, boo
     }
 
     Ref<CdsObject> obj;
-    if (S_ISREG(statbuf.st_mode) || (allow_fifo && S_ISFIFO(statbuf.st_mode))) // item
-    {
-        /* retrieve information about item and decide
-           if it should be included */
+    if (S_ISREG(statbuf.st_mode) || (allow_fifo && S_ISFIFO(statbuf.st_mode))) { // item
+        /* retrieve information about item and decide if it should be included */
         String mimetype;
         String upnp_class;
         String extension;
@@ -1123,16 +1106,18 @@ Ref<CdsObject> ContentManager::createObjectFromFile(String path, bool magic, boo
         if (dotIndex > 0)
             extension = filename.substring(dotIndex + 1);
 
-        if (magic)
+        if (magic) {
             mimetype = extension2mimetype(extension);
 
-        if (mimetype == nullptr && magic) {
-            if (ignore_unknown_extensions)
-                return nullptr; // item should be ignored
+            if (!string_ok(mimetype)) {
+                if (ignore_unknown_extensions)
+                    return nullptr; // item should be ignored
 #ifdef HAVE_MAGIC
-            mimetype = get_mime_type(ms, reMimetype, path);
+                mimetype = getMIMETypeFromFile(path);
 #endif
+            }
         }
+
         if (mimetype != nullptr) {
             upnp_class = mimetype2upnpclass(mimetype);
         }
@@ -1152,14 +1137,20 @@ Ref<CdsObject> ContentManager::createObjectFromFile(String path, bool magic, boo
         item->setLocation(path);
         item->setMTime(statbuf.st_mtime);
         item->setSizeOnDisk(statbuf.st_size);
-        if (mimetype != nullptr)
+
+        if (mimetype != nullptr) {
             item->setMimeType(mimetype);
-        if (upnp_class != nullptr)
+        }
+        if (upnp_class != nullptr) {
             item->setClass(upnp_class);
+        }
+
         Ref<StringConverter> f2i = StringConverter::f2i();
         obj->setTitle(f2i->convert(filename));
-        if (magic)
+
+        if (magic) {
             MetadataHandler::setMetadata(item);
+        }
     } else if (S_ISDIR(statbuf.st_mode)) {
         Ref<CdsContainer> cont(new CdsContainer());
         obj = RefCast(cont, CdsObject);
@@ -1237,10 +1228,7 @@ void ContentManager::initJS()
         playlist_parser_script = Ref<PlaylistParserScript>(new PlaylistParserScript(Runtime::getInstance()));
 }
 
-void ContentManager::destroyJS()
-{
-    playlist_parser_script = nullptr;
-}
+void ContentManager::destroyJS() { playlist_parser_script = nullptr; }
 
 #endif // HAVE_JS
 
@@ -1326,8 +1314,7 @@ void ContentManager::loadAccounting(bool async)
     }
 }
 
-int ContentManager::addFile(zmm::String path, bool recursive, bool async,
-    bool hidden, bool lowPriority, bool cancellable)
+int ContentManager::addFile(zmm::String path, bool recursive, bool async, bool hidden, bool lowPriority, bool cancellable)
 {
     String rootpath;
     if (check_path(path, true))
@@ -1335,17 +1322,13 @@ int ContentManager::addFile(zmm::String path, bool recursive, bool async,
     return addFileInternal(path, rootpath, recursive, async, hidden, lowPriority, 0, cancellable);
 }
 
-int ContentManager::addFile(zmm::String path, zmm::String rootpath, bool recursive, bool async,
-    bool hidden, bool lowPriority, bool cancellable)
+int ContentManager::addFile(zmm::String path, zmm::String rootpath, bool recursive, bool async, bool hidden, bool lowPriority, bool cancellable)
 {
     return addFileInternal(path, rootpath, recursive, async, hidden, lowPriority, 0, cancellable);
 }
 
-int ContentManager::addFileInternal(String path, String rootpath,
-    bool recursive,
-    bool async, bool hidden, bool lowPriority,
-    unsigned int parentTaskID,
-    bool cancellable)
+int ContentManager::addFileInternal(
+    String path, String rootpath, bool recursive, bool async, bool hidden, bool lowPriority, unsigned int parentTaskID, bool cancellable)
 {
     if (async) {
         Ref<GenericTask> task(new CMAddFileTask(path, rootpath, recursive, hidden, cancellable));
@@ -1359,29 +1342,23 @@ int ContentManager::addFileInternal(String path, String rootpath,
 }
 
 #ifdef ONLINE_SERVICES
-void ContentManager::fetchOnlineContent(service_type_t service,
-    bool lowPriority, bool cancellable,
-    bool unscheduled_refresh)
+void ContentManager::fetchOnlineContent(service_type_t service, bool lowPriority, bool cancellable, bool unscheduled_refresh)
 {
     Ref<OnlineService> os = online_services->getService(service);
     if (os == nullptr) {
         log_debug("No surch service! %d\n", service);
         throw _Exception(_("Service not found!"));
     }
-    fetchOnlineContentInternal(os, lowPriority, cancellable, 0,
-        unscheduled_refresh);
+    fetchOnlineContentInternal(os, lowPriority, cancellable, 0, unscheduled_refresh);
 }
 
-void ContentManager::fetchOnlineContentInternal(Ref<OnlineService> service,
-    bool lowPriority, bool cancellable,
-    unsigned int parentTaskID,
-    bool unscheduled_refresh)
+void ContentManager::fetchOnlineContentInternal(
+    Ref<OnlineService> service, bool lowPriority, bool cancellable, unsigned int parentTaskID, bool unscheduled_refresh)
 {
     if (layout_enabled)
         initLayout();
 
-    Ref<GenericTask> task(new CMFetchOnlineContentTask(service, layout, cancellable,
-        unscheduled_refresh));
+    Ref<GenericTask> task(new CMFetchOnlineContentTask(service, layout, cancellable, unscheduled_refresh));
     task->setDescription(_("Updating content from ") + service->getServiceName());
     task->setParentID(parentTaskID);
     service->incTaskCount();
@@ -1390,8 +1367,7 @@ void ContentManager::fetchOnlineContentInternal(Ref<OnlineService> service,
 
 void ContentManager::cleanupOnlineServiceObjects(zmm::Ref<OnlineService> service)
 {
-    log_debug("Finished fetch cycle for service: %s\n",
-        service->getServiceName().c_str());
+    log_debug("Finished fetch cycle for service: %s\n", service->getServiceName().c_str());
 
     if (service->getItemPurgeInterval() > 0) {
         Ref<Storage> storage = Storage::getInstance();
@@ -1414,8 +1390,7 @@ void ContentManager::cleanupOnlineServiceObjects(zmm::Ref<OnlineService> service
             last.tv_sec = temp.toLong();
 
             if ((service->getItemPurgeInterval() > 0) && ((current.tv_sec - last.tv_sec) > service->getItemPurgeInterval())) {
-                log_debug("Purging old online service object %s\n",
-                    obj->getTitle().c_str());
+                log_debug("Purging old online service object %s\n", obj->getTitle().c_str());
                 removeObject(object_id, false);
             }
         }
@@ -1743,9 +1718,7 @@ void ContentManager::setAutoscanDirectory(Ref<AutoscanDirectory> dir)
         else {
             log_debug("objectID: %d\n", dir->getObjectID());
             Ref<CdsObject> obj = storage->loadObject(dir->getObjectID());
-            if (obj == nullptr
-                || !IS_CDS_CONTAINER(obj->getObjectType())
-                || obj->isVirtual())
+            if (obj == nullptr || !IS_CDS_CONTAINER(obj->getObjectType()) || obj->isVirtual())
                 throw _Exception(_("tried to remove an illegal object (id) from the list of the autoscan directories"));
 
             log_debug("location: %s\n", obj->getLocation().c_str());
@@ -1833,7 +1806,7 @@ void ContentManager::setAutoscanDirectory(Ref<AutoscanDirectory> dir)
 #ifdef HAVE_MAGIC
 zmm::String ContentManager::getMimeTypeFromBuffer(const void* buffer, size_t length)
 {
-    return get_mime_type_from_buffer(ms, reMimetype, buffer, length);
+    return getMIMETypeFromBuffer(buffer, length);
 }
 #endif
 
@@ -1848,15 +1821,9 @@ CMAddFileTask::CMAddFileTask(String path, String rootpath, bool recursive, bool 
     this->cancellable = cancellable;
 }
 
-String CMAddFileTask::getPath()
-{
-    return path;
-}
+String CMAddFileTask::getPath() { return path; }
 
-String CMAddFileTask::getRootPath()
-{
-    return rootpath;
-}
+String CMAddFileTask::getRootPath() { return rootpath; }
 void CMAddFileTask::run()
 {
     log_debug("running add file task with path %s recursive: %d\n", path.c_str(), recursive);
@@ -1905,10 +1872,7 @@ void CMRescanDirectoryTask::run()
 }
 
 #ifdef ONLINE_SERVICES
-CMFetchOnlineContentTask::CMFetchOnlineContentTask(Ref<OnlineService> service,
-    Ref<Layout> layout,
-    bool cancellable,
-    bool unscheduled_refresh)
+CMFetchOnlineContentTask::CMFetchOnlineContentTask(Ref<OnlineService> service, Ref<Layout> layout, bool cancellable, bool unscheduled_refresh)
     : GenericTask(ContentManagerTask)
 {
     this->layout = layout;
@@ -1925,15 +1889,13 @@ void CMFetchOnlineContentTask::run()
         return;
     }
     try {
-        Ref<GenericTask> t(new TPFetchOnlineContentTask(service, layout,
-            cancellable,
-            unscheduled_refresh));
+        Ref<GenericTask> t(new TPFetchOnlineContentTask(service, layout, cancellable, unscheduled_refresh));
         TaskProcessor::getInstance()->addTask(t);
     } catch (const Exception& ex) {
         log_error("%s\n", ex.getMessage().c_str());
     }
 }
-#endif //ONLINE_SERVICES
+#endif // ONLINE_SERVICES
 
 CMLoadAccountingTask::CMLoadAccountingTask()
     : GenericTask(ContentManagerTask)

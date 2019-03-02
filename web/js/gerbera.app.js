@@ -4,7 +4,7 @@
 
     gerbera.app.js - this file is part of Gerbera.
 
-    Copyright (C) 2016-2018 Gerbera Contributors
+    Copyright (C) 2016-2019 Gerbera Contributors
 
     Gerbera is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 2
@@ -80,8 +80,13 @@ GERBERA.App = (function () {
 
   var configureDefaults = function () {
     if (getType() === undefined) {
-      setType('db')
+      setType('db');
     }
+    $.ajaxSetup({
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Cache-Control', 'no-cache, must-revalidate');
+      }
+    });
     return $.Deferred().resolve().promise()
   }
 
@@ -101,9 +106,12 @@ GERBERA.App = (function () {
   var loadConfig = function (response) {
     var deferred;
     if (response.success) {
-      GERBERA.App.serverConfig = response.config
+      GERBERA.App.serverConfig = $.extend({}, response.config)
       var pollingInterval = response.config['poll-interval']
       GERBERA.App.serverConfig['poll-interval'] = parseInt(pollingInterval) * 1000
+      if(GERBERA.App.serverConfig.friendlyName && GERBERA.App.serverConfig.friendlyName !== "Gerbera") {
+        $(document).attr('title', GERBERA.App.serverConfig.friendlyName  + " | Gerbera Media Server")
+      }
       deferred = $.Deferred().resolve().promise()
     } else {
       deferred = $.Deferred().reject(response).promise()

@@ -16,19 +16,16 @@ View our documentation online at [http://docs.gerbera.io](http://docs.gerbera.io
 
 ## Features
 
-* Browse and playback your media via UPnP
-* Metadata extraction from mp3, ogg, flac, jpeg, etc. files.
-* Exif thumbnail support
-* User defined server layout based on extracted metadata (scriptable virtual containers)
-* Automatic directory rescans (timed, inotify)
+* Browse and playback your media via your network on all kinds of devices.
+* Metadata extraction from MP3, OGG, AAC, M4A, FLAC, JPG (and many more!) files.
+* Media thumbnail support
 * Web UI with a tree view of the database and the file system, allowing to add/remove/edit/browse your media
 * Highly flexible media format transcoding via plugins / scripts
-* Supports last fm scrobbing using lastfmlib 
+* Automatic directory rescans (timed, inotify)
+* User defined server layout based on extracted metadata
+* Supports last fm scrobbing using lastfmlib
 * On the fly video thumbnail generation with libffmpegthumbnailer
 * Support for external URLs (create links to internet content and serve them via UPnP to your renderer)
-* Support for ContentDirectoryService container updates
-* Active Items (experimental feature), allows execution of server side scripts upon HTTP GET requests to certain items
-* Highly flexible configuration, allowing you to control the behavior of various features of the server
 * runs on Linux, FreeBSD, NetBSD, Mac OS X, eCS
 * runs on x86, Alpha, ARM, MIPS, Sparc, PowerPC
 
@@ -117,13 +114,9 @@ sudo make install
 
 #### On macOS
 
-_The following has been tested on macOS Sierra 10.12.6_
+The Gerbera Team maintains a Homebrew Tap to allow for easy installation of Gerbera Media Server on macOS.
 
-1. Install prerequisites using homebrew
-1. Install `ossp-uuid` using homebrew
-1. Install `pupnp18` and `duktape` using the scripts provided.
-1. Use the cmake option `-DCMAKE_FIND_FRAMEWORK=LAST` to avoid Clang linkage errors
-
+[https://github.com/gerbera/homebrew-gerbera](https://github.com/gerbera/homebrew-gerbera)
 
 ### Quick start build instructions:
 
@@ -157,6 +150,7 @@ sudo make install
 | expat        	|         	| Required  	|                      	     |                     |          |
 | libiconv     	|         	| Required  	|                      	     |                     |          |
 | sqlite3      	|         	| Required  	| Database storage     	     |                     |          |
+| zlib          |        	| Required  	|                            |                     |          |
 | duktape      	| 2.1.0   	| Optional  	| Scripting Support    	     | WITH_JS             | Enabled  |
 | mysql        	|         	| Optional  	| Alternate database storage | WITH_MYSQL          | Disabled |
 | curl         	|         	| Optional  	| Enables web services 	     | WITH_CURL           | Enabled  |
@@ -182,13 +176,13 @@ sudo make install
        Sergey Bostandzhyan <jin at mediatomb dot cc>
        Leonhard Wimmer <leo at mediatomb dot cc>
 
-    Copyright (C) 2016-2018
+    Copyright (C) 2016-2019
         Gerbera Contributors
 
 [1]: https://sourceforge.net/p/mediatomb/discussion/440751/thread/258c3cf7/?limit=250
 [pupnp]: https://github.com/mrjimenez/pupnp.git
 [taglib]: http://taglib.org/
 [CMake]: https://cmake.org/
-[Ubuntu PPA]: https://launchpad.net/~stephenczetty/+archive/ubuntu/gerbera
+[Ubuntu PPA]: https://launchpad.net/~stephenczetty/+archive/ubuntu/gerbera-updates
 [v00d00 overlay]: https://github.com/v00d00/overlay
 [duktape]: http://duktape.org

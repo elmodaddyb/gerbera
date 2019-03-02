@@ -7,7 +7,6 @@
 #include <uuid/uuid.h>
 #endif
 #include <fstream>
-#include <ftw.h>
 
 #include <config_manager.h>
 #include <config/config_generator.h>
@@ -15,15 +14,6 @@
 
 using namespace zmm;
 using namespace mxml;
-
-static int rmFiles(const char *pathname, const struct stat *sbuf, int type, struct FTW *ftwb) {
-  printf("\nRemoving file: %s", pathname);
-  if(remove(pathname) < 0) {
-    perror("ERROR: remove");
-    return -1;
-  }
-  return 0;
-}
 
 class ConfigManagerTest : public ::testing::Test {
 
@@ -107,12 +97,6 @@ class ConfigManagerTest : public ::testing::Test {
   }
 
   virtual void TearDown() {
-    // cleanup temporary directory
-    printf("Deleting directory: %s", gerberaDir.c_str());
-    if (nftw(gerberaDir.c_str(), rmFiles,10, FTW_DEPTH|FTW_MOUNT|FTW_PHYS) < 0) {
-      perror("ERROR: ntfw");
-      exit(1);
-    }
     delete subject;
   };
 

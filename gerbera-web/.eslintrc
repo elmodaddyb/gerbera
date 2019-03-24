@@ -9,6 +9,7 @@
     "node": true
   },
   "extends": "eslint:recommended",
+  "sourceType": "module",
   "plugins": [
     "standard",
     "promise"

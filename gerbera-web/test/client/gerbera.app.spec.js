@@ -1,26 +1,33 @@
-/* global GERBERA jasmine it expect spyOn describe beforeEach beforeAll afterEach loadJSONFixtures getJSONFixture */
+import {Auth} from '../../../web/js/gerbera-auth.module';
+import {Autoscan} from '../../../web/js/gerbera-autoscan.module';
+import Cookie from '../../../web/vendor/js-cookie';
+import {GerberaApp} from '../../../web/js/gerbera-app.module';
+import {Items} from '../../../web/js/gerbera-items.module';
+import {Menu} from '../../../web/js/gerbera-menu.module';
+import {Trail} from '../../../web/js/gerbera-trail.module';
+import {Tree} from '../../../web/js/gerbera-tree.module';
+import {Updates} from '../../../web/js/gerbera-updates.module';
 
-jasmine.getFixtures().fixturesPath = 'base/test/client/fixtures';
-jasmine.getJSONFixtures().fixturesPath = 'base/test/client/fixtures';
+import convertedConfig from './fixtures/converted-config';
+import mockConfig from './fixtures/config';
+import uiDisabled from './fixtures/ui-disabled';
 
-describe('Gerbera UI App', () => {
+fdescribe('Gerbera UI App', () => {
+
   describe('initialize()', () => {
-    let mockConfig, convertedConfig, ajaxSpy, cookieSpy, uiDisabled, ajaxSetupSpy;
+    let ajaxSpy, ajaxSetupSpy, cookieSpy;
 
     beforeAll(() => {
-      loadJSONFixtures('converted-config.json');
-      loadJSONFixtures('config.json');
-      loadJSONFixtures('ui-disabled.json');
-      mockConfig = getJSONFixture('config.json');
-      convertedConfig = getJSONFixture('converted-config.json');
-      uiDisabled = getJSONFixture('ui-disabled.json');
-      ajaxSpy = spyOn($, 'ajax');
-      ajaxSetupSpy = spyOn($, 'ajaxSetup');
-      spyOn(GERBERA.Auth, 'checkSID');
+      ajaxSpy = spyOn(window.$, 'ajax');
+      ajaxSetupSpy = spyOn(window.$, 'ajaxSetup');
+      spyOn(Updates, 'initialize').and.returnValue(Promise.resolve({}));
+      spyOn(Auth, 'checkSID').and.returnValue(Promise.resolve({}));
+      spyOn(Auth, 'getSessionId').and.returnValue('A_MOCK_SID');
+      spyOn(Menu, 'initialize').and.returnValue(Promise.resolve({}))
     });
 
     beforeEach(() => {
-      cookieSpy = spyOn($, 'cookie').and.callFake((name) => {
+      cookieSpy = spyOn(Cookie, 'get').and.callFake((name) => {
         if (name === 'TYPE') return 'db';
         if (name === 'SID') return 'A_MOCK_SID';
         return 'A_MOCK_COOKIE';
@@ -32,11 +39,22 @@ describe('Gerbera UI App', () => {
       ajaxSetupSpy.and.callThrough();
     });
 
+    it('creates an instance of Gerbera App', () => {
+      expect(GerberaApp).toBeDefined();
+    });
+
+    it('provides access to the TYPE cookie', () => {
+      const result = GerberaApp.getType();
+
+      expect(result).toEqual('db');
+    });
+
     it('retrieves the configuration from the server using AJAX', async () => {
       ajaxSpy.and.callFake(() => {
         return $.Deferred().resolve(mockConfig).promise();
       });
-      await GERBERA.App.initialize();
+
+      await GerberaApp.initialize();
 
       expect(ajaxSpy.calls.mostRecent().args[0]['url']).toEqual('content/interface');
       expect(ajaxSpy.calls.mostRecent().args[0]['data']).toEqual({
@@ -45,86 +63,82 @@ describe('Gerbera UI App', () => {
         action: 'get_config'
       });
 
-      expect(GERBERA.App.serverConfig).toEqual(convertedConfig.config);
-      expect(GERBERA.Auth.checkSID).toHaveBeenCalled();
+      expect(GerberaApp.serverConfig).toEqual(convertedConfig.config);
+      expect(Auth.checkSID).toHaveBeenCalled();
+      expect(Updates.initialize).toHaveBeenCalled();
+      expect(Menu.initialize).toHaveBeenCalledWith(GerberaApp.serverConfig);
       expect($(document).attr('title')).toBe('Gerbera Media Server | Gerbera Media Server');
     });
 
     it('reports an error when the ajax calls fails', async () => {
-      spyOn(GERBERA.Updates, 'showMessage');
+      spyOn(Updates, 'showMessage');
 
       ajaxSpy.and.callFake(() => {
-        return $.Deferred().reject({responseText: 'Internal Server Error'});
-      });
+        return Promise.reject({responseText: 'Internal Server Error'});
+        });
 
-      try {
-        await GERBERA.App.initialize();
-      } catch (err) {
-        expect(GERBERA.Updates.showMessage).toHaveBeenCalledWith('Internal Server Error', undefined, 'info', 'fa-exclamation-triangle');
-      }
+      await GerberaApp.initialize();
+      expect(Updates.showMessage).toHaveBeenCalledWith('Internal Server Error', undefined, 'info', 'fa-exclamation-triangle');
     });
 
     it('reports an error when UI is disabled', async () => {
-      spyOn(GERBERA.Updates, 'showMessage');
+      spyOn(Updates, 'showMessage');
       ajaxSpy.and.callFake(() => {
-        return $.Deferred().resolve(uiDisabled).promise();
+        return Promise.resolve(uiDisabled);
       });
 
-      try {
-        await GERBERA.App.initialize();
-      } catch (err) {
-        expect(GERBERA.Updates.showMessage).toHaveBeenCalledWith('The UI is disabled in the configuration file. See README.', undefined, 'warning', 'fa-exclamation-triangle');
-      }
+      await GerberaApp.initialize();
+
+      expect(Updates.showMessage).toHaveBeenCalledWith('The UI is disabled in the configuration file. See README.', undefined, 'warning', 'fa-exclamation-triangle');
     });
 
     it('stores the TYPE and SID cookies to the document', async () => {
       ajaxSpy.and.callFake(() => {
-        return $.Deferred().resolve(mockConfig).promise()
+        return Promise.resolve(mockConfig);
       });
 
-      await GERBERA.App.initialize();
-      expect(GERBERA.App.getType()).toEqual('db');
-      expect(GERBERA.App.isTypeDb()).toBeTruthy();
-      expect(GERBERA.Auth.getSessionId()).toBe('A_MOCK_SID');
+      await GerberaApp.initialize();
+
+      expect(GerberaApp.getType()).toEqual('db');
+      expect(GerberaApp.isTypeDb()).toBeTruthy();
     });
 
     it('defaults the TYPE to `db` when none is set', async () => {
       ajaxSpy.and.callFake(() => {
-        return $.Deferred().resolve(mockConfig).promise();
+        return Promise.resolve(mockConfig);
       });
       cookieSpy.and.callThrough();
 
-      await GERBERA.App.initialize();
-      expect(GERBERA.App.getType()).toEqual('db');
-      expect(GERBERA.App.isTypeDb()).toBeTruthy();
+      await GerberaApp.initialize();
+      expect(GerberaApp.getType()).toEqual('db');
+      expect(GerberaApp.isTypeDb()).toBeTruthy();
     });
 
     it('initializes all GERBERA components when logged in', async () => {
       ajaxSpy.and.callFake(() => {
-        return $.Deferred().resolve(mockConfig).promise();
+        return Promise.resolve(mockConfig);
       });
       cookieSpy.and.callThrough();
-      spyOn(GERBERA.Items, 'initialize');
-      spyOn(GERBERA.Tree, 'initialize');
-      spyOn(GERBERA.Trail, 'initialize');
-      spyOn(GERBERA.Autoscan, 'initialize');
-      spyOn(GERBERA.Updates, 'initialize');
-      spyOn(GERBERA.Auth, 'isLoggedIn').and.returnValue(true);
+      spyOn(Items, 'initialize');
+      spyOn(Tree, 'initialize');
+      spyOn(Trail, 'initialize');
+      spyOn(Autoscan, 'initialize');
+      spyOn(Auth, 'isLoggedIn').and.returnValue(true);
 
-      await GERBERA.App.initialize();
-      expect(GERBERA.Items.initialize).toHaveBeenCalled();
-      expect(GERBERA.Tree.initialize).toHaveBeenCalled();
-      expect(GERBERA.Trail.initialize).toHaveBeenCalled();
-      expect(GERBERA.Autoscan.initialize).toHaveBeenCalled();
-      expect(GERBERA.Updates.initialize).toHaveBeenCalled();
+      await GerberaApp.initialize();
+      expect(Items.initialize).toHaveBeenCalled();
+      expect(Tree.initialize).toHaveBeenCalled();
+      expect(Trail.initialize).toHaveBeenCalled();
+      expect(Autoscan.initialize).toHaveBeenCalled();
+      expect(Updates.initialize).toHaveBeenCalled();
     });
 
     it('sets up Cache-Control headers for all AJAX requests', async () => {
       ajaxSpy.and.callFake(() => {
-        return $.Deferred().resolve(mockConfig).promise();
+        return Promise.resolve(mockConfig);
       });
 
-      await GERBERA.App.initialize();
+      await GerberaApp.initialize();
 
       expect(ajaxSetupSpy).toHaveBeenCalledWith({
         beforeSend: jasmine.any(Function)
@@ -134,63 +148,54 @@ describe('Gerbera UI App', () => {
 
   describe('disable()', () => {
     it('will disable the menu and clear the content', () => {
-      spyOn(GERBERA.Menu, 'disable');
-      spyOn(GERBERA.Menu, 'hideLogin');
-      spyOn(GERBERA.Menu, 'hideMenu');
-      spyOn(GERBERA.Tree, 'destroy');
-      spyOn(GERBERA.Trail, 'destroy');
-      spyOn(GERBERA.Items, 'destroy');
+      spyOn(Menu, 'disable');
+      spyOn(Menu, 'hideLogin');
+      spyOn(Menu, 'hideMenu');
+      spyOn(Tree, 'destroy');
+      spyOn(Trail, 'destroy');
+      spyOn(Items, 'destroy');
 
-      GERBERA.App.disable();
+      GerberaApp.disable();
 
-      expect(GERBERA.Menu.disable).toHaveBeenCalled();
-      expect(GERBERA.Menu.hideLogin).toHaveBeenCalled();
-      expect(GERBERA.Menu.hideMenu).toHaveBeenCalled();
-      expect(GERBERA.Tree.destroy).toHaveBeenCalled();
-      expect(GERBERA.Trail.destroy).toHaveBeenCalled();
-      expect(GERBERA.Items.destroy).toHaveBeenCalled();
+      expect(Menu.disable).toHaveBeenCalled();
+      expect(Menu.hideLogin).toHaveBeenCalled();
+      expect(Menu.hideMenu).toHaveBeenCalled();
+      expect(Tree.destroy).toHaveBeenCalled();
+      expect(Trail.destroy).toHaveBeenCalled();
+      expect(Items.destroy).toHaveBeenCalled();
     });
   });
 
   describe('error()', () => {
-    let uiDisabled;
-
-    beforeEach(() => {
-      loadJSONFixtures('ui-disabled.json');
-      uiDisabled = getJSONFixture('ui-disabled.json');
-    });
-
     it('shows the event as the error message when event is a string', () => {
-      spyOn(GERBERA.Updates, 'showMessage');
+      spyOn(Updates, 'showMessage');
       const event = 'Error Message';
-      GERBERA.App.error(event);
 
-      expect(GERBERA.Updates.showMessage).toHaveBeenCalledWith('Error Message', undefined, 'warning', 'fa-exclamation-triangle');
+      GerberaApp.error(event);
+
+      expect(Updates.showMessage).toHaveBeenCalledWith('Error Message', undefined, 'warning', 'fa-exclamation-triangle');
     });
-
     it('shows the event as error message when event has responseText', () => {
-      spyOn(GERBERA.Updates, 'showMessage');
+      spyOn(Updates, 'showMessage');
       const event = {responseText : 'Response Text Error'};
-      GERBERA.App.error(event);
+      GerberaApp.error(event);
 
-      expect(GERBERA.Updates.showMessage).toHaveBeenCalledWith('Response Text Error', undefined, 'info', 'fa-exclamation-triangle');
+      expect(Updates.showMessage).toHaveBeenCalledWith('Response Text Error', undefined, 'info', 'fa-exclamation-triangle');
     });
-
     it('shows the event error taken from the response error', () => {
-      spyOn(GERBERA.Updates, 'showMessage');
+      spyOn(Updates, 'showMessage');
 
-      GERBERA.App.error(uiDisabled);
+      GerberaApp.error(uiDisabled);
 
-      expect(GERBERA.Updates.showMessage).toHaveBeenCalledWith('The UI is disabled in the configuration file. See README.', undefined, 'warning', 'fa-exclamation-triangle');
+      expect(Updates.showMessage).toHaveBeenCalledWith('The UI is disabled in the configuration file. See README.', undefined, 'warning', 'fa-exclamation-triangle');
     });
-
     it('shows unspecified error when event is invalid', () => {
-      spyOn(GERBERA.Updates, 'showMessage');
+      spyOn(Updates, 'showMessage');
       const event = undefined;
 
-      GERBERA.App.error(event);
+      GerberaApp.error(event);
 
-      expect(GERBERA.Updates.showMessage).toHaveBeenCalledWith('The system encountered an error', undefined, 'danger', 'fa-frown-o');
+      expect(Updates.showMessage).toHaveBeenCalledWith('The system encountered an error', undefined, 'danger', 'fa-frown-o');
     });
   });
 });

@@ -213,4 +213,42 @@ fdescribe('Gerbera UI App', () => {
       expect(GerberaApp.isLoggedIn()).toBeTruthy();
     });
   });
+
+  describe('viewItems()', () => {
+    it('returns the default value from server config', () => {
+      GerberaApp.serverConfig = convertedConfig.config;
+
+      const result = GerberaApp.viewItems();
+
+      expect(result).toEqual(50);
+    });
+    it('loads the # of view items based on default(25) when app config is undefined', async () => {
+      GerberaApp.serverConfig = {};
+      expect(GerberaApp.viewItems()).toBe(25);
+    });
+  });
+
+  describe('currentTreeItem()', () => {
+    beforeEach(() => {
+      GerberaApp.currentTreeItem = undefined;
+    });
+    it('returns the default value of undefined', () => {
+      const result = GerberaApp.currentTreeItem;
+      expect(result).toBeUndefined();
+    });
+    it('allows to be set with object data', () => {
+      GerberaApp.currentTreeItem = {test: 'test'};
+      expect(GerberaApp.currentTreeItem).toEqual({test: 'test'});
+    });
+  });
+
+  describe('setCurrentPage()', () => {
+    beforeEach(() => {
+      GerberaApp.pageInfo = {};
+    });
+    it('sets the page number', () => {
+      GerberaApp.setCurrentPage(1);
+      expect(GerberaApp.currentPage()).toBe(1);
+    });
+  });
 });

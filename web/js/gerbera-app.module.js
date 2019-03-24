@@ -1,4 +1,25 @@
+/*GRB*
 
+    Gerbera - https://gerbera.io/
+
+    gerbera-app.module.js - this file is part of Gerbera.
+
+    Copyright (C) 2016-2019 Gerbera Contributors
+
+    Gerbera is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 2
+    as published by the Free Software Foundation.
+
+    Gerbera is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Gerbera.  If not, see <http://www.gnu.org/licenses/>.
+
+    $Id$
+*/
 import {Auth} from './gerbera-auth.module';
 import {Autoscan} from './gerbera-autoscan.module';
 import Cookie from '../vendor/js-cookie';
@@ -13,6 +34,7 @@ export class App {
   constructor(clientConfig, serverConfig) {
     this.clientConfig = clientConfig;
     this.serverConfig = serverConfig;
+    this.loggedIn = false;
   }
 
   isTypeDb() {
@@ -25,6 +47,14 @@ export class App {
 
   setType(type) {
     Cookie.set('TYPE', type);
+  }
+
+  isLoggedIn(){
+    return this.loggedIn;
+  }
+
+  setLoggedIn(isLoggedIn){
+    this.loggedIn = isLoggedIn;
   }
 
   initialize () {
@@ -40,8 +70,9 @@ export class App {
         this.serverConfig = serverConfig;
         return Auth.checkSID();
       })
-      .then(() => {
-        this.displayLogin();
+      .then((loggedIn) => {
+        this.loggedIn = loggedIn;
+        this.displayLogin(loggedIn);
         Menu.initialize(this.serverConfig);
       })
       .catch((error) => {
@@ -58,7 +89,7 @@ export class App {
         xhr.setRequestHeader('Cache-Control', 'no-cache, must-revalidate');
       }
     });
-    return $.Deferred().resolve().promise()
+    return Promise.resolve();
   }
 
   getConfig (clientConfig) {
@@ -91,8 +122,8 @@ export class App {
     });
   }
 
-  displayLogin () {
-    if (Auth.isLoggedIn()) {
+  displayLogin (loggedIn) {
+    if (loggedIn) {
       $('.login-field').hide();
       $('#login-submit').hide();
       if (this.accounts) {
@@ -144,8 +175,16 @@ export class App {
     Trail.destroy();
     Items.destroy();
   }
+
+  reload(path) {
+    window.location = path;
+  }
 }
 
-export let GerberaApp = new App({
+const defaultClientConfig = {
   api: 'content/interface'
-}, {});
+};
+
+const defaultServerConfig = {};
+
+export let GerberaApp = new App(defaultClientConfig, defaultServerConfig);

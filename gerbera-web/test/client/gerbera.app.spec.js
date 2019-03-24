@@ -21,7 +21,7 @@ fdescribe('Gerbera UI App', () => {
       ajaxSpy = spyOn(window.$, 'ajax');
       ajaxSetupSpy = spyOn(window.$, 'ajaxSetup');
       spyOn(Updates, 'initialize').and.returnValue(Promise.resolve({}));
-      spyOn(Auth, 'checkSID').and.returnValue(Promise.resolve({}));
+      spyOn(Auth, 'checkSID').and.returnValue(Promise.resolve(true));
       spyOn(Auth, 'getSessionId').and.returnValue('A_MOCK_SID');
       spyOn(Menu, 'initialize').and.returnValue(Promise.resolve({}))
     });
@@ -123,7 +123,6 @@ fdescribe('Gerbera UI App', () => {
       spyOn(Tree, 'initialize');
       spyOn(Trail, 'initialize');
       spyOn(Autoscan, 'initialize');
-      spyOn(Auth, 'isLoggedIn').and.returnValue(true);
 
       await GerberaApp.initialize();
       expect(Items.initialize).toHaveBeenCalled();
@@ -196,6 +195,22 @@ fdescribe('Gerbera UI App', () => {
       GerberaApp.error(event);
 
       expect(Updates.showMessage).toHaveBeenCalledWith('The system encountered an error', undefined, 'danger', 'fa-frown-o');
+    });
+  });
+
+  describe('isLoggedIn()', () => {
+    beforeEach(() => {
+      GerberaApp.setLoggedIn(false);
+    });
+    afterEach(() => {
+      GerberaApp.setLoggedIn(false);
+    });
+    it('returns FALSE by default', () => {
+      expect(GerberaApp.isLoggedIn()).toBeFalsy();
+    });
+    it('allows to be set to TRUE', () => {
+      GerberaApp.setLoggedIn(true);
+      expect(GerberaApp.isLoggedIn()).toBeTruthy();
     });
   });
 });

@@ -12,7 +12,7 @@ import convertedConfig from './fixtures/converted-config';
 import mockConfig from './fixtures/config';
 import uiDisabled from './fixtures/ui-disabled';
 
-fdescribe('Gerbera UI App', () => {
+describe('Gerbera UI App', () => {
 
   describe('initialize()', () => {
     let ajaxSpy, ajaxSetupSpy, cookieSpy;

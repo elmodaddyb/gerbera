@@ -6,7 +6,7 @@ import item from './fixtures/autoscan-item';
 import autoscanResponse from './fixtures/autoscan-add-response';
 import submitCompleteResponse from './fixtures/submit-complete-2f6d';
 
-fdescribe('Gerbera Autoscan', () => {
+describe('Gerbera Autoscan', () => {
   describe('initialize()', () => {
     let autoscanId;
     let autoscanFromFs;
@@ -35,6 +35,7 @@ fdescribe('Gerbera Autoscan', () => {
     });
     afterEach(() => {
       fixture.cleanup();
+      $('#autoscanModal').remove();
     });
     it('clears all fields in the autoscan modal', () => {
       $('#autoscanModal').autoscanmodal('loadItem', {item: item});
@@ -57,6 +58,8 @@ fdescribe('Gerbera Autoscan', () => {
     let ajaxSpy, event;
 
     beforeEach(() => {
+      fixture.setBase('test/client/fixtures');
+      fixture.load('index.html');
       ajaxSpy = spyOn($, 'ajax').and.callFake(() => {
         return $.Deferred().resolve({}).promise();
       });
@@ -67,7 +70,7 @@ fdescribe('Gerbera Autoscan', () => {
     });
 
     afterEach(() => {
-      ajaxSpy.and.callThrough();
+      fixture.cleanup();
     });
 
     it('calls the server to obtain autoscan edit load', () => {
@@ -103,7 +106,6 @@ fdescribe('Gerbera Autoscan', () => {
       expect(ajaxSpy.calls.mostRecent().args[0].data).toEqual(data);
     });
   });
-
   describe('loadNewAutoscan()', () => {
     let autoscanId;
     let autoscanFromFs;
@@ -131,8 +133,12 @@ fdescribe('Gerbera Autoscan', () => {
       autoscanSave = $('#autoscanSave');
     });
 
-    afterEach(() => {
-      fixture.cleanup();
+    afterEach((done) => {
+      $("body").on('transitionend', function(event){
+        fixture.cleanup();
+        $('#autoscanModal').remove();
+        done();
+      });
     });
 
     it('using the response loads the autoscan overlay', () => {
@@ -154,9 +160,9 @@ fdescribe('Gerbera Autoscan', () => {
       expect(autoscanSave.is(':disabled')).toBeFalsy();
 
       expect(Updates.updateTreeByIds).toHaveBeenCalled();
+      $('#autoscanModal').remove();
     });
   });
-
   describe('submit()', () => {
     let ajaxSpy;
 
@@ -171,9 +177,13 @@ fdescribe('Gerbera Autoscan', () => {
       spyOn(Updates, 'getUpdates');
     });
 
-    afterEach(() => {
-      fixture.cleanup();
-      ajaxSpy.and.callThrough();
+    afterEach((done) => {
+      $("body").on('transitionend', function(event){
+        fixture.cleanup();
+        $('#autoscanModal').remove();
+        ajaxSpy.and.callThrough();
+        done();
+      });
     });
 
     it('collects all the form data from the autoscan modal to call the server', () => {

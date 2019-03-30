@@ -35,6 +35,8 @@ export class App {
     this.clientConfig = clientConfig;
     this.serverConfig = serverConfig;
     this.loggedIn = false;
+    this.currentTreeItem = undefined;
+    this.pageInfo = {};
   }
 
   isTypeDb() {
@@ -47,6 +49,14 @@ export class App {
 
   setType(type) {
     Cookie.set('TYPE', type);
+  }
+
+  currentPage() {
+    return this.pageInfo.currentPage;
+  }
+
+  setCurrentPage(page) {
+    this.pageInfo.currentPage = page;
   }
 
   isLoggedIn(){
@@ -120,6 +130,17 @@ export class App {
         reject(response);
       }
     });
+  }
+
+  viewItems () {
+    let viewItemsCount;
+    const itemsPerPage = this.serverConfig['items-per-page'];
+    if (itemsPerPage && itemsPerPage.default) {
+      viewItemsCount = itemsPerPage.default
+    } else {
+      viewItemsCount = 25
+    }
+    return viewItemsCount;
   }
 
   displayLogin (loggedIn) {

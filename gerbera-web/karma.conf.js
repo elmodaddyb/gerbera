@@ -24,9 +24,10 @@ module.exports = function(config) {
       devtool: 'inline-source-map',
       watch: true,
     },
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
+    reporters: ['mocha'],
     concurrency: Infinity,
-    singleRun: false
+    singleRun: true
   });
 };
 

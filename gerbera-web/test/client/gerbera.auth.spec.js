@@ -11,7 +11,7 @@ import mockGetSid from './fixtures/get_sid.not.logged_in';
 import mockToken from './fixtures/get_token.success';
 import mockLogin from './fixtures/login.success';
 
-fdescribe('Gerbera Auth', () => {
+describe('Gerbera Auth', () => {
   describe('checkSID()', () => {
     let ajaxSpy;
 

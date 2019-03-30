@@ -28,7 +28,12 @@ const initialize = () => {
 
 };
 
+const makeTrailFromItem = (item) => {
+
+};
+
 export const Trail = {
   destroy,
   initialize,
+  makeTrailFromItem,
 };

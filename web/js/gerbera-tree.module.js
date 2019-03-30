@@ -28,7 +28,12 @@ const initialize = () => {
 
 };
 
+const selectType = () => {
+
+};
+
 export const Tree = {
   destroy,
   initialize,
+  selectType,
 };

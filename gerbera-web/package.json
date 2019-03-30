@@ -3,12 +3,12 @@
   "version": "0.0.2",
   "scripts": {
     "start": "node index.js",
-    "test": "./node_modules/.bin/karma start karma.conf.js",
+    "test": "karma start karma.conf.js",
     "test:e2e": "concurrently --success first --kill-others \"npm start\" \"npm run e2e\"",
-    "e2e": "SELENIUM_BROWSER=chrome ./node_modules/.bin/mocha --require babel-polyfill --require babel-register \"test/e2e/**.spec.js\"",
-    "screenshot": "rimraf _build && mkdirp _build/doc && ./node_modules/.bin/mocha --require babel-polyfill --require babel-register \"test/e2e/screenshot.doc.js\" --folderPath=/_build/doc/",
+    "e2e": "SELENIUM_BROWSER=chrome mocha --require babel-polyfill --require babel-register \"test/e2e/**.spec.js\"",
+    "screenshot": "rimraf _build && mkdirp _build/doc && mocha --require babel-polyfill --require babel-register \"test/e2e/screenshot.doc.js\" --folderPath=/_build/doc/",
     "doc:screenshot": "concurrently --success first --kill-others \"npm start\" \"npm run screenshot\"",
-    "lint": "./node_modules/.bin/eslint -c .eslintrc ../web/js/*gerbera*.js"
+    "lint": "eslint -c .eslintrc ../web/js/*gerbera*.js"
   },
   "config": {
     "webserver": {

@@ -26,7 +26,12 @@ import {Trail} from './gerbera-trail.module';
 import {Updates} from "./gerbera-updates.module";
 
 const destroy = () => {
-
+  const datagrid = $('#datagrid');
+  if (datagrid.hasClass('grb-dataitems')) {
+    datagrid.dataitems('destroy');
+  } else {
+    datagrid.html('');
+  }
 };
 
 const initialize = () => {

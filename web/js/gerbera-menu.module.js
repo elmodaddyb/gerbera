@@ -20,26 +20,90 @@
 
     $Id$
 */
-const disable = () => {
 
+import {Items} from "./gerbera-items.module";
+import {GerberaApp} from "./gerbera-app.module";
+import {Trail} from "./gerbera-trail.module";
+import {Tree} from "./gerbera-tree.module";
+
+const disable = () => {
+  const allLinks = $('nav li a');
+  $('.nav li').removeClass('active');
+  allLinks.addClass('disabled');
+  allLinks.click(function () {
+    return false
+  });
+  $('#report-issue').removeClass('disabled').off('click');
 };
 
 const hideLogin = () => {
-
+  $('.login-field').hide();
+  $('#login-submit').hide();
+  $('#logout').hide();
 };
 
 const hideMenu = () => {
-
+  $('ul.navbar-nav').hide();
 };
 
 const initialize = () => {
+  const allLinks = $('nav li a');
+  if (GerberaApp.isLoggedIn()) {
+    allLinks.click(Menu.click);
+    allLinks.removeClass('disabled');
+    $('#nav-home').click();
+    if(GerberaApp.serverConfig.friendlyName) {
+      $('#nav-home').text('Home [' + GerberaApp.serverConfig.friendlyName +']');
+    }
+  } else {
+    disable();
+  }
+  return Promise.resolve();
+};
 
+const selectType = (menuItem) => {
+  $('#home').hide();
+  $('#content').show();
+  const type = menuItem.data('gerbera-type');
+  Tree.selectType(type, 0);
+  GerberaApp.setType(type);
+  Items.destroy();
+};
+
+var click = (event) => {
+  const menuItem = $(event.target).closest('.nav-link');
+
+  if (!menuItem.hasClass("noactive")) {
+    $('.nav-item').removeClass('active');
+    menuItem.closest('li').addClass('active');
+  }
+
+  const menuCommand = menuItem.data('gerbera-menu-cmd');
+  switch (menuCommand) {
+    case 'SELECT_TYPE':
+      selectType(menuItem);
+      break;
+    case 'HOME':
+      home();
+      break
+  }
+};
+
+var home = function () {
+  $('#home').show();
+  $('#content').hide();
+  Tree.destroy();
+  Trail.destroy();
+  Items.destroy();
 };
 
 
 export const Menu = {
+  click,
+  home,
   disable,
   hideLogin,
   hideMenu,
   initialize,
+  selectType,
 };

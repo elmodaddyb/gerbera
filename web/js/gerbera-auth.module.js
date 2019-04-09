@@ -20,6 +20,7 @@
 
     $Id$
 */
+/* global md5 */
 import {GerberaApp} from './gerbera-app.module';
 import {Tree} from './gerbera-tree.module';
 import {Items} from './gerbera-items.module';
@@ -113,7 +114,7 @@ const submitLogin = (response) => {
       GerberaApp.error(err);
     });
   } else {
-    GERBERA.Updates.showMessage(response.error.text, undefined, 'warning', 'fa-exclamation-circle')
+    Updates.showMessage(response.error.text, undefined, 'warning', 'fa-exclamation-circle')
   }
 };
 
@@ -148,7 +149,7 @@ const handleLogout = () => {
 };
 
 const loadSession = (response) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     if (!response.sid_was_valid && response.sid && response.sid !== null) {
       Cookie.set('SID', response.sid);
     }

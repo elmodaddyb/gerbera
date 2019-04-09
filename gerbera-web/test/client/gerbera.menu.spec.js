@@ -1,5 +1,3 @@
-/* global GERBERA spyOn jasmine it expect describe beforeEach loadFixtures loadJSONFixtures getJSONFixture */
-
 import {Items} from "../../../web/js/gerbera-items.module";
 import {GerberaApp} from '../../../web/js/gerbera-app.module';
 import {Updates} from "../../../web/js/gerbera-updates.module";

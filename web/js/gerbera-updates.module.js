@@ -103,7 +103,7 @@ const updateTask = (response) => {
       } else {
         showTask(response.task.text, undefined, 'info', 'fa-refresh fa-spin fa-fw');
         Updates.addTaskInterval();
-        promise = promise.resolve(response);
+        promise = Promise.resolve(response);
       }
     } else {
       promise = Updates.clearTaskInterval(response)
@@ -201,8 +201,20 @@ const updateTreeByIds = (response) => {
 };
 
 export const Updates = {
+  addUiTimer,
+  addTaskInterval,
+  clearAll,
+  clearTaskInterval,
+  clearUiTimer,
+  errorCheck,
+  getUpdates,
   initialize,
+  isPolling,
+  isTimer,
   showMessage,
+  updateTask,
+  updateTreeByIds,
+  updateUi,
   POLLING_INTERVAL,
   UI_TIMEOUT
 };

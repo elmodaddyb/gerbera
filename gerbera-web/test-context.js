@@ -1,3 +1,6 @@
+/*****************************
+ * Vendor Support
+ *****************************/
 require("@babel/polyfill");
 require("js-cookie");
 
@@ -8,16 +11,15 @@ window.$ = $;
 require('jquery-ui');
 require('popper.js');
 require('bootstrap');
-require('../web/js/jquery.gerbera.autoscan.js');
-require('../web/js/jquery.gerbera.items.js');
-require('../web/js/jquery.gerbera.editor.js');
-require('../web/js/jquery.gerbera.trail.js');
-require('../web/js/jquery.gerbera.tree.js');
 
-var context = require.context('./test/client', true, /gerbera.(app|auth|menu|updates).spec.js$/);
-context.keys().forEach(context);
+/*****************************
+ * Gerbera JQuery Plugins
+ *****************************/
+const plugins = require.context('../web/js', true, /jquery.gerbera.*.js$/);
+plugins.keys().forEach(plugins);
 
-require('./test/client/gerbera.autoscan.spec');
-require('./test/client/gerbera.items.spec');
-require('./test/client/gerbera.trail.spec');
-require('./test/client/gerbera.tree.spec');
+/*****************************
+ * Gerbera Client Test Suite
+ *****************************/
+const tests = require.context('./test/client', true, /gerbera.*spec.js$/);
+tests.keys().forEach(tests);

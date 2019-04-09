@@ -9,7 +9,6 @@
     "node": true
   },
   "extends": "eslint:recommended",
-  "sourceType": "module",
   "plugins": [
     "standard",
     "promise"
@@ -24,6 +23,7 @@
     ]
   },
   "parserOptions": {
-    "ecmaVersion": 2017
+    "ecmaVersion": 2017,
+    "sourceType": "module"
   }
 }

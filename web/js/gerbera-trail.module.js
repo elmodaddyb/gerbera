@@ -169,7 +169,7 @@ const deleteItem = (event) => {
         GerberaApp.error('Failed to remove item');
       }
     })
-    .catch((err) => {
+    .catch((err) => { // eslint-disable-line
       GerberaApp.error('Failed to remove item');
     });
 };
@@ -185,7 +185,7 @@ const deleteAllItems = (event) => {
         GerberaApp.error('Failed to remove all items');
       }
     })
-    .catch((err) => {
+    .catch((err) => { // eslint-disable-line
       GerberaApp.error('Failed to remove item');
     });
 };

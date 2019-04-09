@@ -20,14 +20,15 @@
 
     $Id$
 */
-import {Auth} from './gerbera-auth.module';
-import {Autoscan} from './gerbera-autoscan.module';
-import Cookie from '../vendor/js-cookie';
-import {Items} from './gerbera-items.module';
-import {Menu} from './gerbera-menu.module';
-import {Trail} from './gerbera-trail.module';
-import {Tree} from './gerbera-tree.module';
-import {Updates} from './gerbera-updates.module';
+/* global Cookies */
+import {Auth} from './gerbera-auth.module.js';
+import {Autoscan} from './gerbera-autoscan.module.js';
+// import Cookies from '../vendor/js-cookie.js';
+import {Items} from './gerbera-items.module.js';
+import {Menu} from './gerbera-menu.module.js';
+import {Trail} from './gerbera-trail.module.js';
+import {Tree} from './gerbera-tree.module.js';
+import {Updates} from './gerbera-updates.module.js';
 
 export class App {
 
@@ -44,11 +45,11 @@ export class App {
   }
 
   getType() {
-    return Cookie.get('TYPE');
+    return Cookies.get('TYPE');
   }
 
   setType(type) {
-    Cookie.set('TYPE', type);
+    Cookies.set('TYPE', type);
   }
 
   currentPage() {

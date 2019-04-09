@@ -21,10 +21,10 @@
     $Id$
 */
 
-import {Items} from "./gerbera-items.module";
-import {GerberaApp} from "./gerbera-app.module";
-import {Trail} from "./gerbera-trail.module";
-import {Tree} from "./gerbera-tree.module";
+import {Items} from "./gerbera-items.module.js";
+import {GerberaApp} from "./gerbera-app.module.js";
+import {Trail} from "./gerbera-trail.module.js";
+import {Tree} from "./gerbera-tree.module.js";
 
 const disable = () => {
   const allLinks = $('nav li a');

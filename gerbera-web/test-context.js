@@ -2,7 +2,8 @@
  * Vendor Support
  *****************************/
 require("@babel/polyfill");
-require("js-cookie");
+const Cookies = require("js-cookie");
+window.Cookies = Cookies;
 
 const $ = require('jquery');
 window.jQuery = $;

@@ -1,6 +1,5 @@
 const {expect} = require('chai');
 const {Builder} = require('selenium-webdriver');
-const {suite} = require('selenium-webdriver/testing');
 let chrome = require('selenium-webdriver/chrome');
 const mockWebServer = 'http://' + process.env.npm_package_config_webserver_host + ':' + process.env.npm_package_config_webserver_port;
 let driver;
@@ -8,7 +7,7 @@ let driver;
 const HomePage = require('./page/home.page');
 const LoginPage = require('./page/login.page');
 
-suite(() => {
+describe.only('Add Object', () => {
   let loginPage, homePage;
 
   before(async () => {

@@ -1,6 +1,5 @@
 import {Auth} from '../../../web/js/gerbera-auth.module';
 import {Autoscan} from '../../../web/js/gerbera-autoscan.module';
-import Cookie from '../../../web/vendor/js-cookie';
 import {GerberaApp} from '../../../web/js/gerbera-app.module';
 import {Items} from '../../../web/js/gerbera-items.module';
 import {Menu} from '../../../web/js/gerbera-menu.module';
@@ -27,7 +26,7 @@ describe('Gerbera UI App', () => {
     });
 
     beforeEach(() => {
-      cookieSpy = spyOn(Cookie, 'get').and.callFake((name) => {
+      cookieSpy = spyOn(Cookies, 'get').and.callFake((name) => {
         if (name === 'TYPE') return 'db';
         if (name === 'SID') return 'A_MOCK_SID';
         return 'A_MOCK_COOKIE';

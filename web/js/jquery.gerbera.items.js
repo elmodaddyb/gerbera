@@ -22,7 +22,7 @@
 */
 /* global $ */
 
-import {Items} from './gerbera-items.module';
+import {Items} from './gerbera-items.module.js';
 
 $.widget('grb.dataitems', {
 

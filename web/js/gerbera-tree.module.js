@@ -20,12 +20,12 @@
 
     $Id$
 */
-import {Autoscan} from "./gerbera-autoscan.module";
-import {Auth} from "./gerbera-auth.module";
-import {GerberaApp} from "./gerbera-app.module";
-import {Trail} from "./gerbera-trail.module";
-import {Items} from "./gerbera-items.module";
-import {Updates} from "./gerbera-updates.module";
+import {Autoscan} from "./gerbera-autoscan.module.js";
+import {Auth} from "./gerbera-auth.module.js";
+import {GerberaApp} from "./gerbera-app.module.js";
+import {Trail} from "./gerbera-trail.module.js";
+import {Items} from "./gerbera-items.module.js";
+import {Updates} from "./gerbera-updates.module.js";
 
 const treeViewCss = {
   titleClass: 'folder-title',

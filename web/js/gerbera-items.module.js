@@ -20,10 +20,10 @@
 
     $Id$
 */
-import {GerberaApp} from './gerbera-app.module';
-import {Auth} from './gerbera-auth.module';
-import {Trail} from './gerbera-trail.module';
-import {Updates} from "./gerbera-updates.module";
+import {GerberaApp} from './gerbera-app.module.js';
+import {Auth} from './gerbera-auth.module.js';
+import {Trail} from './gerbera-trail.module.js';
+import {Updates} from "./gerbera-updates.module.js";
 
 const destroy = () => {
   const datagrid = $('#datagrid');

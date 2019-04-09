@@ -5,7 +5,7 @@
     "start": "node index.js",
     "test": "karma start karma.conf.js",
     "test:e2e": "concurrently --success first --kill-others \"npm start\" \"npm run e2e\"",
-    "e2e": "SELENIUM_BROWSER=chrome mocha --require babel-polyfill --require babel-register \"test/e2e/**.spec.js\"",
+    "e2e": "SELENIUM_BROWSER=chrome mocha \"test/e2e/**.spec.js\"",
     "screenshot": "rimraf _build && mkdirp _build/doc && mocha --require babel-polyfill --require babel-register \"test/e2e/screenshot.doc.js\" --folderPath=/_build/doc/",
     "doc:screenshot": "concurrently --success first --kill-others \"npm start\" \"npm run screenshot\"",
     "lint": "eslint -c .eslintrc ../web/js/*gerbera*.js"

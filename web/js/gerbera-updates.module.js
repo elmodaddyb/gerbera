@@ -20,9 +20,9 @@
 
     $Id$
 */
-import {Auth} from "./gerbera-auth.module";
-import {GerberaApp} from "./gerbera-app.module";
-import {Tree} from "./gerbera-tree.module";
+import {Auth} from "./gerbera-auth.module.js";
+import {GerberaApp} from "./gerbera-app.module.js";
+import {Tree} from "./gerbera-tree.module.js";
 
 let POLLING_INTERVAL;
 let UI_TIMEOUT;

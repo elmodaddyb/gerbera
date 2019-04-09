@@ -20,11 +20,11 @@
 
     $Id$
 */
-import {Autoscan} from "./gerbera-autoscan.module";
-import {GerberaApp} from "./gerbera-app.module";
-import {Items} from "./gerbera-items.module";
-import {Tree} from "./gerbera-tree.module";
-import {Updates} from "./gerbera-updates.module";
+import {Autoscan} from "./gerbera-autoscan.module.js";
+import {GerberaApp} from "./gerbera-app.module.js";
+import {Items} from "./gerbera-items.module.js";
+import {Tree} from "./gerbera-tree.module.js";
+import {Updates} from "./gerbera-updates.module.js";
 
 const destroy = () => {
   const trail = $('#trail');

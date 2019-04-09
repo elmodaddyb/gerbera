@@ -20,9 +20,9 @@
 
     $Id$
 */
-import {GerberaApp} from './gerbera-app.module';
-import {Auth} from './gerbera-auth.module';
-import {Updates} from './gerbera-updates.module';
+import {GerberaApp} from './gerbera-app.module.js';
+import {Auth} from './gerbera-auth.module.js';
+import {Updates} from './gerbera-updates.module.js';
 
 const initialize = () => {
   $('#autoscanModal').autoscanmodal('reset');

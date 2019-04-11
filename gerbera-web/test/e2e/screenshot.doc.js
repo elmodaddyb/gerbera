@@ -13,7 +13,12 @@ describe('Screenshot Suite', () => {
   console.log('Save path --> ' + DEFAULT_FOLDER_STORE);
 
   before(async () => {
-    driver = await TestUtils.newChromeDriver();
+    const chromeOptions = new chrome.Options();
+    chromeOptions.addArguments(['--window-size=1440,1080']);
+    driver = new Builder()
+      .forBrowser('chrome')
+      .setChromeOptions(chromeOptions)
+      .build();
     await TestUtils.resetSuite('default.json', driver);
 
     loginPage = new LoginPage(driver);

@@ -86,8 +86,8 @@ const authenticate = () => {
         GerberaApp.error(err);
       });
   } else {
-    Updates.showMessage('Please enter username and password', undefined, 'warning', 'fa-sign-in')
-    promise = new Promise();
+    Updates.showMessage('Please enter username and password', undefined, 'warning', 'fa-sign-in');
+    promise = Promise.resolve({});
   }
   return promise
 };

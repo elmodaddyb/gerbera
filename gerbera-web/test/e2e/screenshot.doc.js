@@ -1,9 +1,5 @@
 /* global process */
-const {expect} = require('chai');
-const {Builder} = require('selenium-webdriver');
-const {suite} = require('selenium-webdriver/testing');
-let chrome = require('selenium-webdriver/chrome');
-const mockWebServer = 'http://' + process.env.npm_package_config_webserver_host + ':' + process.env.npm_package_config_webserver_port;
+const TestUtils = require('./page/test-utils');
 const {argv} = require('yargs');
 const Jimp = require('jimp');
 let driver;
@@ -11,19 +7,14 @@ let driver;
 const HomePage = require('./page/home.page');
 const LoginPage = require('./page/login.page');
 
-suite(() => {
+describe('Screenshot Suite', () => {
   let loginPage, homePage;
   const DEFAULT_FOLDER_STORE = process.cwd() + argv.folderPath;
   console.log('Save path --> ' + DEFAULT_FOLDER_STORE);
 
   before(async () => {
-    const chromeOptions = new chrome.Options();
-    chromeOptions.addArguments(['--window-size=1440,1080']);
-    driver = new Builder()
-      .forBrowser('chrome')
-      .setChromeOptions(chromeOptions)
-      .build();
-    await driver.get(mockWebServer + '/reset?testName=default.json');
+    driver = await TestUtils.newChromeDriver();
+    await TestUtils.resetSuite('default.json', driver);
 
     loginPage = new LoginPage(driver);
     homePage = new HomePage(driver);
@@ -32,9 +23,8 @@ suite(() => {
   describe('The screenshot documentation spec takes screenshots', () => {
 
     beforeEach(async() => {
-      await driver.get(mockWebServer + '/disabled.html');
-      await driver.manage().deleteAllCookies();
-      await loginPage.get(mockWebServer + '/index.html');
+      await TestUtils.resetCookies(driver);
+      await loginPage.get(TestUtils.home());
     });
 
     after(() => driver && driver.quit());

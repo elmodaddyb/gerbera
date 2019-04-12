@@ -2,6 +2,7 @@
  * Vendor Support
  *****************************/
 require("@babel/polyfill");
+
 const Cookies = require("js-cookie");
 window.Cookies = Cookies;
 

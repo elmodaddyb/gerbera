@@ -15,16 +15,27 @@ import activeItemMock from './fixtures/active-item';
 import externalUrl from './fixtures/external-url';
 import internalUrl from './fixtures/internal-url';
 import containerMock from './fixtures/container';
+import treeDataJson from './fixtures/tree-data';
 
 describe('Gerbera Items', () => {
- describe('initialize()', () => {
+  beforeEach(() => {
+    fixture.setBase('test/client/fixtures');
+    fixture.load('index.html');
+  });
+  afterEach((done) => {
+    $("body").on('transitionend', function(event){
+      fixture.cleanup();
+      $('#editModal').remove();
+      $('.modal-backdrop').remove();
+      done();
+    });
+    fixture.cleanup();
+    done();
+  });
+
+  describe('initialize()', () => {
    beforeEach(() => {
-     fixture.setBase('test/client/fixtures');
-     fixture.load('index.html');
      GerberaApp.serverConfig = mockConfig.config;
-   });
-   afterEach(() => {
-     fixture.cleanup();
    });
 
    it('clears the datagrid', async () => {
@@ -79,14 +90,15 @@ describe('Gerbera Items', () => {
   });
   describe('loadItems()', () => {
     beforeEach(() => {
-      fixture.setBase('test/client/fixtures');
-      fixture.load('datagrid.html');
       GerberaApp.serverConfig = {};
       spyOn(GerberaApp, 'getType').and.returnValue('db');
-    });
-
-    afterEach(() => {
-      fixture.cleanup();
+      $('#tree').tree({
+        data: treeDataJson,
+        config: {
+          titleClass: 'folder-title',
+          closedIcon: 'folder-closed'
+        }
+      });
     });
 
     it('does not load items if response is failure', () => {
@@ -135,14 +147,15 @@ describe('Gerbera Items', () => {
     let response;
 
     beforeEach(() => {
-      fixture.setBase('test/client/fixtures');
-      fixture.load('datagrid.html');
       GerberaApp.serverConfig = {};
       spyOn(GerberaApp, 'getType').and.returnValue('fs');
-    });
-
-    afterEach(() => {
-      fixture.cleanup();
+      $('#tree').tree({
+        data: treeDataJson,
+        config: {
+          titleClass: 'folder-title',
+          closedIcon: 'folder-closed'
+        }
+      });
     });
 
     it('loads file items by transforming them', () => {
@@ -254,15 +267,12 @@ describe('Gerbera Items', () => {
     let ajaxSpy, event;
 
     beforeEach(() => {
-      fixture.setBase('test/client/fixtures');
-      fixture.load('index.html');
       ajaxSpy = spyOn($, 'ajax').and.callFake(() => {
         return Promise.resolve({});
       });
     });
 
     afterEach(() => {
-      fixture.cleanup();
       ajaxSpy.and.callThrough();
     });
 
@@ -284,23 +294,12 @@ describe('Gerbera Items', () => {
       editLocation, editClass, editDesc, editMime;
 
     beforeEach(() => {
-      fixture.setBase('test/client/fixtures');
-      fixture.load('index.html');
       editObjectType = $('#editObjectType');
       editTitle = $('#editTitle');
       editLocation = $('#editLocation');
       editClass = $('#editClass');
       editDesc = $('#editDesc');
       editMime = $('#editMime');
-    });
-
-    afterEach((done) => {
-      $("body").on('transitionend', function(event){
-        fixture.cleanup();
-        $('#editModal').remove();
-        $('.modal-backdrop').remove();
-        done();
-      });
     });
 
     it('loads the item details into the fields', () => {
@@ -343,8 +342,6 @@ describe('Gerbera Items', () => {
     let ajaxSpy, editModal;
 
     beforeEach(() => {
-      fixture.setBase('test/client/fixtures');
-      fixture.load('index.html');
       spyOn(Auth, 'getSessionId').and.returnValue('SESSION_ID');
       spyOn(Items, 'treeItemSelected');
       spyOn(Updates, 'showMessage');
@@ -355,7 +352,6 @@ describe('Gerbera Items', () => {
     });
 
     afterEach(() => {
-      fixture.cleanup();
       ajaxSpy.and.callThrough();
     });
 
@@ -474,13 +470,7 @@ describe('Gerbera Items', () => {
     let response;
 
     beforeEach(() => {
-      fixture.setBase('test/client/fixtures');
-      fixture.load('index.html');
       GerberaApp.currentTreeItem = {};
-    });
-
-    afterEach(() => {
-      fixture.cleanup();
     });
 
     it('reloads items when successfully saved', () => {
@@ -499,15 +489,12 @@ describe('Gerbera Items', () => {
     let ajaxSpy, event, response;
 
     beforeEach(() => {
-      fixture.setBase('test/client/fixtures');
-      fixture.load('index.html');
       ajaxSpy = spyOn($, 'ajax').and.callFake(() => {
         return Promise.resolve({})
       });
     });
 
     afterEach(() => {
-      fixture.cleanup();
       ajaxSpy.and.callThrough();
     });
 
@@ -562,15 +549,6 @@ describe('Gerbera Items', () => {
   describe('addVirtualItem()', () => {
     let event;
 
-    beforeEach(() => {
-      fixture.setBase('test/client/fixtures');
-      fixture.load('index.html');
-    });
-
-    afterEach(() => {
-      fixture.cleanup();
-    });
-
     it('should show parent id on form when adding new item but no object id', () => {
       event = {
         data: {
@@ -612,9 +590,6 @@ describe('Gerbera Items', () => {
     let ajaxSpy, item, editModal;
 
     beforeEach(() => {
-      fixture.setBase('test/client/fixtures');
-      fixture.load('index.html');
-
       spyOn(Auth, 'getSessionId').and.returnValue('SESSION_ID');
       spyOn(Items, 'treeItemSelected');
       spyOn(Updates, 'updateTreeByIds');
@@ -628,15 +603,8 @@ describe('Gerbera Items', () => {
       editModal = $('#editModal');
     });
 
-    afterEach((done) => {
-      $("body").on('transitionend', function(event){
-        fixture.cleanup();
-        $('#editModal').remove();
-        $('.modal-backdrop').remove();
-        ajaxSpy.and.callThrough();
-        done();
-      });
-      done();
+    afterEach(() => {
+      ajaxSpy.and.callThrough();
     });
 
     it('calls the server with the item details to add', async () => {
@@ -797,8 +765,6 @@ describe('Gerbera Items', () => {
     let ajaxSpy;
 
     beforeEach(async () => {
-      fixture.setBase('test/client/fixtures');
-      fixture.load('index.html');
       GerberaApp.serverConfig = mockConfig.config;
       GerberaApp.serverConfig = {};
 
@@ -809,7 +775,6 @@ describe('Gerbera Items', () => {
     });
 
     afterEach(() => {
-      fixture.cleanup();
       ajaxSpy.and.callThrough();
     });
 

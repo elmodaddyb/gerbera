@@ -24,7 +24,7 @@ describe('The jQuery Gerbera Editor Overlay', () => {
 
   beforeEach(() => {
     fixture.setBase('test/client/fixtures');
-    fixture.load('edit-modal.html');
+    fixture.load('index.html');
     editObjectType = $('#editObjectType');
     editTitle = $('#editTitle');
     editTitle.val('TEST');

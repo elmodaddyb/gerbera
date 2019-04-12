@@ -17,7 +17,7 @@ describe('The jQuery Gerbera Autoscan Overlay', () => {
 
   beforeEach(() => {
     fixture.setBase('test/client/fixtures');
-    fixture.load('autoscan-modal.html');
+    fixture.load('index.html');
     item = autoScanItem;
     autoscanId = $('#autoscanId');
     autoscanFromFs = $('#autoscanFromFs');

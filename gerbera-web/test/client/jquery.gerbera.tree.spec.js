@@ -14,7 +14,7 @@ describe('The jQuery Tree', () => {
 
   beforeEach(() => {
     fixture.setBase('test/client/fixtures');
-    fixture.load('tree.html');
+    fixture.load('index.html');
     treeData = treeDataJson;
     tree = $('#tree');
   });

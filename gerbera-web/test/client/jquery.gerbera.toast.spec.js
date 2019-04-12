@@ -3,7 +3,7 @@ describe('The jQuery Gerbera Toast Message', () => {
 
   beforeEach(() => {
     fixture.setBase('test/client/fixtures');
-    fixture.load('toast.html');
+    fixture.load('index.html');
     toaster = $('#toast').toast();
   });
 

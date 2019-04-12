@@ -6,7 +6,7 @@ describe('The jQuery Datagrid', () => {
 
   beforeEach(() => {
     fixture.setBase('test/client/fixtures');
-    fixture.load('datagrid.html');
+    fixture.load('index.html');
     dataGrid = $('#datagrid');
   });
 

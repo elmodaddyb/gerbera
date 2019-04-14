@@ -290,7 +290,7 @@ describe('Gerbera Updates', function () {
       updateSpy.and.callFake(() => {
         const currentTime = new Date().getTime();
         expect((currentTime - startTime) >= 95).toBeTruthy('Actual value was ' + (currentTime - startTime));
-        expect((currentTime - startTime) <= 110).toBeTruthy('Actual value was ' + (currentTime - startTime));
+        expect((currentTime - startTime) <= 200).toBeTruthy('Actual value was ' + (currentTime - startTime));
         Updates.clearAll();
         done();
       });
@@ -305,7 +305,7 @@ describe('Gerbera Updates', function () {
       updateSpy.and.callFake(() => {
         const currentTime = new Date().getTime();
         expect((currentTime - startTime) >= 195).toBeTruthy('Actual value was ' + (currentTime - startTime));
-        expect((currentTime - startTime) <= 210).toBeTruthy('Actual value was ' + (currentTime - startTime));
+        expect((currentTime - startTime) <= 300).toBeTruthy('Actual value was ' + (currentTime - startTime));
         Updates.clearAll();
         done();
       });

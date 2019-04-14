@@ -22,8 +22,6 @@
 */
 /* global $ */
 
-import {Items} from './gerbera-items.module.js';
-
 $.widget('grb.dataitems', {
 
   _create: function () {
@@ -62,14 +60,6 @@ $.widget('grb.dataitems', {
           text.text(item.text).appendTo(content);
         }
         text.addClass('grb-item-url');
-
-        if (item.video) {
-          const button = $('<button></button>');
-          button.text('Play Video');
-          button.addClass('pull-right');
-          button.appendTo(content);
-          button.click({item: item}, Items.playVideo);
-        }
 
         let buttons;
         if (itemType === 'db') {

@@ -23,7 +23,6 @@
 /* global Cookies */
 import {Auth} from './gerbera-auth.module.js';
 import {Autoscan} from './gerbera-autoscan.module.js';
-// import Cookies from '../vendor/js-cookie.js';
 import {Items} from './gerbera-items.module.js';
 import {Menu} from './gerbera-menu.module.js';
 import {Trail} from './gerbera-trail.module.js';

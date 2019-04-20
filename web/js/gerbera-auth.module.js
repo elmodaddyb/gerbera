@@ -28,7 +28,6 @@ import {Menu} from './gerbera-menu.module.js';
 import {Trail} from './gerbera-trail.module.js';
 import {Autoscan} from './gerbera-autoscan.module.js';
 import {Updates} from './gerbera-updates.module.js';
-// import Cookies from '../vendor/js-cookie.js';
 
 const checkSID = () => {
   return $.ajax({

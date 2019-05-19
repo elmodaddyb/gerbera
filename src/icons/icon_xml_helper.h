@@ -2,7 +2,7 @@
 
 Gerbera - https://gerbera.io/
 
-    icon_request_handler.cc - this file is part of Gerbera.
+    icon_xml_helper.h - this file is part of Gerbera.
 
     Copyright (C) 2016-2019 Gerbera Contributors
 
@@ -20,24 +20,18 @@ Gerbera - https://gerbera.io/
 
     $Id$
 */
-/// \file icon_request_handler.cc
-#include <mem_io_handler.h>
-#include "icon_request_handler.h"
+/// \file icon_xml_helper.h
+
+#ifndef GERBERA_ICON_XML_HELPER_H
+#define GERBERA_ICON_XML_HELPER_H
+
 #include "icon_config.h"
 
-IconRequestHandler::IconRequestHandler(IconConfig* config) : RequestHandler(), config(config) {
-
-}
-
-void IconRequestHandler::getInfo(IN const char *filename, OUT UpnpFileInfo *info) {
-
-}
+class IconXmlHelper {
+public:
+    zmm::Ref<Element> generateDescList(IconConfig* config);
+    zmm::Ref<Element> generateDescList();
+};
 
 
-zmm::Ref<IOHandler>
-IconRequestHandler::open(IN const char *filename, IN enum UpnpOpenFileMode mode, IN zmm::String range) {
-  uint8_t* ptr_image = nullptr;
-  size_t size_image = std::size_t{0L};
-  zmm::Ref<IOHandler> h(new MemIOHandler(ptr_image, size_image));
-  return h;
-}
+#endif //GERBERA_ICON_XML_HELPER_H

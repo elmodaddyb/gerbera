@@ -3,7 +3,9 @@ find_package(Threads REQUIRED)
 add_executable(testicons
         $<TARGET_OBJECTS:libgerbera>
         main.cc
-        test_icon_handler.cc)
+        test_icon_config.cc
+        test_icon_handler.cc
+        test_icon_xml_helper.cc)
 
 include(DefFileName)
 define_file_path_for_sources(testicons)

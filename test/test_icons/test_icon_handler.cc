@@ -1,4 +1,5 @@
 #include <icons/icon_request_handler.h>
+#include <icons/icon_config.h>
 #include "gtest/gtest.h"
 
 using namespace ::testing;
@@ -11,13 +12,16 @@ public:
     virtual ~IconHandlerTest() {};
 
     virtual void SetUp() {
-      subject = new IconRequestHandler();
+      config = new IconConfig();
+      subject = new IconRequestHandler(config);
     }
 
     virtual void TearDown() {
+      delete config;
       delete subject;
     };
 
+    IconConfig *config;
     IconRequestHandler *subject;
 };
 
@@ -37,3 +41,9 @@ TEST_F(IconHandlerTest, ReturnsIOHandlerForIcon) {
   EXPECT_NE(result, nullptr);
   delete [] cstr;
 }
+
+// 120x120 d24 image/png
+// 120x120 image/x-ms-bmp
+// 120x120 image/jpeg
+// 48x48 d24
+// 32x32 d8

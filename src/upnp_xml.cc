@@ -29,11 +29,13 @@
 
 /// \file upnp_xml.cc
 
+#include <icons/icon_xml_helper.h>
 #include "upnp_xml.h"
 #include "common.h"
 #include "config_manager.h"
 #include "metadata_handler.h"
 #include "server.h"
+#include "icons/icon_config.h"
 
 using namespace zmm;
 using namespace mxml;
@@ -295,10 +297,8 @@ Ref<Element> UpnpXMLBuilder::createEventPropertySet()
     return propset;
 }
 
-Ref<Element> UpnpXMLBuilder::renderDeviceDescription(String presentationURL)
+Ref<Element> UpnpXMLBuilder::renderDeviceDescription(String presentationURL, zmm::Ref<ConfigManager> config)
 {
-    Ref<ConfigManager> config = ConfigManager::getInstance();
-
     Ref<Element> root(new Element(_("root")));
     root->setAttribute(_("xmlns"), _(DESC_DEVICE_NAMESPACE));
 
@@ -334,80 +334,8 @@ Ref<Element> UpnpXMLBuilder::renderDeviceDescription(String presentationURL)
     device->appendTextChild(_("serialNumber"), config->getOption(CFG_SERVER_SERIAL_NUMBER));
     device->appendTextChild(_("UDN"), config->getOption(CFG_SERVER_UDN));
 
-    Ref<Element> iconList(new Element(_("iconList")));
-
-    Ref<Element> icon120_png(new Element(_("icon")));
-    icon120_png->appendTextChild(_("mimetype"), _(DESC_ICON_PNG_MIMETYPE));
-    icon120_png->appendTextChild(_("width"), _("120"));
-    icon120_png->appendTextChild(_("height"), _("120"));
-    icon120_png->appendTextChild(_("depth"), _("24"));
-    icon120_png->appendTextChild(_("url"), _(DESC_ICON120_PNG));
-    iconList->appendElementChild(icon120_png);
-
-    Ref<Element> icon120_bmp(new Element(_("icon")));
-    icon120_bmp->appendTextChild(_("mimetype"), _(DESC_ICON_BMP_MIMETYPE));
-    icon120_bmp->appendTextChild(_("width"), _("120"));
-    icon120_bmp->appendTextChild(_("height"), _("120"));
-    icon120_bmp->appendTextChild(_("depth"), _("24"));
-    icon120_bmp->appendTextChild(_("url"), _(DESC_ICON120_BMP));
-    iconList->appendElementChild(icon120_bmp);
-
-    Ref<Element> icon120_jpg(new Element(_("icon")));
-    icon120_jpg->appendTextChild(_("mimetype"), _(DESC_ICON_JPG_MIMETYPE));
-    icon120_jpg->appendTextChild(_("width"), _("120"));
-    icon120_jpg->appendTextChild(_("height"), _("120"));
-    icon120_jpg->appendTextChild(_("depth"), _("24"));
-    icon120_jpg->appendTextChild(_("url"), _(DESC_ICON120_JPG));
-    iconList->appendElementChild(icon120_jpg);
-
-    Ref<Element> icon48_png(new Element(_("icon")));
-    icon48_png->appendTextChild(_("mimetype"), _(DESC_ICON_PNG_MIMETYPE));
-    icon48_png->appendTextChild(_("width"), _("48"));
-    icon48_png->appendTextChild(_("height"), _("48"));
-    icon48_png->appendTextChild(_("depth"), _("24"));
-    icon48_png->appendTextChild(_("url"), _(DESC_ICON48_PNG));
-    iconList->appendElementChild(icon48_png);
-
-    Ref<Element> icon48_bmp(new Element(_("icon")));
-    icon48_bmp->appendTextChild(_("mimetype"), _(DESC_ICON_BMP_MIMETYPE));
-    icon48_bmp->appendTextChild(_("width"), _("48"));
-    icon48_bmp->appendTextChild(_("height"), _("48"));
-    icon48_bmp->appendTextChild(_("depth"), _("24"));
-    icon48_bmp->appendTextChild(_("url"), _(DESC_ICON48_BMP));
-    iconList->appendElementChild(icon48_bmp);
-
-    Ref<Element> icon48_jpg(new Element(_("icon")));
-    icon48_jpg->appendTextChild(_("mimetype"), _(DESC_ICON_JPG_MIMETYPE));
-    icon48_jpg->appendTextChild(_("width"), _("48"));
-    icon48_jpg->appendTextChild(_("height"), _("48"));
-    icon48_jpg->appendTextChild(_("depth"), _("24"));
-    icon48_jpg->appendTextChild(_("url"), _(DESC_ICON48_JPG));
-    iconList->appendElementChild(icon48_jpg);
-
-    Ref<Element> icon32_png(new Element(_("icon")));
-    icon32_png->appendTextChild(_("mimetype"), _(DESC_ICON_PNG_MIMETYPE));
-    icon32_png->appendTextChild(_("width"), _("32"));
-    icon32_png->appendTextChild(_("height"), _("32"));
-    icon32_png->appendTextChild(_("depth"), _("8"));
-    icon32_png->appendTextChild(_("url"), _(DESC_ICON32_PNG));
-    iconList->appendElementChild(icon32_png);
-
-    Ref<Element> icon32_bmp(new Element(_("icon")));
-    icon32_bmp->appendTextChild(_("mimetype"), _(DESC_ICON_BMP_MIMETYPE));
-    icon32_bmp->appendTextChild(_("width"), _("32"));
-    icon32_bmp->appendTextChild(_("height"), _("32"));
-    icon32_bmp->appendTextChild(_("depth"), _("8"));
-    icon32_bmp->appendTextChild(_("url"), _(DESC_ICON32_BMP));
-    iconList->appendElementChild(icon32_bmp);
-
-    Ref<Element> icon32_jpg(new Element(_("icon")));
-    icon32_jpg->appendTextChild(_("mimetype"), _(DESC_ICON_JPG_MIMETYPE));
-    icon32_jpg->appendTextChild(_("width"), _("32"));
-    icon32_jpg->appendTextChild(_("height"), _("32"));
-    icon32_jpg->appendTextChild(_("depth"), _("8"));
-    icon32_jpg->appendTextChild(_("url"), _(DESC_ICON32_JPG));
-    iconList->appendElementChild(icon32_jpg);
-
+    std::unique_ptr<IconXmlHelper> iconXml = std::make_unique<IconXmlHelper>();
+    Ref<Element> iconList = iconXml->generateDescList();
     device->appendElementChild(iconList);
 
     Ref<Element> serviceList(new Element(_("serviceList")));

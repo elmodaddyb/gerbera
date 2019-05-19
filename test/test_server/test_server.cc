@@ -87,9 +87,7 @@ TEST_F(ServerHandlerTest, CreatesRequestHandlerFor_icons) {
   char *cstr = new char[filename.length() + 1];
   strcpy(cstr, filename.c_str());
 
-  zmm::Ref<RequestHandler> result = subject->wrapCreateRequestHandler(cstr);
-
-  EXPECT_NE(result, nullptr);
+  ASSERT_THROW(subject->wrapCreateRequestHandler(cstr), zmm::Exception);
   delete [] cstr;
 }
 

@@ -192,7 +192,7 @@ public:
 
     /// \brief returns a config option of type String
     /// \param option option to retrieve.
-    zmm::String getOption(config_option_t option);
+    virtual zmm::String getOption(config_option_t option);
 
     /// \brief returns a config option of type int
     /// \param option option to retrieve.
@@ -200,7 +200,7 @@ public:
 
     /// \brief returns a config option of type bool
     /// \param option option to retrieve.
-    bool getBoolOption(config_option_t option);
+    virtual bool getBoolOption(config_option_t option);
 
     /// \brief returns a config option of type Dictionary
     /// \param option option to retrieve.

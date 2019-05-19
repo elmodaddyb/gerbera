@@ -27,10 +27,13 @@ Gerbera - https://gerbera.io/
 
 
 #include <request_handler.h>
+#include "icon_config.h"
 
 class IconRequestHandler: public RequestHandler {
+protected:
+    IconConfig* config;
 public:
-    IconRequestHandler();
+    explicit IconRequestHandler(IconConfig* config);
     virtual void getInfo(IN const char *filename, OUT UpnpFileInfo *info);
     virtual zmm::Ref<IOHandler> open(IN const char* filename,
                                      IN enum UpnpOpenFileMode mode,

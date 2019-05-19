@@ -194,7 +194,7 @@ void Server::run()
     xmlbuilder = std::make_unique<UpnpXMLBuilder>(virtual_url);
 
     // register root device with the library
-    String deviceDescription = _("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n") + xmlbuilder->renderDeviceDescription(presentationURL)->print();
+    String deviceDescription = _("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n") + xmlbuilder->renderDeviceDescription(presentationURL, config)->print();
     //log_debug("Device Description: \n%s\n", deviceDescription.c_str());
 
     log_debug("Registering with UPnP...\n");

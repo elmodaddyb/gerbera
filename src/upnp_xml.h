@@ -35,6 +35,7 @@
 #include "cds_objects.h"
 #include "common.h"
 #include "mxml/mxml.h"
+#include "config_manager.h"
 
 class UpnpXMLBuilder {
 public:
@@ -74,7 +75,7 @@ public:
     ///
     /// Some elements are statically defined in common.h, others are loaded
     /// from the config with the help of the ConfigManager.
-    zmm::Ref<mxml::Element> renderDeviceDescription(zmm::String presentationUTL = nullptr);
+    zmm::Ref<mxml::Element> renderDeviceDescription(zmm::String presentationUTL = nullptr, zmm::Ref<ConfigManager> cfmgr = nullptr);
 
     /// \brief Renders a resource tag (part of DIDL-Lite XML)
     /// \param URL download location of the item (will be child element of the <res> tag)

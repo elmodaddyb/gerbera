@@ -2,8 +2,16 @@
 #include <cds_objects.h>
 #include <upnp_xml.h>
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 using namespace ::testing;
+
+#include <config_manager.h>
+class ConfigManagerMock: public ConfigManager {
+public:
+  MOCK_METHOD1(getBoolOption, bool(config_option_t option));
+  MOCK_METHOD1(getOption, zmm::String(config_option_t option));
+};
 
 class UpnpXmlTest : public ::testing::Test {
 
@@ -13,13 +21,16 @@ class UpnpXmlTest : public ::testing::Test {
 
   virtual void SetUp() {
     zmm::String virtualDir = "/dir/virtual";
+    configManager = new ::testing::NiceMock<ConfigManagerMock>();
     subject = new UpnpXMLBuilder(virtualDir);
   }
 
   virtual void TearDown() {
+    configManager = nullptr;
     delete subject;
   };
 
+  ConfigManagerMock* configManager;
   UpnpXMLBuilder *subject;
 };
 
@@ -167,4 +178,25 @@ TEST_F(UpnpXmlTest, FirstResourceAddsContentServeToInternalUrlItem) {
 
   EXPECT_NE(result, nullptr);
   EXPECT_STREQ(result.c_str(), "/serve/local/content");
+}
+
+TEST_F(UpnpXmlTest, RenderDeviceDescription) {
+  std::string presentationUrl = "http://localhost/presentation";
+
+  EXPECT_CALL(*configManager, getBoolOption(Eq(CFG_SERVER_EXTEND_PROTOCOLINFO))).WillOnce(Return(true));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_NAME))).WillOnce(Return("Gerbera Media Server"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_MANUFACTURER_URL))).WillOnce(Return("http://localhost"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_MODEL_DESCRIPTION))).WillOnce(Return("model description"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_MODEL_NAME))).WillOnce(Return("model name"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_MODEL_NUMBER))).WillOnce(Return("1234567890"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_SERIAL_NUMBER))).WillOnce(Return("ABC123"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_UDN))).WillOnce(Return("udn:1234567890"));
+
+  zmm::Ref<ConfigManager> c(configManager);
+  zmm::Ref<mxml::Element> result = subject->renderDeviceDescription(presentationUrl, c);
+
+  EXPECT_NE(result, nullptr);
+  zmm::Ref<mxml::Element> device = result->getChildByName("device");
+  zmm::Ref<mxml::Element> iconList = device->getChildByName("iconList");
+  EXPECT_EQ(iconList->elementChildCount(), 9);
 }

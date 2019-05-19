@@ -2,7 +2,7 @@
 
 Gerbera - https://gerbera.io/
 
-    icon_request_handler.cc - this file is part of Gerbera.
+    gerbera_icon.h - this file is part of Gerbera.
 
     Copyright (C) 2016-2019 Gerbera Contributors
 
@@ -20,24 +20,27 @@ Gerbera - https://gerbera.io/
 
     $Id$
 */
-/// \file icon_request_handler.cc
-#include <mem_io_handler.h>
-#include "icon_request_handler.h"
-#include "icon_config.h"
+/// \file gerbera_icon.h
 
-IconRequestHandler::IconRequestHandler(IconConfig* config) : RequestHandler(), config(config) {
+#ifndef GERBERA_GERBERA_ICON_H
+#define GERBERA_GERBERA_ICON_H
 
-}
+#include <string>
 
-void IconRequestHandler::getInfo(IN const char *filename, OUT UpnpFileInfo *info) {
+class GerberaIcon {
+public:
+    GerberaIcon(std::string path, std::string dimension, std::string depth, std::string mimeType);
+    std::string path();
+    std::string dimension();
+    std::string depth();
+    std::string mimeType();
+private:
+    std::string _path;
+    std::string _dimension;
+    std::string _depth;
+    std::string _mimeType;
 
-}
+};
 
 
-zmm::Ref<IOHandler>
-IconRequestHandler::open(IN const char *filename, IN enum UpnpOpenFileMode mode, IN zmm::String range) {
-  uint8_t* ptr_image = nullptr;
-  size_t size_image = std::size_t{0L};
-  zmm::Ref<IOHandler> h(new MemIOHandler(ptr_image, size_image));
-  return h;
-}
+#endif //GERBERA_GERBERA_ICON_H

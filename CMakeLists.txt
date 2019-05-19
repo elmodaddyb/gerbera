@@ -80,6 +80,8 @@ set(libgerberaFILES
         src/generic_task.h
         src/handler/headers.h
         src/handler/headers.cc
+        src/icons/icon_request_handler.h
+        src/icons/icon_request_handler.cc
         src/io_handler_buffer_helper.cc
         src/io_handler_buffer_helper.h
         src/io_handler.cc

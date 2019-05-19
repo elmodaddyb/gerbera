@@ -433,6 +433,8 @@ Ref<RequestHandler> Server::createRequestHandler(const char* filename) const
             ret = new ServeRequestHandler();
         else
             throw _Exception(_("Serving directories is not enabled in configuration"));
+    } else if(link.startsWith(_("/") + SERVER_VIRTUAL_DIR + "/" + CONTENT_ICONS_HANDLER)) {
+        throw _Exception(_("Serving dynamic icons not yet supported"));
     }
 
 #if defined(HAVE_CURL)

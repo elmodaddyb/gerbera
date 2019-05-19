@@ -1,13 +1,12 @@
 find_package(Threads REQUIRED)
 
-add_executable(testserver
+add_executable(testicons
         $<TARGET_OBJECTS:libgerbera>
         main.cc
-        test_main.cc
-        test_server.cc)
+        test_icon_handler.cc)
 
 include(DefFileName)
-define_file_path_for_sources(testserver)
+define_file_path_for_sources(testicons)
 
 include_directories(
         ${UPNP_INCLUDE_DIRS}
@@ -26,9 +25,10 @@ include_directories(
         ${SQLITE3_INCLUDE_DIRS}
         ${ICONV_INCLUDE_DIR}
         ${GTEST_INCLUDE_DIRS}
+        ${GMOCK_INCLUDE_DIRS}
 )
 
-target_link_libraries(testserver PRIVATE
+target_link_libraries(testicons PRIVATE
         ${UUID_LIBRARIES}
         ${UPNP_LIBRARIES}
         ${MAGIC_LIBRARIES}
@@ -45,16 +45,11 @@ target_link_libraries(testserver PRIVATE
         ${SQLITE3_LIBRARIES}
         ${ICONV_LIBRARIES}
         ${GTEST_LIBRARIES}
+        ${GMOCK_BOTH_LIBRARIES}
         ${GERBERA_INTERFACE_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
-)
-
-add_test(NAME testserver
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/test/test_server
-        COMMAND ./testserver)
-
-add_custom_command(TARGET testserver POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/fixtures $<TARGET_FILE_DIR:testserver>/fixtures
         )
 
-add_definitions(-DCMAKE_BINARY_DIR="${CMAKE_BINARY_DIR}")
+add_test(NAME testicons
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/test/test_icons
+        COMMAND ./testicons)

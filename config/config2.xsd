@@ -82,6 +82,7 @@
                 <xs:element ref="pc-directory" minOccurs="0"/>
                 <xs:element ref="tmpdir" minOccurs="0"/>
                 <xs:element ref="retries-on-timeout" minOccurs="0"/>
+                <xs:element ref="icon-config" minOccurs="0"/>
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -117,6 +118,38 @@
                     </xs:attribute>
                 </xs:extension>
             </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="icon-config">
+        <xs:complexType>
+            <xs:all>
+                <xs:element ref="icons" minOccurs="0"/>
+            </xs:all>
+            <xs:attribute name="type">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="static-list"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="icons">
+        <xs:complexType>
+            <xs:all>
+                <xs:element ref="icon" minOccurs="0"/>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="icon">
+        <xs:complexType>
+            <xs:attribute name="dimension"/>
+            <xs:attribute name="depth"/>
+            <xs:attribute name="mime-type"/>
+            <xs:attribute name="url"/>
         </xs:complexType>
     </xs:element>
 

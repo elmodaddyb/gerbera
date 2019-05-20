@@ -33,6 +33,7 @@
 #ifndef __CONFIG_MANAGER_H__
 #define __CONFIG_MANAGER_H__
 
+#include <icons/icon_config.h>
 #include "autoscan.h"
 #include "common.h"
 #include "config_options.h"
@@ -240,6 +241,7 @@ public:
     /// instance
     void writeBookmark(zmm::String ip, zmm::String port);
     void emptyBookmark();
+    virtual std::shared_ptr<IconConfig> getIconConfig();
 
 protected:
     void validate(zmm::String serverhome);
@@ -262,6 +264,7 @@ protected:
     zmm::Ref<Dictionary> mime_content;
 
     zmm::Ref<zmm::Array<ConfigOption>> options;
+    std::shared_ptr<IconConfig> iconConfig;
 
     /// \brief Returns a config option with the given path, if option does not exist a default value is returned.
     /// \param xpath option xpath

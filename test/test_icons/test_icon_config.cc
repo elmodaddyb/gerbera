@@ -31,6 +31,7 @@ public:
       icon->setAttribute(_("dimension"), _("120x120"));
       icon->setAttribute(_("depth"), _("24"));
       icon->setAttribute(_("mime-type"), _("image/png"));
+      icon->setAttribute(_("url"), _("/content/icons/mt-120.png"));
       icons->appendElementChild(icon);
 
       iconConf->appendElementChild(icons);
@@ -59,5 +60,6 @@ TEST_F(IconConfigTest, LoadsStaticListOfIcons) {
   EXPECT_STREQ(icon->dimension().c_str(), "120x120");
   EXPECT_STREQ(icon->depth().c_str(), "24");
   EXPECT_STREQ(icon->mimeType().c_str(), "image/png");
+  EXPECT_STREQ(icon->url().c_str(), "/content/icons/mt-120.png");
   EXPECT_EQ(result->size(), 1);
 }

@@ -34,6 +34,7 @@ public:
       icon->setAttribute(_("dimension"), _("120x120"));
       icon->setAttribute(_("depth"), _("24"));
       icon->setAttribute(_("mime-type"), _("image/png"));
+      icon->setAttribute(_("url"), _("/content/icons/mt-120.png"));
       icons->appendElementChild(icon);
 
       iconConf->appendElementChild(icons);

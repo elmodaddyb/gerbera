@@ -52,7 +52,8 @@ IconConfig::IconConfig(Ref<Element> config) {
     std::string dimension = item->getAttribute(_("dimension")).c_str();
     std::string depth = item->getAttribute(_("depth")).c_str();
     std::string mimeType = item->getAttribute(_("mime-type")).c_str();
-    icon = std::make_unique<GerberaIcon>(path, dimension, depth, mimeType);
+    std::string url = item->getAttribute(_("url")).c_str();
+    icon = std::make_unique<GerberaIcon>(path, dimension, depth, mimeType, url);
     _icons->push_back(std::move(icon));
   }
 }

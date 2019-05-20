@@ -22,6 +22,8 @@ Gerbera - https://gerbera.io/
 */
 /// \file icon_xml_helper.cc
 
+#include <memory>
+#include <vector>
 #include <mxml/mxml.h>
 #include "icon_xml_helper.h"
 #include "icon_config.h"
@@ -29,8 +31,57 @@ Gerbera - https://gerbera.io/
 using namespace zmm;
 using namespace mxml;
 
-zmm::Ref<Element> IconXmlHelper::generateDescList(IconConfig* config) {
-  return generateDescList();
+zmm::Ref<Element> IconXmlHelper::generateDescList(IconConfig *config) {
+  Ref<Element> iconList;
+  if(config == nullptr) {
+    iconList = generateDescList();
+  } else {
+    icon_loading_type listType = config->getType();
+    switch (listType) {
+      case static_list: {
+        auto gerberaIcons = config->getIcons();
+        iconList = createListFromConfig(gerberaIcons);
+        break;
+      }
+      case dynamic_image:
+      case unsupported: {
+        iconList = generateDescList();
+        break;
+      }
+    }
+  }
+  return iconList;
+}
+
+zmm::Ref<Element> IconXmlHelper::createListFromConfig(std::shared_ptr<std::vector<std::unique_ptr<GerberaIcon>>>& iconList) {
+  Ref<Element> iconListXml(new Element(_("iconList")));
+  Ref<Element> anIcon;
+  for (const auto &icon : *iconList) {
+    std::vector<std::string> wh = splitDimension(icon->dimension());
+    anIcon = Ref<Element>(new Element(_("icon")));
+    anIcon->appendTextChild(_("mimetype"), _(icon->mimeType()));
+    anIcon->appendTextChild(_("width"), _(wh.at(0)));
+    anIcon->appendTextChild(_("height"), _(wh.at(1)));
+    anIcon->appendTextChild(_("depth"), _(icon->depth()));
+    anIcon->appendTextChild(_("url"), _(icon->url()));  // TODO: generate
+    iconListXml->appendElementChild(anIcon);
+  }
+  return iconListXml;
+}
+
+std::vector<std::string> IconXmlHelper::splitDimension(std::string dimension) {
+  std::string delimiter = "x";
+  std::vector<std::string> wh;
+
+  size_t pos = 0;
+  std::string token;
+  while ((pos = dimension.find(delimiter)) != std::string::npos) {
+    token = dimension.substr(0, pos);
+    wh.push_back(token);
+    dimension.erase(0, pos + delimiter.length());
+  }
+  wh.push_back(dimension);
+  return wh;
 }
 
 zmm::Ref<Element> IconXmlHelper::generateDescList() {

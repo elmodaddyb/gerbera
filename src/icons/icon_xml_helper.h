@@ -25,12 +25,17 @@ Gerbera - https://gerbera.io/
 #ifndef GERBERA_ICON_XML_HELPER_H
 #define GERBERA_ICON_XML_HELPER_H
 
+#include <memory>
+#include <vector>
 #include "icon_config.h"
 
 class IconXmlHelper {
 public:
     zmm::Ref<Element> generateDescList(IconConfig* config);
     zmm::Ref<Element> generateDescList();
+private:
+    zmm::Ref<Element> createListFromConfig(std::shared_ptr<std::vector<std::unique_ptr<GerberaIcon>>>& iconList);
+    std::vector<std::string> splitDimension(std::string dimension);
 };
 
 

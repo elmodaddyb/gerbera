@@ -29,16 +29,18 @@ Gerbera - https://gerbera.io/
 
 class GerberaIcon {
 public:
-    GerberaIcon(std::string path, std::string dimension, std::string depth, std::string mimeType);
+    GerberaIcon(std::string path, std::string dimension, std::string depth, std::string mimeType, std::string url);
     std::string path();
     std::string dimension();
     std::string depth();
     std::string mimeType();
+    std::string url();
 private:
     std::string _path;
     std::string _dimension;
     std::string _depth;
     std::string _mimeType;
+    std::string _url;
 
 };
 

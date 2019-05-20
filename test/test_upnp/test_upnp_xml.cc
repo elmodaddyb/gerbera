@@ -5,12 +5,15 @@
 #include "gmock/gmock.h"
 
 using namespace ::testing;
+using namespace zmm;
+using namespace mxml;
 
 #include <config_manager.h>
 class ConfigManagerMock: public ConfigManager {
 public:
   MOCK_METHOD1(getBoolOption, bool(config_option_t option));
   MOCK_METHOD1(getOption, zmm::String(config_option_t option));
+  MOCK_METHOD0(getIconConfig, std::shared_ptr<IconConfig>());
 };
 
 class UpnpXmlTest : public ::testing::Test {
@@ -29,6 +32,23 @@ class UpnpXmlTest : public ::testing::Test {
     configManager = nullptr;
     delete subject;
   };
+
+  zmm::Ref<Element> mockConfig(std::string loadingType) {
+    zmm::Ref<Element> iconConf(new Element(_("icon-config")));
+    iconConf->setAttribute("type", loadingType);
+    zmm::Ref<Element> icons(new Element(_("icons")));
+
+    zmm::Ref<Element> icon(new Element(_("icon")));
+    icon->setText(_("/icon/path/file.png"));
+    icon->setAttribute(_("dimension"), _("120x120"));
+    icon->setAttribute(_("depth"), _("24"));
+    icon->setAttribute(_("mime-type"), _("image/png"));
+    icon->setAttribute(_("url"), _("/content/icons/mt-120.png"));
+    icons->appendElementChild(icon);
+
+    iconConf->appendElementChild(icons);
+    return iconConf;
+  }
 
   ConfigManagerMock* configManager;
   UpnpXMLBuilder *subject;
@@ -180,7 +200,7 @@ TEST_F(UpnpXmlTest, FirstResourceAddsContentServeToInternalUrlItem) {
   EXPECT_STREQ(result.c_str(), "/serve/local/content");
 }
 
-TEST_F(UpnpXmlTest, RenderDeviceDescription) {
+TEST_F(UpnpXmlTest, RenderDeviceDescriptionWithDefaultIcons) {
   std::string presentationUrl = "http://localhost/presentation";
 
   EXPECT_CALL(*configManager, getBoolOption(Eq(CFG_SERVER_EXTEND_PROTOCOLINFO))).WillOnce(Return(true));
@@ -191,6 +211,7 @@ TEST_F(UpnpXmlTest, RenderDeviceDescription) {
   EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_MODEL_NUMBER))).WillOnce(Return("1234567890"));
   EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_SERIAL_NUMBER))).WillOnce(Return("ABC123"));
   EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_UDN))).WillOnce(Return("udn:1234567890"));
+  EXPECT_CALL(*configManager, getIconConfig()).WillOnce(Return(nullptr));
 
   zmm::Ref<ConfigManager> c(configManager);
   zmm::Ref<mxml::Element> result = subject->renderDeviceDescription(presentationUrl, c);
@@ -199,4 +220,27 @@ TEST_F(UpnpXmlTest, RenderDeviceDescription) {
   zmm::Ref<mxml::Element> device = result->getChildByName("device");
   zmm::Ref<mxml::Element> iconList = device->getChildByName("iconList");
   EXPECT_EQ(iconList->elementChildCount(), 9);
+}
+
+TEST_F(UpnpXmlTest, RenderDeviceDescriptionWithCustomIcons) {
+  std::string presentationUrl = "http://localhost/presentation";
+  std::shared_ptr<IconConfig> iconConfig = std::make_shared<IconConfig>(mockConfig("static-list"));
+
+  EXPECT_CALL(*configManager, getBoolOption(Eq(CFG_SERVER_EXTEND_PROTOCOLINFO))).WillOnce(Return(true));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_NAME))).WillOnce(Return("Gerbera Media Server"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_MANUFACTURER_URL))).WillOnce(Return("http://localhost"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_MODEL_DESCRIPTION))).WillOnce(Return("model description"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_MODEL_NAME))).WillOnce(Return("model name"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_MODEL_NUMBER))).WillOnce(Return("1234567890"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_SERIAL_NUMBER))).WillOnce(Return("ABC123"));
+  EXPECT_CALL(*configManager, getOption(Eq(CFG_SERVER_UDN))).WillOnce(Return("udn:1234567890"));
+  EXPECT_CALL(*configManager, getIconConfig()).WillOnce(Return(iconConfig));
+
+  zmm::Ref<ConfigManager> c(configManager);
+  zmm::Ref<mxml::Element> result = subject->renderDeviceDescription(presentationUrl, c);
+
+  EXPECT_NE(result, nullptr);
+  zmm::Ref<mxml::Element> device = result->getChildByName("device");
+  zmm::Ref<mxml::Element> iconList = device->getChildByName("iconList");
+  EXPECT_EQ(iconList->elementChildCount(), 1);
 }

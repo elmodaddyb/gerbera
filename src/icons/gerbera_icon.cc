@@ -24,8 +24,8 @@ Gerbera - https://gerbera.io/
 
 #include "gerbera_icon.h"
 
-GerberaIcon::GerberaIcon(std::string path, std::string dimension, std::string depth, std::string mimeType): _path(path),
-_dimension(dimension), _depth(depth), _mimeType(mimeType){}
+GerberaIcon::GerberaIcon(std::string path, std::string dimension, std::string depth, std::string mimeType, std::string url): _path(path),
+_dimension(dimension), _depth(depth), _mimeType(mimeType), _url(url){}
 
 std::string GerberaIcon::path(){
   return _path;
@@ -41,4 +41,8 @@ std::string GerberaIcon::depth(){
 
 std::string GerberaIcon::mimeType(){
   return _mimeType;
+}
+
+std::string GerberaIcon::url() {
+  return _url;
 }

@@ -55,6 +55,13 @@ const initialize = () => {
     if(GerberaApp.serverConfig.friendlyName) {
       $('#nav-home').text('Home [' + GerberaApp.serverConfig.friendlyName +']');
     }
+    const version = $('#gerbera-version');
+    if(GerberaApp.serverConfig.version) {
+      version.children('span').text(GerberaApp.serverConfig.version);
+      version.parent('li').removeAttr('hidden');
+    } else {
+      version.parent('li').attr('hidden');
+    }
   } else {
     disable();
   }

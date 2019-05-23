@@ -3,6 +3,8 @@ find_package(Threads REQUIRED)
 add_executable(testicons
         $<TARGET_OBJECTS:libgerbera>
         main.cc
+        mock/upnp_file_info_mock.h
+        mock/upnp_file_info_fixture.h
         test_icon_config.cc
         test_icon_handler.cc
         test_icon_xml_helper.cc)

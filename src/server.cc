@@ -32,6 +32,8 @@
 #ifdef HAVE_CURL
 #include <curl/curl.h>
 #include <iostream>
+#include <icons/icon_request_handler.h>
+
 #endif
 
 #ifdef HAVE_LASTFMLIB
@@ -434,7 +436,8 @@ Ref<RequestHandler> Server::createRequestHandler(const char* filename) const
         else
             throw _Exception(_("Serving directories is not enabled in configuration"));
     } else if(link.startsWith(_("/") + SERVER_VIRTUAL_DIR + "/" + CONTENT_ICONS_HANDLER)) {
-        throw _Exception(_("Serving dynamic icons not yet supported"));
+      std::shared_ptr<IconConfig> iconCfg = ConfigManager::getInstance()->getIconConfig();
+      ret = new IconRequestHandler(iconCfg.get());
     }
 
 #if defined(HAVE_CURL)

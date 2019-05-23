@@ -335,8 +335,8 @@ Ref<Element> UpnpXMLBuilder::renderDeviceDescription(String presentationURL, zmm
     device->appendTextChild(_("UDN"), config->getOption(CFG_SERVER_UDN));
 
     Ref<Element> iconList;
-    std::unique_ptr<IconXmlHelper> iconXml = std::make_unique<IconXmlHelper>();
-    std::shared_ptr<IconConfig> iconConfig = config->getIconConfig();
+    auto iconXml = std::make_unique<IconXmlHelper>();
+    auto iconConfig = config->getIconConfig();
     if(iconConfig == nullptr) {
         iconList = iconXml->generateDescList();
     } else {

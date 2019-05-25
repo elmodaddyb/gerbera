@@ -84,6 +84,7 @@ set(libgerberaFILES
         src/icons/gerbera_icon.cc
         src/icons/icon_config.h
         src/icons/icon_config.cc
+        src/icons/icon_exception.h
         src/icons/icon_request_handler.h
         src/icons/icon_request_handler.cc
         src/icons/icon_xml_helper.h

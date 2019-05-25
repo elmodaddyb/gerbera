@@ -26,6 +26,7 @@ Gerbera - https://gerbera.io/
 #define GERBERA_ICON_CONFIG_H
 #include <memory>
 #include <vector>
+#include <map>
 #include <icons/gerbera_icon.h>
 #include <mxml/mxml.h>
 
@@ -43,6 +44,7 @@ Gerbera - https://gerbera.io/
 #define DESC_ICON120_BMP "/icons/mt-icon120.bmp"
 
 using namespace mxml;
+
 enum icon_loading_type {
     static_list,
     dynamic_image,
@@ -52,13 +54,13 @@ enum icon_loading_type {
 class IconConfig {
 private:
     icon_loading_type _loadingType;
-    std::shared_ptr<std::vector<std::unique_ptr<GerberaIcon>>> _icons;
+    std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> _icons;
 public:
     IconConfig();
     explicit IconConfig(zmm::Ref<Element> config);
     ~IconConfig();
     icon_loading_type getType();
-    std::shared_ptr<std::vector<std::unique_ptr<GerberaIcon>>> getIcons();
+    std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> getIcons();
 };
 
 

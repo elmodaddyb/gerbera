@@ -34,10 +34,12 @@ protected:
     IconConfig* config;
 public:
     explicit IconRequestHandler(IconConfig* config);
-    virtual void getInfo(IN const char *filename, OUT UpnpFileInfo *info);
+    virtual void getInfo(IN const char *url, OUT UpnpFileInfo *info);
     virtual zmm::Ref<IOHandler> open(IN const char* filename,
                                      IN enum UpnpOpenFileMode mode,
                                      IN zmm::String range);
+private:
+    std::shared_ptr<GerberaIcon> findIcon(const std::string &url);
 };
 
 

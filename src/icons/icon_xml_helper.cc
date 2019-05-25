@@ -53,7 +53,7 @@ zmm::Ref<Element> IconXmlHelper::generateDescList(IconConfig *config) {
   return iconList;
 }
 
-zmm::Ref<Element> IconXmlHelper::createListFromConfig(std::shared_ptr<std::vector<std::unique_ptr<GerberaIcon>>>& iconList) {
+zmm::Ref<Element> IconXmlHelper::createListFromConfig(std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>>& iconList) {
   Ref<Element> iconListXml(new Element(_("iconList")));
   Ref<Element> anIcon;
   for (const auto &icon : *iconList) {

@@ -26,33 +26,63 @@ Gerbera - https://gerbera.io/
 #include <sys/stat.h>
 #include "icon_request_handler.h"
 #include "icon_config.h"
+#include "icon_exception.h"
 
 IconRequestHandler::IconRequestHandler(IconConfig* config) : RequestHandler(), config(config) {}
 
-void IconRequestHandler::getInfo(IN const char *filename, OUT UpnpFileInfo *info) {
+void IconRequestHandler::getInfo(IN const char *url, OUT UpnpFileInfo *info) {
   struct stat statbuf;
-  std::string path = "";
-  int ret = stat(path.c_str(), &statbuf);
-
-  if (access(path.c_str(), R_OK) == 0) {
-    UpnpFileInfo_set_IsReadable(info, 1);
-  } else {
+  std::shared_ptr<GerberaIcon> icon = findIcon(url);
+  if(icon == nullptr) {
     UpnpFileInfo_set_IsReadable(info, 0);
+  } else {
+    int ret = stat(icon->path().c_str(), &statbuf);
+    if (ret == 0) {
+      if (access(icon->path().c_str(), R_OK) == 0) {
+        UpnpFileInfo_set_IsReadable(info, 1);
+        UpnpFileInfo_set_LastModified(info, statbuf.st_mtime);
+        UpnpFileInfo_set_IsDirectory(info, S_ISDIR(statbuf.st_mode));
+        UpnpFileInfo_set_FileLength(info, statbuf.st_size);
+        UpnpFileInfo_set_ContentType(info, ixmlCloneDOMString(icon->mimeType().c_str()));
+      } else {
+        UpnpFileInfo_set_IsReadable(info, 0);
+      }
+    } else {
+      UpnpFileInfo_set_IsReadable(info, 0);
+    }
   }
-  UpnpFileInfo_set_LastModified(info, statbuf.st_mtime);
-  UpnpFileInfo_set_IsDirectory(info, S_ISDIR(statbuf.st_mode));
-  UpnpFileInfo_set_FileLength(info, statbuf.st_size);
-  UpnpFileInfo_set_ContentType(info, ixmlCloneDOMString("image/png"));
 }
 
 
 zmm::Ref<IOHandler>
-IconRequestHandler::open(IN const char *filename, IN enum UpnpOpenFileMode mode, IN zmm::String range) {
-//  uint8_t* ptr_image = nullptr;
-//  size_t size_image = std::size_t{0L};
-//  zmm::Ref<IOHandler> h(new MemIOHandler(ptr_image, size_image));
-  std::string path = "";
-  zmm::Ref<IOHandler> io_handler(new FileIOHandler(path));
-  io_handler->open(mode);
+IconRequestHandler::open(IN const char *url, IN enum UpnpOpenFileMode mode, IN zmm::String range) {
+  struct stat statbuf;
+  std::shared_ptr<GerberaIcon> icon = findIcon(url);
+  zmm::Ref<IOHandler> io_handler;
+  if(icon == nullptr) {
+    throw IconException("Could not find icon by url: " + std::string(url));
+  } else {
+    int ret = stat(icon->path().c_str(), &statbuf);
+    if (ret == 0) {
+      if (access(icon->path().c_str(), R_OK) == 0) {
+        io_handler = zmm::Ref<IOHandler>(new FileIOHandler(icon->path()));
+        io_handler->open(mode);
+      } else {
+        throw IconException("Could not access icon by path: " + std::string(icon->path()));
+      }
+    }
+  }
   return io_handler;
+}
+
+std::shared_ptr<GerberaIcon> IconRequestHandler::findIcon(const std::string &url) {
+  std::shared_ptr<GerberaIcon> result;
+  auto icons = config->getIcons();
+  for (const auto &icon : *icons) {
+   if(icon->url() == url) {
+     result = icon;
+     break;
+   }
+  }
+  return result;
 }

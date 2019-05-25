@@ -2,7 +2,7 @@
 
 Gerbera - https://gerbera.io/
 
-    icon_xml_helper.h - this file is part of Gerbera.
+    icon_exception.h - this file is part of Gerbera.
 
     Copyright (C) 2016-2019 Gerbera Contributors
 
@@ -20,23 +20,25 @@ Gerbera - https://gerbera.io/
 
     $Id$
 */
-/// \file icon_xml_helper.h
+/// \file icon_exception.h
 
-#ifndef GERBERA_ICON_XML_HELPER_H
-#define GERBERA_ICON_XML_HELPER_H
+#ifndef GERBERA_ICON_EXCEPTION_H
+#define GERBERA_ICON_EXCEPTION_H
+#include <string>
 
-#include <memory>
-#include <vector>
-#include "icon_config.h"
-
-class IconXmlHelper {
+class IconException : public std::exception {
 public:
-    zmm::Ref<Element> generateDescList(IconConfig* config);
-    zmm::Ref<Element> generateDescList();
+    IconException(const std::string &message)
+            : m_message(message) {
+    }
+
+    virtual const char *
+    what() const noexcept {
+      return m_message.c_str();
+    }
+
 private:
-    zmm::Ref<Element> createListFromConfig(std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>>& iconList);
-    std::vector<std::string> splitDimension(std::string dimension);
+    std::string m_message;
 };
 
-
-#endif //GERBERA_ICON_XML_HELPER_H
+#endif //GERBERA_ICON_EXCEPTION_H

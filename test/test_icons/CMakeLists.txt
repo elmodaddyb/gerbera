@@ -57,3 +57,5 @@ target_link_libraries(testicons PRIVATE
 add_test(NAME testicons
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/test/test_icons
         COMMAND ./testicons)
+
+add_definitions(-DICONS_DIR="${CMAKE_SOURCE_DIR}/web/icons")

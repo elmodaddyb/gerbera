@@ -3,7 +3,6 @@
 #include <icons/icon_xml_helper.h>
 
 using namespace ::testing;
-using namespace std;
 using namespace zmm;
 using namespace mxml;
 

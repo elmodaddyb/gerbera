@@ -24,6 +24,7 @@ Gerbera - https://gerbera.io/
 
 #include <memory>
 #include <vector>
+#include <map>
 #include <zmm/zmm.h>
 #include <mxml/mxml.h>
 #include "icon_config.h"
@@ -42,10 +43,10 @@ IconConfig::IconConfig(Ref<Element> config) {
   } else {
     _loadingType = unsupported;
   }
-  _icons = std::make_shared<std::vector<std::unique_ptr<GerberaIcon>>>();
+  _icons = std::make_shared<std::vector<std::shared_ptr<GerberaIcon>>>();
   Ref<Element> icons = config->getChildByName(_("icons"));
   Ref<Element> item;
-  std::unique_ptr<GerberaIcon> icon;
+  std::shared_ptr<GerberaIcon> icon;
   for (int e = 0; e < icons->elementChildCount(); e++) {
     item = icons->getElementChild(e);
     std::string path = item->getText().c_str();
@@ -53,8 +54,8 @@ IconConfig::IconConfig(Ref<Element> config) {
     std::string depth = item->getAttribute(_("depth")).c_str();
     std::string mimeType = item->getAttribute(_("mime-type")).c_str();
     std::string url = item->getAttribute(_("url")).c_str();
-    icon = std::make_unique<GerberaIcon>(path, dimension, depth, mimeType, url);
-    _icons->push_back(std::move(icon));
+    icon = std::make_shared<GerberaIcon>(path, dimension, depth, mimeType, url);
+    _icons->push_back(icon);
   }
 }
 
@@ -66,6 +67,6 @@ icon_loading_type IconConfig::getType() {
   return _loadingType;
 }
 
-std::shared_ptr<std::vector<std::unique_ptr<GerberaIcon>>> IconConfig::getIcons() {
+std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> IconConfig::getIcons() {
   return _icons;
 }

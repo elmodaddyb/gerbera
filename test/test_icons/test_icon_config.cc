@@ -3,7 +3,6 @@
 #include "gtest/gtest.h"
 
 using namespace ::testing;
-using namespace std;
 using namespace zmm;
 using namespace mxml;
 
@@ -15,6 +14,7 @@ public:
     virtual ~IconConfigTest() = default;
 
     virtual void SetUp() {
+      config = mockConfig("static-list");
     }
 
     virtual void TearDown() {
@@ -38,12 +38,13 @@ public:
       return iconConf;
     }
 
+    Ref<Element> config;
     std::unique_ptr<IconConfig> subject;
 };
 
 TEST_F(IconConfigTest, IdentifiesIconLoadingType) {
   Ref<Element> config = mockConfig("static-list");
-  subject = make_unique<IconConfig>(config);
+  subject = std::make_unique<IconConfig>(config);
 
   icon_loading_type result = subject->getType();
 
@@ -52,9 +53,9 @@ TEST_F(IconConfigTest, IdentifiesIconLoadingType) {
 
 TEST_F(IconConfigTest, LoadsStaticListOfIcons) {
   Ref<Element> config = mockConfig("static-list");
-  subject = make_unique<IconConfig>(config);
+  subject = std::make_unique<IconConfig>(config);
 
-  std::shared_ptr<std::vector<std::unique_ptr<GerberaIcon>>> result = subject->getIcons();
+  std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> result = subject->getIcons();
   const auto &icon = subject->getIcons()->at(0);
   EXPECT_STREQ(icon->path().c_str(), "/icon/path/file.png");
   EXPECT_STREQ(icon->dimension().c_str(), "120x120");

@@ -40,7 +40,7 @@ class UpnpXmlTest : public ::testing::Test {
 
     zmm::Ref<Element> icon(new Element(_("icon")));
     icon->setText(_("/icon/path/file.png"));
-    icon->setAttribute(_("dimension"), _("120x120"));
+    icon->setAttribute(_("resolution"), _("120x120"));
     icon->setAttribute(_("depth"), _("24"));
     icon->setAttribute(_("mime-type"), _("image/png"));
     icon->setAttribute(_("url"), _("/content/icons/mt-120.png"));

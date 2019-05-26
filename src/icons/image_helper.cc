@@ -56,8 +56,11 @@ imageDetails ImageHelper::readFromMagick(const std::string &path) {
 
 #ifdef HAVE_LIBEXIF
 imageDetails ImageHelper::readFromExif(const std::string &path) {
+  imageDetails details;
   std::stringstream imageX;
   std::stringstream imageY;
+  size_t width;
+  size_t height;
   ExifData* ed;
   ed = exif_data_new_from_file(path.c_str());
   if(ed != nullptr) {
@@ -75,17 +78,16 @@ imageDetails ImageHelper::readFromExif(const std::string &path) {
         }
       }
     }
+    imageX >> width;
+    imageY >> height;
+    details.width = width;
+    details.height = height;
+    details.depth = 8; // TODO: from where to get this value?
+    details.valid = true;
     exif_data_unref(ed);
+  } else {
+    details.valid = false;
   }
-  size_t width;
-  size_t height;
-  imageX >> width;
-  imageY >> height;
-  imageDetails details;
-  details.width = width;
-  details.height = height;
-  details.depth = 8; // TODO: from where to get this value?
-  details.valid = true;
   return details;
 }
 #endif

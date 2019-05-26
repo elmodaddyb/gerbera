@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include <icons/icon_config.h>
 #include <icons/icon_xml_helper.h>
+#include <fstream>
+#include <streambuf>
 
 using namespace ::testing;
 using namespace zmm;
@@ -13,7 +15,7 @@ public:
     virtual ~IconXmlHelperTest() = default;
 
     virtual void SetUp() {
-      Ref<Element> mockCfg = mockConfig("static-list");
+      Ref<Element> mockCfg = mockConfig("fixtures/static-list.xml");
       config = new IconConfig(mockCfg);
       subject = new IconXmlHelper();
     }
@@ -23,21 +25,28 @@ public:
       delete subject;
     };
 
-    Ref<Element> mockConfig(std::string loadingType) {
-      Ref<Element> iconConf(new Element(_("icon-config")));
-      iconConf->setAttribute("type", loadingType);
-      Ref<Element> icons(new Element(_("icons")));
+    zmm::Ref<Element> mockConfig(const std::string &fixtureFile) {
+      // Load the fixture XML, and replace ICONS_DIR for testing
+      std::ifstream t(fixtureFile);
+      std::string fileStr((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+      t.close();
+      replaceAll(fileStr, "{{ICONS_DIR}}", std::string(ICONS_DIR));
 
-      Ref<Element> icon(new Element(_("icon")));
-      icon->setText(_("/icon/path/file.png"));
-      icon->setAttribute(_("dimension"), _("120x120"));
-      icon->setAttribute(_("depth"), _("24"));
-      icon->setAttribute(_("mime-type"), _("image/png"));
-      icon->setAttribute(_("url"), _("/content/icons/mt-120.png"));
-      icons->appendElementChild(icon);
-
-      iconConf->appendElementChild(icons);
-      return iconConf;
+      zmm::Ref<mxml::Document> rootDoc;
+      zmm::Ref<mxml::Element> root;
+      zmm::Ref<Parser> parser(new Parser());
+      rootDoc = parser->parseString(fileStr);
+      root = rootDoc->getRoot();
+      return root;
+    }
+    void replaceAll(std::string& str, const std::string& from, const std::string& to) {
+      if(from.empty())
+        return;
+      size_t start_pos = 0;
+      while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length();
+      }
     }
 
     IconConfig* config;

@@ -57,7 +57,7 @@ zmm::Ref<Element> IconXmlHelper::createListFromConfig(std::shared_ptr<std::vecto
   Ref<Element> iconListXml(new Element(_("iconList")));
   Ref<Element> anIcon;
   for (const auto &icon : *iconList) {
-    std::vector<std::string> wh = splitDimension(icon->dimension());
+    std::vector<std::string> wh = splitDimension(icon->resolution());
     anIcon = Ref<Element>(new Element(_("icon")));
     anIcon->appendTextChild(_("mimetype"), _(icon->mimeType()));
     anIcon->appendTextChild(_("width"), _(wh.at(0)));

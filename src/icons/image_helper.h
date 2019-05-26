@@ -2,7 +2,7 @@
 
 Gerbera - https://gerbera.io/
 
-    gerbera_icon.cc - this file is part of Gerbera.
+    image_helper.h - this file is part of Gerbera.
 
     Copyright (C) 2016-2019 Gerbera Contributors
 
@@ -20,30 +20,33 @@ Gerbera - https://gerbera.io/
 
     $Id$
 */
-/// \file gerbera_icon.cc
+/// \file image_helper.h
 
-#include "gerbera_icon.h"
+#ifndef GERBERA_IMAGE_HELPER_H
+#define GERBERA_IMAGE_HELPER_H
 
-GerberaIcon::GerberaIcon(std::string path, std::string resolution, std::string depth, std::string mimeType, std::string url):
-_path(std::move(path)), _resolution(std::move(resolution)), _depth(std::move(depth)), _mimeType(std::move(mimeType)),
-_url(std::move(url)){}
+#include <string>
 
-std::string GerberaIcon::path(){
-  return _path;
-}
+struct _imageDetails {
+    bool valid;
+    size_t width;
+    size_t height;
+    size_t depth;
+};
+typedef struct _imageDetails imageDetails;
 
-std::string GerberaIcon::resolution(){
-  return _resolution;
-}
+class ImageHelper {
+public:
+#ifdef HAVE_IMAGEMAGICK
+    static imageDetails readFromMagick(const std::string &path);
+#endif
+#ifdef HAVE_LIBEXIF
+    static imageDetails readFromExif(const std::string &path);
+#endif
+#ifdef HAVE_MAGIC
+    static std::string mimeFromMagic(const std::string &path);
+#endif
+};
 
-std::string GerberaIcon::depth(){
-  return _depth;
-}
 
-std::string GerberaIcon::mimeType(){
-  return _mimeType;
-}
-
-std::string GerberaIcon::url() {
-  return _url;
-}
+#endif //GERBERA_IMAGE_HELPER_H

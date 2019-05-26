@@ -30,6 +30,7 @@ include_directories(
         ${ICONV_INCLUDE_DIR}
         ${GTEST_INCLUDE_DIRS}
         ${GMOCK_INCLUDE_DIRS}
+        ${ImageMagick_INCLUDE_DIRS}
 )
 
 target_link_libraries(testicons PRIVATE
@@ -52,6 +53,7 @@ target_link_libraries(testicons PRIVATE
         ${GMOCK_BOTH_LIBRARIES}
         ${GERBERA_INTERFACE_LIBRARIES}
         ${CMAKE_THREAD_LIBS_INIT}
+        ${ImageMagick_LIBRARIES}
         )
 
 add_test(NAME testicons
@@ -59,3 +61,9 @@ add_test(NAME testicons
         COMMAND ./testicons)
 
 add_definitions(-DICONS_DIR="${CMAKE_SOURCE_DIR}/web/icons")
+
+add_definitions(-DCMAKE_BINARY_DIR="${CMAKE_BINARY_DIR}")
+
+add_custom_command(TARGET testicons POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/fixtures $<TARGET_FILE_DIR:testicons>/fixtures
+        )

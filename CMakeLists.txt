@@ -18,6 +18,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 set(CMAKE_VERBOSE_MAKEFILE off CACHE BOOL "Show verbose build commands")
 set(WITH_MAGIC          1 CACHE BOOL "Use libmagic to identify file mime types")
+set(WITH_IMAGEMAGICK    0 CACHE BOOL "Use ImageMagick for dynamic icons")
 set(WITH_MYSQL          0 CACHE BOOL "Store media information in MySQL DB")
 set(WITH_CURL           1 CACHE BOOL "CURL required for online services")
 set(WITH_INOTIFY        1 CACHE BOOL "Enable Inotify file monitoring support")
@@ -89,6 +90,8 @@ set(libgerberaFILES
         src/icons/icon_request_handler.cc
         src/icons/icon_xml_helper.h
         src/icons/icon_xml_helper.cc
+        src/icons/image_helper.h
+        src/icons/image_helper.cc
         src/io_handler_buffer_helper.cc
         src/io_handler_buffer_helper.h
         src/io_handler.cc
@@ -489,6 +492,20 @@ if(WITH_MAGIC)
         add_definitions(-DHAVE_MAGIC)
     else()
         message(FATAL_ERROR "Magic not found")
+    endif ()
+endif()
+
+if(WITH_IMAGEMAGICK)
+    add_definitions(-DMAGICKCORE_QUANTUM_DEPTH=16)
+    add_definitions(-DMAGICKCORE_HDRI_ENABLE=0)
+    find_package(ImageMagick)
+    find_package(ImageMagick COMPONENTS Magick++)
+    if (ImageMagick_FOUND)
+        include_directories(${ImageMagick_INCLUDE_DIRS})
+        target_link_libraries (gerbera ${ImageMagick_LIBRARIES})
+        add_definitions(-DHAVE_IMAGEMAGICK)
+    else()
+        message(FATAL_ERROR "ImageMagick not found")
     endif ()
 endif()
 

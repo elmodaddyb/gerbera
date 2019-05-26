@@ -29,6 +29,7 @@ Gerbera - https://gerbera.io/
 #include <map>
 #include <icons/gerbera_icon.h>
 #include <mxml/mxml.h>
+#include "image_helper.h"
 
 #define DESC_ICON_PNG_MIMETYPE "image/png"
 #define DESC_ICON_BMP_MIMETYPE "image/x-ms-bmp"
@@ -55,6 +56,11 @@ class IconConfig {
 private:
     icon_loading_type _loadingType;
     std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> _icons;
+    std::string getAttribute(const zmm::Ref<Element> &el, const std::string &attr, std::string defaultValue);
+    std::string lookupMimeType(const zmm::Ref<Element> &icon, icon_loading_type loadingType);
+    std::string lookupResolution(const zmm::Ref<Element> &icon, imageDetails details);
+    std::string lookupDepth(const zmm::Ref<Element> &icon, imageDetails details);
+    imageDetails lookupImage(const std::string &path, icon_loading_type loadingType);
 public:
     IconConfig();
     explicit IconConfig(zmm::Ref<Element> config);

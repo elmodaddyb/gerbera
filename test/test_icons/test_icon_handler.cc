@@ -7,6 +7,8 @@
 #include <upnp/upnp.h>
 #include <FileInfo.h>
 #include <ixml.h>
+#include <fstream>
+#include <streambuf>
 #include <icons/icon_exception.h>
 
 using namespace ::testing;
@@ -17,7 +19,7 @@ public:
     virtual void SetUp() {
       std::stringstream path;
       path << ICONS_DIR << DIR_SEPARATOR << "mt-icon32.jpg";
-      config = new IconConfig(mockConfig("static-list", "/content/icons/mt-icon32.jpg", path.str()));
+      config = new IconConfig(mockConfig("fixtures/static-list.xml"));
       subject = new IconRequestHandler(config);
     }
 
@@ -26,22 +28,30 @@ public:
       delete subject;
     };
 
-    zmm::Ref<Element> mockConfig(const std::string &loadingType, const std::string &url, const std::string &path) {
-      zmm::Ref<Element> iconConf(new Element(_("icon-config")));
-      iconConf->setAttribute("type", loadingType);
-      zmm::Ref<Element> icons(new Element(_("icons")));
-      zmm::Ref<Element> icon(new Element(_("icon")));
-      icon->setText(path);
-      icon->setAttribute(_("dimension"), _("120x120"));
-      icon->setAttribute(_("depth"), _("24"));
-      icon->setAttribute(_("mime-type"), _("image/jpeg"));
-      icon->setAttribute(_("url"), url);
-      icons->appendElementChild(icon);
+    zmm::Ref<Element> mockConfig(const std::string &fixtureFile) {
+      // Load the fixture XML, and replace ICONS_DIR for testing
+      std::ifstream t(fixtureFile);
+      std::string fileStr((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+      t.close();
+      replaceAll(fileStr, "{{ICONS_DIR}}", std::string(ICONS_DIR));
 
-      iconConf->appendElementChild(icons);
-      return iconConf;
+      zmm::Ref<mxml::Document> rootDoc;
+      zmm::Ref<mxml::Element> root;
+      zmm::Ref<Parser> parser(new Parser());
+      rootDoc = parser->parseString(fileStr);
+      root = rootDoc->getRoot();
+      return root;
     }
 
+    void replaceAll(std::string& str, const std::string& from, const std::string& to) {
+      if(from.empty())
+        return;
+      size_t start_pos = 0;
+      while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length();
+      }
+    }
     IconConfig *config;
     IconRequestHandler *subject;
 };
@@ -56,13 +66,14 @@ TEST_F(IconHandlerTest, SetsInfoForIconWhenAccessible) {
   strcpy(cstr, url.c_str());
   UpnpFileInfo *info = nullptr;
 
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsReadable(Eq(info), 1)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_LastModified(Eq(info), _)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsDirectory(Eq(info), _)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_FileLength(Eq(info), _)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_ContentType(Eq(info), StrEq("image/jpeg"))).WillOnce(Return(1));
+
   subject->getInfo(cstr, info);
 
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsReadable(Eq(info), 1)).WillRepeatedly(Return(1));
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_LastModified(Eq(info), _)).WillRepeatedly(Return(1));
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsDirectory(Eq(info), _)).WillRepeatedly(Return(1));
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_FileLength(Eq(info), _)).WillRepeatedly(Return(1));
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_ContentType(Eq(info), Eq("image/jpeg"))).WillRepeatedly(Return(1));
   delete [] cstr;
 }
 
@@ -72,25 +83,25 @@ TEST_F(IconHandlerTest, SetsNotReadableWhenNotFound) {
   strcpy(cstr, url.c_str());
   UpnpFileInfo *info = nullptr;
 
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsReadable(Eq(info), 0)).WillOnce(Return(1));
+
   subject->getInfo(cstr, info);
 
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsReadable(Eq(info), 0)).WillRepeatedly(Return(1));
   delete [] cstr;
 }
 
 TEST_F(IconHandlerTest, SetsNotReadableWhenFoundButNotAccessible) {
   std::string url = "/content/icons/no-such-file.jpg";
-  std::stringstream path;
-  path << ICONS_DIR << DIR_SEPARATOR << "no-such-file.jpg";
-  config = new IconConfig(mockConfig("static-list", url, path.str()));
+  config = new IconConfig(mockConfig("fixtures/no-such-file.xml"));
   subject = new IconRequestHandler(config);
   char *cstr = new char[url.length() + 1];
   strcpy(cstr, url.c_str());
   UpnpFileInfo *info = nullptr;
 
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsReadable(Eq(info), 0)).WillOnce(Return(1));
+
   subject->getInfo(cstr, info);
 
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsReadable(Eq(info), 0)).WillRepeatedly(Return(1));
   delete [] cstr;
 }
 
@@ -104,6 +115,25 @@ TEST_F(IconHandlerTest, OpenThrowsExceptionWhenIconNotFound) {
   EXPECT_THROW(subject->open(cstr, mode, range), IconException);
   delete [] cstr;
 }
+
+#if defined(HAVE_MAGIC)
+TEST_F(IconHandlerTest, RetrievesMimeTypeFromMagic) {
+  std::string url = "/content/icons/mt-icon32.png";
+  char *cstr = new char[url.length() + 1];
+  strcpy(cstr, url.c_str());
+  UpnpFileInfo *info = nullptr;
+
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsReadable(Eq(info), 1)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_LastModified(Eq(info), _)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsDirectory(Eq(info), _)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_FileLength(Eq(info), _)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_ContentType(Eq(info), StrEq("image/png"))).WillOnce(Return(1));
+
+  subject->getInfo(cstr, info);
+
+  delete [] cstr;
+}
+#endif
 
 // 120x120 d24 image/png
 // 120x120 image/x-ms-bmp

@@ -1,0 +1,13 @@
+<icon-config type="dynamic-image">
+    <icons>
+        <icon resolution="120x120" depth="24" url="/content/icons/mt-icon120.png">{{ICONS_DIR}}/mt-icon120.png</icon>
+        <icon resolution="120x120" depth="24" url="/content/icons/mt-icon120.bmp">{{ICONS_DIR}}/mt-icon120.bmp</icon>
+        <icon resolution="120x120" depth="24" url="/content/icons/mt-icon120.jpg">{{ICONS_DIR}}/mt-icon120.jpg</icon>
+        <icon resolution="48x48" depth="24" url="/content/icons/mt-icon48.png">{{ICONS_DIR}}/mt-icon48.png</icon>
+        <icon resolution="48x48" depth="24" url="/content/icons/mt-icon48.bmp">{{ICONS_DIR}}/mt-icon48.bmp</icon>
+        <icon resolution="48x48" depth="24" url="/content/icons/mt-icon48.jpg">{{ICONS_DIR}}/mt-icon48.jpg</icon>
+        <icon resolution="32x32" depth="8" url="/content/icons/mt-icon32.png">{{ICONS_DIR}}/mt-icon32.png</icon>
+        <icon resolution="32x32" depth="8" url="/content/icons/mt-icon32.bmp">{{ICONS_DIR}}/mt-icon32.bmp</icon>
+        <icon resolution="32x32" depth="8" url="/content/icons/mt-icon32.jpg">{{ICONS_DIR}}/mt-icon32.jpg</icon>
+    </icons>
+</icon-config>

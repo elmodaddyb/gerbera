@@ -28,15 +28,11 @@ Gerbera - https://gerbera.io/
 
 class IconException : public std::exception {
 public:
-    IconException(const std::string &message)
-            : m_message(message) {
-    }
+    explicit IconException(std::string message): m_message(std::move(message)) { }
 
-    virtual const char *
-    what() const noexcept {
+    const char* what() const noexcept override {
       return m_message.c_str();
     }
-
 private:
     std::string m_message;
 };

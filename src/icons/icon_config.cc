@@ -22,6 +22,8 @@ Gerbera - https://gerbera.io/
 */
 /// \file icon_config.cc
 
+
+#include <fstream>
 #include <memory>
 #include <vector>
 #include <map>
@@ -40,42 +42,19 @@ IconConfig::IconConfig() {
   _loadingType = unsupported;
 }
 IconConfig::IconConfig(Ref<Element> config) {
-  std::string loadingType = config->getAttribute("type").c_str();
-  if (loadingType == "static-list") {
-    _loadingType = static_list;
-  } else if(loadingType == "dynamic-image") {
-    _loadingType = dynamic_image;
-  } else {
-    _loadingType = unsupported;
+  _loadingType = identifyLoadingType(config);
+  if(_loadingType == dynamic_image) {
+    _icons = IconConfig::loadDynamicList(config);
+  } else if(_loadingType == static_list) {
+    _icons = IconConfig::loadStaticList(config);
   }
-  _icons = std::make_shared<std::vector<std::shared_ptr<GerberaIcon>>>();
-  Ref<Element> icons = config->getChildByName(_("icons"));
-  Ref<Element> item;
-  std::shared_ptr<GerberaIcon> icon;
-  for (int e = 0; e < icons->elementChildCount(); e++) {
-    item = icons->getElementChild(e);
-    std::string path = item->getText().c_str();
-    std::string url = item->getAttribute(_("url")).c_str();
-
-    imageDetails imgDetails = lookupImage(path, _loadingType);
-    std::string resolution = lookupResolution(item, imgDetails);
-    std::string depth = lookupDepth(item, imgDetails);
-    std::string mimeType = lookupMimeType(item, _loadingType);
-
-    icon = std::make_shared<GerberaIcon>(path, resolution, depth, mimeType, url);
-    _icons->push_back(icon);
-  }
-}
-
-IconConfig::~IconConfig() {
-  _icons = nullptr;
 }
 
 icon_loading_type IconConfig::getType() {
   return _loadingType;
 }
 
-std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> IconConfig::getIcons() {
+std::vector<std::shared_ptr<GerberaIcon>>& IconConfig::getIcons() {
   return _icons;
 }
 
@@ -89,10 +68,9 @@ std::string IconConfig::getAttribute(const zmm::Ref<Element> &el, const std::str
   }
   return result;
 }
-
-std::string IconConfig::lookupMimeType(const zmm::Ref<Element> &icon, icon_loading_type loadingType) {
+std::string IconConfig::lookupMimeType(const zmm::Ref<Element> &icon) {
   std::string mime = getAttribute(icon, "mime-type", "");
-  if(loadingType == dynamic_image && mime.empty()) {
+  if(mime.empty()) {
 #ifdef HAVE_MAGIC
     mime = ImageHelper::mimeFromMagic(icon->getText().c_str());
 #endif
@@ -117,18 +95,110 @@ std::string IconConfig::lookupResolution(const zmm::Ref<Element> &icon, imageDet
   }
   return resolution;
 }
-imageDetails IconConfig::lookupImage(const std::string &path, icon_loading_type loadingType) {
+imageDetails IconConfig::lookupImage(const std::string &path) {
   imageDetails details;
-  details.valid = false;
-  if (loadingType == dynamic_image) {
+  std::ifstream f(path);
+  if(f.good()){
 #ifdef HAVE_IMAGEMAGICK
-    details = ImageHelper::readFromMagick(path);
+      details = ImageHelper::readFromMagick(path);
 #endif
 #ifdef HAVE_LIBEXIF
-    if (!details.valid) {
-      details = ImageHelper::readFromExif(path);
-    }
+      if (!details.valid) {
+        details = ImageHelper::readFromExif(path);
+      }
 #endif
+    f.close();
+  } else {
+    details.valid = false;
   }
   return details;
+}
+icon_loading_type IconConfig::identifyLoadingType(zmm::Ref<Element> &config) {
+  icon_loading_type ltype;
+  zmm::String loadingType = config->getAttribute("type");
+  Ref<Element> icons = config->getChildByName(_("icons"));
+  Ref<Element> templateIcon = config->getChildByName(_("template"));
+  if(loadingType == nullptr) {
+    if (templateIcon != nullptr) {
+      ltype = dynamic_image;
+    } else if (icons != nullptr) {
+      ltype = static_list;
+    } else {
+      ltype = unsupported;
+    }
+  } else {
+    if (loadingType == "static-list") {
+      ltype = static_list;
+    } else if(loadingType == "dynamic-image") {
+      ltype = dynamic_image;
+    } else {
+      ltype = unsupported;
+    }
+  }
+
+  return ltype;
+}
+std::vector<std::shared_ptr<GerberaIcon>> IconConfig::loadStaticList(const zmm::Ref<Element> &config){
+  auto iconList = std::vector<std::shared_ptr<GerberaIcon>>();
+  Ref<Element> icons = config->getChildByName(_("icons"));
+  Ref<Element> item;
+  std::shared_ptr<GerberaIcon> icon;
+  for (int e = 0; e < icons->elementChildCount(); e++) {
+    item = icons->getElementChild(e);
+    std::string path = item->getText().c_str();
+    std::string url = item->getAttribute(_("url")).c_str();
+
+    imageDetails imgDetails = lookupImage(path);
+    std::string resolution = lookupResolution(item, imgDetails);
+    std::string depth = lookupDepth(item, imgDetails);
+    std::string mimeType = lookupMimeType(item);
+
+    icon = std::make_shared<GerberaIcon>(path, resolution, depth, mimeType, url);
+    iconList.push_back(icon);
+  }
+  return iconList;
+}
+std::vector<std::shared_ptr<GerberaIcon>> IconConfig::loadDynamicList(const zmm::Ref<Element> &config) {
+  auto iconList = std::vector<std::shared_ptr<GerberaIcon>>();
+  Ref<Element> templateIcon = config->getChildByName(_("template"));
+  std::string resolution = templateIcon->getAttribute("resolution").c_str();
+  std::string type = templateIcon->getAttribute("type").c_str();
+  std::string path = templateIcon->getText().c_str();
+  std::vector<std::string> resolutions = IconConfig::splitList(resolution);
+  std::vector<std::string> types = IconConfig::splitList(type);
+  // for each resolution, for each type;
+  std::shared_ptr<GerberaIcon> icon;
+  for(auto const& r: resolutions) {
+    for(auto const& t: types) {
+      std::stringstream url;
+      url << DEFAULT_ICON_HANDLER << "/grb-icon-" << r << "." << t;
+
+      std::stringstream res;
+      res << r << "x" << r;
+
+      std::string depth = "24";
+
+      std::string mimeType;
+      if(t == "png") {
+        mimeType = DESC_ICON_PNG_MIMETYPE;
+      } else if (t == "jpg") {
+        mimeType = DESC_ICON_JPG_MIMETYPE;
+      } else if (t == "bmp") {
+        mimeType = DESC_ICON_BMP_MIMETYPE;
+      }
+      icon = std::make_shared<GerberaIcon>(path, res.str(), depth, mimeType, url.str());
+      iconList.push_back(icon);
+    }
+  }
+  return iconList;
+}
+std::vector<std::string> IconConfig::splitList(const std::string& list) {
+  std::vector<std::string> result;
+  std::stringstream ss(list);
+  while (ss.good()) {
+    std::string substr;
+    getline(ss, substr, ',');
+    result.push_back(substr);
+  }
+  return result;
 }

@@ -66,15 +66,15 @@ TEST_F(IconConfigTest, LoadsStaticListOfIcons) {
   Ref<Element> config = mockConfig("fixtures/static-list.xml");
   subject = std::make_unique<IconConfig>(config);
 
-  std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> result = subject->getIcons();
-  const auto &icon = subject->getIcons()->at(0);
+  std::vector<std::shared_ptr<GerberaIcon>> result = subject->getIcons();
+  const auto &icon = subject->getIcons().at(0);
   std::string expPath = std::string(ICONS_DIR) + "/mt-icon120.png";
   EXPECT_STREQ(icon->path().c_str(), expPath.c_str());
   EXPECT_STREQ(icon->resolution().c_str(), "120x120");
   EXPECT_STREQ(icon->depth().c_str(), "24");
   EXPECT_STREQ(icon->mimeType().c_str(), "image/png");
   EXPECT_STREQ(icon->url().c_str(), "/content/icons/mt-icon120.png");
-  EXPECT_EQ(result->size(), 9);
+  EXPECT_EQ(result.size(), 9);
 }
 
 #ifdef HAVE_MAGIC
@@ -82,10 +82,10 @@ TEST_F(IconConfigTest, LoadsDynamicListOfIconsLookingUpMimeTypesForPngJpgBmp) {
   Ref<Element> config = mockConfig("fixtures/dynamic-mimetypes-list.xml");
   subject = std::make_unique<IconConfig>(config);
 
-  std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> result = subject->getIcons();
+  auto result = subject->getIcons();
 
   // PNG
-  auto &icon = subject->getIcons()->at(0);
+  auto &icon = subject->getIcons().at(0);
   std::string expPath = std::string(ICONS_DIR) + "/mt-icon120.png";
   EXPECT_STREQ(icon->path().c_str(), expPath.c_str());
   EXPECT_STREQ(icon->resolution().c_str(), "120x120");
@@ -93,10 +93,10 @@ TEST_F(IconConfigTest, LoadsDynamicListOfIconsLookingUpMimeTypesForPngJpgBmp) {
   EXPECT_STREQ(icon->mimeType().c_str(), "image/png");
   EXPECT_STREQ(icon->url().c_str(), "/content/icons/mt-icon120.png");
   // BMP
-  icon = subject->getIcons()->at(1);
+  icon = subject->getIcons().at(1);
   EXPECT_STREQ(icon->mimeType().c_str(), "image/x-ms-bmp");
   // JPG
-  icon = subject->getIcons()->at(2);
+  icon = subject->getIcons().at(2);
   EXPECT_STREQ(icon->mimeType().c_str(), "image/jpeg");
 }
 #endif
@@ -106,10 +106,25 @@ TEST_F(IconConfigTest, LoadsDynamicListOfIconsLookingUpResolutionUsingImageMagic
   Ref<Element> config = mockConfig("fixtures/dynamic-resolution-list.xml");
   subject = std::make_unique<IconConfig>(config);
 
-  std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> result = subject->getIcons();
+  auto result = subject->getIcons();
 
   // PNG
-  auto &icon = subject->getIcons()->at(0);
+  auto &icon = subject->getIcons().at(0);
   EXPECT_STREQ(icon->resolution().c_str(), "120x120");
+}
+
+TEST_F(IconConfigTest, GenerateImageConfigFromTemplateIcon) {
+  Ref<Element> config = mockConfig("fixtures/dynamic-template.xml");
+  subject = std::make_unique<IconConfig>(config);
+
+  auto result = subject->getIcons();
+
+  EXPECT_EQ(result.size(), 9);
+  auto &icon = subject->getIcons().at(0);
+  EXPECT_STREQ(icon->path().c_str(), "fixtures/icon-with-exif.jpg");
+  EXPECT_STREQ(icon->resolution().c_str(), "120x120");
+  EXPECT_STREQ(icon->depth().c_str(), "24");
+  EXPECT_STREQ(icon->mimeType().c_str(), "image/jpeg");
+  EXPECT_STREQ(icon->url().c_str(), "/content/icons/grb-icon-120.jpg");
 }
 #endif

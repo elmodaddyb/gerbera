@@ -1,4 +1,4 @@
-<icon-config type="dynamic-image">
+<icon-config type="static-list">
     <icons>
         <icon resolution="120x120" depth="24" url="/content/icons/mt-icon120.png">{{ICONS_DIR}}/mt-icon120.png</icon>
         <icon resolution="120x120" depth="24" url="/content/icons/mt-icon120.bmp">{{ICONS_DIR}}/mt-icon120.bmp</icon>

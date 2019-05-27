@@ -43,6 +43,7 @@ Gerbera - https://gerbera.io/
 #define DESC_ICON120_JPG "/icons/mt-icon120.jpg"
 #define DESC_ICON120_PNG "/icons/mt-icon120.png"
 #define DESC_ICON120_BMP "/icons/mt-icon120.bmp"
+#define DEFAULT_ICON_HANDLER "/content/icons"
 
 using namespace mxml;
 
@@ -54,19 +55,23 @@ enum icon_loading_type {
 
 class IconConfig {
 private:
+    std::vector<std::shared_ptr<GerberaIcon>> _icons;
     icon_loading_type _loadingType;
-    std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> _icons;
-    std::string getAttribute(const zmm::Ref<Element> &el, const std::string &attr, std::string defaultValue);
-    std::string lookupMimeType(const zmm::Ref<Element> &icon, icon_loading_type loadingType);
-    std::string lookupResolution(const zmm::Ref<Element> &icon, imageDetails details);
-    std::string lookupDepth(const zmm::Ref<Element> &icon, imageDetails details);
-    imageDetails lookupImage(const std::string &path, icon_loading_type loadingType);
+    static icon_loading_type identifyLoadingType(zmm::Ref<Element> &config);
+    static std::string getAttribute(const zmm::Ref<Element> &el, const std::string &attr, std::string defaultValue);
+    static std::string lookupMimeType(const zmm::Ref<Element> &icon);
+    static std::string lookupResolution(const zmm::Ref<Element> &icon, imageDetails details);
+    static std::string lookupDepth(const zmm::Ref<Element> &icon, imageDetails details);
+    static imageDetails lookupImage(const std::string &path);
+    static std::vector<std::shared_ptr<GerberaIcon>> loadStaticList(const zmm::Ref<Element> &config);
+    static std::vector<std::shared_ptr<GerberaIcon>> loadDynamicList(const zmm::Ref<Element> &config);
+    static std::vector<std::string> splitList(const std::string& list);
 public:
     IconConfig();
     explicit IconConfig(zmm::Ref<Element> config);
-    ~IconConfig();
+    ~IconConfig() = default;
     icon_loading_type getType();
-    std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>> getIcons();
+    std::vector<std::shared_ptr<GerberaIcon>>& getIcons();
 };
 
 

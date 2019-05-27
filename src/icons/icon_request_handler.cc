@@ -78,7 +78,7 @@ IconRequestHandler::open(IN const char *url, IN enum UpnpOpenFileMode mode, IN z
 std::shared_ptr<GerberaIcon> IconRequestHandler::findIcon(const std::string &url) {
   std::shared_ptr<GerberaIcon> result;
   auto icons = config->getIcons();
-  for (const auto &icon : *icons) {
+  for (const auto &icon : icons) {
    if(icon->url() == url) {
      result = icon;
      break;

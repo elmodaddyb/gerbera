@@ -34,7 +34,7 @@ public:
     zmm::Ref<Element> generateDescList(IconConfig* config);
     zmm::Ref<Element> generateDescList();
 private:
-    zmm::Ref<Element> createListFromConfig(std::shared_ptr<std::vector<std::shared_ptr<GerberaIcon>>>& iconList);
+    zmm::Ref<Element> createListFromConfig(std::vector<std::shared_ptr<GerberaIcon>>& iconList);
     std::vector<std::string> splitDimension(std::string dimension);
 };
 

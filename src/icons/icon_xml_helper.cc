@@ -38,12 +38,12 @@ zmm::Ref<Element> IconXmlHelper::generateDescList(IconConfig *config) {
   } else {
     icon_loading_type listType = config->getType();
     switch (listType) {
+      case dynamic_image:
       case static_list: {
         auto gerberaIcons = config->getIcons();
         iconList = createListFromConfig(gerberaIcons);
         break;
       }
-      case dynamic_image:
       case unsupported: {
         iconList = generateDescList();
         break;

@@ -66,4 +66,28 @@ TEST_F(IconXmlHelperTest, GeneratesIconXmlWithDynamicIconList) {
 
   EXPECT_NE(iconList, nullptr);
   EXPECT_EQ(iconList->elementChildCount(), 9);
+
+  // First Icon
+  Ref<Element> icon = iconList->getElementChild(0);
+  EXPECT_STREQ("120", icon->getChildByName("width")->getText().c_str());
+  EXPECT_STREQ("120", icon->getChildByName("height")->getText().c_str());
+  EXPECT_STREQ("24", icon->getChildByName("depth")->getText().c_str());
+  EXPECT_STREQ("/content/icons/grb-icon-120.jpg", icon->getChildByName("url")->getText().c_str());
+  EXPECT_STREQ("image/jpeg", icon->getChildByName("mimetype")->getText().c_str());
+
+  // Second Icon
+  icon = iconList->getElementChild(1);
+  EXPECT_STREQ("120", icon->getChildByName("width")->getText().c_str());
+  EXPECT_STREQ("120", icon->getChildByName("height")->getText().c_str());
+  EXPECT_STREQ("24", icon->getChildByName("depth")->getText().c_str());
+  EXPECT_STREQ("/content/icons/grb-icon-120.png", icon->getChildByName("url")->getText().c_str());
+  EXPECT_STREQ("image/png", icon->getChildByName("mimetype")->getText().c_str());
+
+  // Third Icon
+  icon = iconList->getElementChild(2);
+  EXPECT_STREQ("120", icon->getChildByName("width")->getText().c_str());
+  EXPECT_STREQ("120", icon->getChildByName("height")->getText().c_str());
+  EXPECT_STREQ("24", icon->getChildByName("depth")->getText().c_str());
+  EXPECT_STREQ("/content/icons/grb-icon-120.bmp", icon->getChildByName("url")->getText().c_str());
+  EXPECT_STREQ("image/x-ms-bmp", icon->getChildByName("mimetype")->getText().c_str());
 }

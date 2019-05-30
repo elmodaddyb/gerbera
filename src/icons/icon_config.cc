@@ -113,27 +113,16 @@ imageDetails IconConfig::lookupImage(const std::string &path) {
   }
   return details;
 }
-icon_loading_type IconConfig::identifyLoadingType(zmm::Ref<Element> &config) {
+icon_loading_type IconConfig::identifyLoadingType(zmm::Ref<Element> &serverConfig) {
   icon_loading_type ltype;
-  zmm::String loadingType = config->getAttribute("type");
-  Ref<Element> icons = config->getChildByName(_("icons"));
-  Ref<Element> templateIcon = config->getChildByName(_("template"));
-  if(loadingType == nullptr) {
-    if (templateIcon != nullptr) {
-      ltype = dynamic_image;
-    } else if (icons != nullptr) {
-      ltype = static_list;
-    } else {
-      ltype = unsupported;
-    }
+  Ref<Element> icons = serverConfig->getChildByName(_("icons"));
+  Ref<Element> templateIcon = serverConfig->getChildByName(_("icon"));
+  if (templateIcon != nullptr && icons == nullptr) {
+    ltype = dynamic_image;
+  } else if (icons != nullptr) {
+    ltype = static_list;
   } else {
-    if (loadingType == "static-list") {
-      ltype = static_list;
-    } else if(loadingType == "dynamic-image") {
-      ltype = dynamic_image;
-    } else {
-      ltype = unsupported;
-    }
+    ltype = unsupported;
   }
 
   return ltype;
@@ -160,9 +149,9 @@ std::vector<std::shared_ptr<GerberaIcon>> IconConfig::loadStaticList(const zmm::
 }
 std::vector<std::shared_ptr<GerberaIcon>> IconConfig::loadDynamicList(const zmm::Ref<Element> &config) {
   auto iconList = std::vector<std::shared_ptr<GerberaIcon>>();
-  Ref<Element> templateIcon = config->getChildByName(_("template"));
-  std::string resolution = templateIcon->getAttribute("resolution").c_str();
-  std::string type = templateIcon->getAttribute("type").c_str();
+  Ref<Element> templateIcon = config->getChildByName(_("icon"));
+  std::string resolution = DEFAULT_ICON_RESOLUTIONS;
+  std::string type = DEFAULT_ICON_TYPES;
   std::string path = templateIcon->getText().c_str();
   std::vector<std::string> resolutions = IconConfig::splitList(resolution);
   std::vector<std::string> types = IconConfig::splitList(type);

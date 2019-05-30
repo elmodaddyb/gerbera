@@ -1,4 +1,4 @@
-<icon-config type="static-list">
+<server>
     <icons>
         <icon resolution="120x120" depth="24" mime-type="image/png" url="/content/icons/mt-icon120.png">{{ICONS_DIR}}/mt-icon120.png</icon>
         <icon resolution="120x120" depth="24" mime-type="image/x-ms-bmp" url="/content/icons/mt-icon120.bmp">{{ICONS_DIR}}/mt-icon120.bmp</icon>
@@ -10,4 +10,4 @@
         <icon resolution="32x32" depth="8" mime-type="image/x-ms-bmp" url="/content/icons/mt-icon32.bmp">{{ICONS_DIR}}/mt-icon32.bmp</icon>
         <icon resolution="32x32" depth="8" mime-type="image/jpeg" url="/content/icons/mt-icon32.jpg">{{ICONS_DIR}}/mt-icon32.jpg</icon>
     </icons>
-</icon-config>
+</server>

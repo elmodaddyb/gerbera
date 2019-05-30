@@ -15,8 +15,6 @@ public:
     virtual ~IconXmlHelperTest() = default;
 
     virtual void SetUp() {
-      Ref<Element> mockCfg = mockConfig("fixtures/static-list.xml");
-      config = new IconConfig(mockCfg);
       subject = new IconXmlHelper();
     }
 
@@ -55,6 +53,15 @@ public:
 
 TEST_F(IconXmlHelperTest, GeneratesDefaultIconXmlWhenNotConfigured) {
   config = nullptr;
+  Ref<Element> iconList = subject->generateDescList(config);
+
+  EXPECT_NE(iconList, nullptr);
+  EXPECT_EQ(iconList->elementChildCount(), 9);
+}
+
+TEST_F(IconXmlHelperTest, GeneratesIconXmlWithDynamicIconList) {
+  Ref<Element> mockCfg = mockConfig("fixtures/dynamic-template.xml");
+  config = new IconConfig(mockCfg);
   Ref<Element> iconList = subject->generateDescList(config);
 
   EXPECT_NE(iconList, nullptr);

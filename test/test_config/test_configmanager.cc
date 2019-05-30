@@ -6,6 +6,7 @@
 
 #include <config_manager.h>
 #include <config/config_generator.h>
+#include <icons/icon_config.h>
 
 using namespace zmm;
 using namespace mxml;
@@ -145,12 +146,12 @@ TEST_F(ConfigManagerTest, LoadsConfigFromDefaultHomeWhenExistsButNotSpecified) {
   ASSERT_EQ(30, subject->getIntOption(CFG_SERVER_UI_SESSION_TIMEOUT));
 }
 
-TEST_F(ConfigManagerTest, LoadsIconConfigAsNull) {
+TEST_F(ConfigManagerTest, LoadsIconConfigAsUnsupportedByDefault) {
   subject->setStaticArgs(config_file, _(home.c_str()), _(confdir.c_str()), _(prefix.c_str()), _(magic.c_str()));
 
   subject->init();
 
   auto iconConfig = subject->getIconConfig();
-  EXPECT_EQ(iconConfig, nullptr);
+  EXPECT_EQ(iconConfig->getType(), unsupported);
 }
 

@@ -44,6 +44,8 @@ Gerbera - https://gerbera.io/
 #define DESC_ICON120_PNG "/icons/mt-icon120.png"
 #define DESC_ICON120_BMP "/icons/mt-icon120.bmp"
 #define DEFAULT_ICON_HANDLER "/content/icons"
+#define DEFAULT_ICON_RESOLUTIONS "120,48,32"
+#define DEFAULT_ICON_TYPES "jpg,png,bmp"
 
 using namespace mxml;
 
@@ -57,7 +59,7 @@ class IconConfig {
 private:
     std::vector<std::shared_ptr<GerberaIcon>> _icons;
     icon_loading_type _loadingType;
-    static icon_loading_type identifyLoadingType(zmm::Ref<Element> &config);
+    static icon_loading_type identifyLoadingType(zmm::Ref<Element> &serverConfig);
     static std::string getAttribute(const zmm::Ref<Element> &el, const std::string &attr, std::string defaultValue);
     static std::string lookupMimeType(const zmm::Ref<Element> &icon);
     static std::string lookupResolution(const zmm::Ref<Element> &icon, imageDetails details);
@@ -68,7 +70,7 @@ private:
     static std::vector<std::string> splitList(const std::string& list);
 public:
     IconConfig();
-    explicit IconConfig(zmm::Ref<Element> config);
+    explicit IconConfig(zmm::Ref<Element> serverConfig);
     ~IconConfig() = default;
     icon_loading_type getType();
     std::vector<std::shared_ptr<GerberaIcon>>& getIcons();

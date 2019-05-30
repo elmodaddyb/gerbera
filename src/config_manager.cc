@@ -1333,7 +1333,7 @@ void ConfigManager::validate(String serverhome)
     NEW_OPTION(temp);
     SET_OPTION(CFG_ONLINE_CONTENT_ATRAILERS_RESOLUTION);
 #endif
-    el = getElement(_("/server/icon-config"));
+    el = getElement(_("/server"));
     if(el != nullptr) {
       iconConfig = std::make_shared<IconConfig>(el);
     }

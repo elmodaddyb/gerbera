@@ -1,5 +1,5 @@
-<icon-config type="static-list">
+<server>
     <icons>
         <icon resolution="120x120" depth="24" mime-type="image/jpeg" url="/content/icons/no-such-file.jpg">{{ICONS_DIR}}/no-such-file.jpg</icon>
     </icons>
-</icon-config>
+</server>

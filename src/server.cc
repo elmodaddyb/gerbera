@@ -437,7 +437,8 @@ Ref<RequestHandler> Server::createRequestHandler(const char* filename) const
             throw _Exception(_("Serving directories is not enabled in configuration"));
     } else if(link.startsWith(_("/") + SERVER_VIRTUAL_DIR + "/" + CONTENT_ICONS_HANDLER)) {
       std::shared_ptr<IconConfig> iconCfg = ConfigManager::getInstance()->getIconConfig();
-      ret = new IconRequestHandler(iconCfg.get());
+      std::shared_ptr<ImageHelper> imageHelper = std::make_shared<ImageHelper>();
+      ret = new IconRequestHandler(iconCfg.get(), imageHelper);
     }
 
 #if defined(HAVE_CURL)

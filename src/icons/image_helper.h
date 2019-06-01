@@ -26,6 +26,7 @@ Gerbera - https://gerbera.io/
 #define GERBERA_IMAGE_HELPER_H
 
 #include <string>
+#include <Magick++/Blob.h>
 
 struct _imageDetails {
     bool valid;
@@ -37,14 +38,17 @@ typedef struct _imageDetails imageDetails;
 
 class ImageHelper {
 public:
+    ImageHelper() = default;
+    ~ImageHelper() = default;
 #ifdef HAVE_IMAGEMAGICK
-    static imageDetails readFromMagick(const std::string &path);
+    imageDetails readFromMagick(const std::string &path);
+    void convertTo(const std::string &orig, Magick::Blob &dest, const std::string &mimeType);
 #endif
 #ifdef HAVE_LIBEXIF
-    static imageDetails readFromExif(const std::string &path);
+    imageDetails readFromExif(const std::string &path);
 #endif
 #ifdef HAVE_MAGIC
-    static std::string mimeFromMagic(const std::string &path);
+    std::string mimeFromMagic(const std::string &path);
 #endif
 };
 

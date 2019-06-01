@@ -32,8 +32,9 @@ Gerbera - https://gerbera.io/
 class IconRequestHandler: public RequestHandler {
 protected:
     IconConfig* config;
+    std::shared_ptr<ImageHelper> imageHelper;
 public:
-    explicit IconRequestHandler(IconConfig* config);
+    explicit IconRequestHandler(IconConfig* config, std::shared_ptr<ImageHelper> imageHelper);
     virtual void getInfo(IN const char *url, OUT UpnpFileInfo *info);
     virtual zmm::Ref<IOHandler> open(IN const char* filename,
                                      IN enum UpnpOpenFileMode mode,

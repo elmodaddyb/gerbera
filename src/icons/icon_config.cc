@@ -39,6 +39,7 @@ using namespace zmm;
 using namespace mxml;
 
 IconConfig::IconConfig() {
+  _imageHelper = std::make_unique<ImageHelper>();
   _loadingType = unsupported;
 }
 IconConfig::IconConfig(Ref<Element> config) {
@@ -72,7 +73,7 @@ std::string IconConfig::lookupMimeType(const zmm::Ref<Element> &icon) {
   std::string mime = getAttribute(icon, "mime-type", "");
   if(mime.empty()) {
 #ifdef HAVE_MAGIC
-    mime = ImageHelper::mimeFromMagic(icon->getText().c_str());
+    mime = _imageHelper->mimeFromMagic(icon->getText().c_str());
 #endif
   }
   return mime;
@@ -100,11 +101,11 @@ imageDetails IconConfig::lookupImage(const std::string &path) {
   std::ifstream f(path);
   if(f.good()){
 #ifdef HAVE_IMAGEMAGICK
-      details = ImageHelper::readFromMagick(path);
+      details = _imageHelper->readFromMagick(path);
 #endif
 #ifdef HAVE_LIBEXIF
       if (!details.valid) {
-        details = ImageHelper::readFromExif(path);
+        details = _imageHelper->readFromExif(path);
       }
 #endif
     f.close();

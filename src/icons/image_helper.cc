@@ -23,6 +23,7 @@ Gerbera - https://gerbera.io/
 /// \file image_helper.cc
 
 #include "image_helper.h"
+#include "icon_config.h"
 #include <tools.h>
 
 #ifdef HAVE_IMAGEMAGICK
@@ -51,6 +52,20 @@ imageDetails ImageHelper::readFromMagick(const std::string &path) {
   details.depth = depth;
   details.valid = true;
   return details;
+}
+
+void ImageHelper::convertTo(const std::string &orig, Magick::Blob &dest, const std::string &mimeType) {
+  std::string convertToType;
+  if(mimeType == DESC_ICON_PNG_MIMETYPE) {
+    convertToType = "PNG";
+  } else if (mimeType == DESC_ICON_JPG_MIMETYPE) {
+    convertToType = "JPEG";
+  } else if (mimeType == DESC_ICON_BMP_MIMETYPE) {
+    convertToType = "BMP";
+  }
+  Magick::Image image(orig);
+  image.magick(convertToType);
+  image.write(&dest);
 }
 #endif
 

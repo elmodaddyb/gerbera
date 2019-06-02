@@ -26,7 +26,9 @@ Gerbera - https://gerbera.io/
 #define GERBERA_IMAGE_HELPER_H
 
 #include <string>
+#ifdef HAVE_IMAGEMAGICK
 #include <Magick++/Blob.h>
+#endif
 
 struct _imageDetails {
     bool valid;

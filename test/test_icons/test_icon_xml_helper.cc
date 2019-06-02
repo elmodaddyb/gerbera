@@ -58,7 +58,7 @@ TEST_F(IconXmlHelperTest, GeneratesDefaultIconXmlWhenNotConfigured) {
   EXPECT_NE(iconList, nullptr);
   EXPECT_EQ(iconList->elementChildCount(), 9);
 }
-
+#ifdef HAVE_IMAGEMAGICK
 TEST_F(IconXmlHelperTest, GeneratesIconXmlWithDynamicIconList) {
   Ref<Element> mockCfg = mockConfig("fixtures/dynamic-template.xml");
   config = new IconConfig(mockCfg);
@@ -91,3 +91,4 @@ TEST_F(IconXmlHelperTest, GeneratesIconXmlWithDynamicIconList) {
   EXPECT_STREQ("/content/icons/grb-icon-120.bmp", icon->getChildByName("url")->getText().c_str());
   EXPECT_STREQ("image/x-ms-bmp", icon->getChildByName("mimetype")->getText().c_str());
 }
+#endif

@@ -11,7 +11,9 @@
 #include <fstream>
 #include <streambuf>
 #include <icons/icon_exception.h>
+#ifdef HAVE_IMAGEMAGICK
 #include <Magick++/Image.h>
+#endif
 
 using namespace ::testing;
 using namespace zmm;
@@ -62,6 +64,7 @@ public:
       return stat_buff.st_size;
     }
 
+#ifdef HAVE_IMAGEMAGICK
     Magick::Image readImageFromHandler(zmm::Ref<IOHandler> handler, size_t size) {
       // Read the image into a buffer
       char *buffer = new char[size];
@@ -73,6 +76,7 @@ public:
       delete [] buffer;
       return image;
     }
+#endif
 
     IconConfig *config;
     IconRequestHandler *subject;
@@ -97,29 +101,6 @@ TEST_F(IconHandlerTest, SetsInfoForIconFromFileWhenAccessible) {
   EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsDirectory(Eq(info), _)).WillOnce(Return(1));
   EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_FileLength(Eq(info), Eq(fileSize))).WillOnce(Return(1));
   EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_ContentType(Eq(info), StrEq("image/jpeg"))).WillOnce(Return(1));
-
-  subject->getInfo(cstr, info);
-
-  delete [] cstr;
-}
-
-TEST_F(IconHandlerTest, SetsInfoForDynamicIconWhenAccessible) {
-  std::stringstream ss;
-  Magick::Blob blob;
-  imgHelper->convertTo("fixtures/icon-with-exif.jpg", blob, "image/png");
-  size_t dynamicFileSize = blob.length();
-  std::string url = "/content/icons/grb-icon-120.png";
-  char *cstr = new char[url.length() + 1];
-  strcpy(cstr, url.c_str());
-  UpnpFileInfo *info = nullptr;
-  config = new IconConfig(mockConfig("fixtures/dynamic-template.xml"));
-  subject = new IconRequestHandler(config, imgHelper);
-
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsReadable(Eq(info), 1)).WillOnce(Return(1));
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_LastModified(Eq(info), _)).WillOnce(Return(1));
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsDirectory(Eq(info), _)).WillOnce(Return(1));
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_FileLength(Eq(info), Eq(dynamicFileSize))).WillOnce(Return(1));
-  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_ContentType(Eq(info), StrEq("image/png"))).WillOnce(Return(1));
 
   subject->getInfo(cstr, info);
 
@@ -182,6 +163,32 @@ TEST_F(IconHandlerTest, OpenThrowsExceptionWhenIconNotFound) {
   delete [] cstr;
 }
 
+#ifdef HAVE_IMAGEMAGICK
+TEST_F(IconHandlerTest, SetsInfoForDynamicIconWhenAccessible) {
+  std::stringstream ss;
+  Magick::Blob blob;
+  imgHelper->convertTo("fixtures/icon-with-exif.jpg", blob, "image/png");
+  Magick::Blob resizedBlob;
+  imgHelper->resizeTo(blob, resizedBlob, 120, 120);
+  size_t dynamicFileSize = resizedBlob.length();
+  std::string url = "/content/icons/grb-icon-120.png";
+  char *cstr = new char[url.length() + 1];
+  strcpy(cstr, url.c_str());
+  UpnpFileInfo *info = nullptr;
+  config = new IconConfig(mockConfig("fixtures/dynamic-template.xml"));
+  subject = new IconRequestHandler(config, imgHelper);
+
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsReadable(Eq(info), 1)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_LastModified(Eq(info), _)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_IsDirectory(Eq(info), _)).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_FileLength(Eq(info), Eq(dynamicFileSize))).WillOnce(Return(1));
+  EXPECT_CALL(*_upnpFileInfoMock, UpnpFileInfo_set_ContentType(Eq(info), StrEq("image/png"))).WillOnce(Return(1));
+
+  subject->getInfo(cstr, info);
+
+  delete [] cstr;
+}
+
 TEST_F(IconHandlerTest, WhenStaticListLoadsFileHandlerUsingFilePath) {
   std::string url = "/content/icons/mt-icon120.png";
   std::stringstream expectedIconFile;
@@ -210,7 +217,7 @@ TEST_F(IconHandlerTest, ConvertsJpgToPngWhenDynamicList) {
   std::string url = "/content/icons/grb-icon-120.png";
   UpnpOpenFileMode mode = UPNP_READ;
   zmm::String range = "";
-  size_t imgLength = 27817;
+  size_t imgLength = 27836;
   char *cstr = new char[url.length() + 1];
   strcpy(cstr, url.c_str());
   config = new IconConfig(mockConfig("fixtures/dynamic-template.xml"));
@@ -249,3 +256,26 @@ TEST_F(IconHandlerTest, ConvertsJpgToBmpWhenDynamicList) {
   result->close();
   delete [] cstr;
 }
+
+TEST_F(IconHandlerTest, ResizesIconto48x48WhenDynamicList) {
+  std::string url = "/content/icons/grb-icon-48.png";
+  UpnpOpenFileMode mode = UPNP_READ;
+  zmm::String range = "";
+  size_t imgLength = 27836;
+  char *cstr = new char[url.length() + 1];
+  strcpy(cstr, url.c_str());
+  config = new IconConfig(mockConfig("fixtures/dynamic-template.xml"));
+  subject = new IconRequestHandler(config, imgHelper);
+
+  zmm::Ref<IOHandler> result = subject->open(cstr, mode, range);
+  Magick::Image image = readImageFromHandler(result, imgLength);
+
+  EXPECT_EQ(image.baseColumns(), 48);
+  EXPECT_EQ(image.baseRows(), 48);
+  EXPECT_EQ(image.depth(), 8);
+  EXPECT_STREQ("Portable Network Graphics", image.format().c_str());
+
+  result->close();
+  delete [] cstr;
+}
+#endif

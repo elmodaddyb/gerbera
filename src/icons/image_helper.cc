@@ -67,6 +67,15 @@ void ImageHelper::convertTo(const std::string &orig, Magick::Blob &dest, const s
   image.magick(convertToType);
   image.write(&dest);
 }
+
+void ImageHelper::resizeTo(const Magick::Blob &fromBlob, Magick::Blob &toBlob, size_t width, size_t height) {
+  Magick::Image fromImage(fromBlob);
+  fromImage.filterType(Magick::FilterType::LanczosFilter);
+  Magick::Geometry newSize(width, height);
+  newSize.aspect(true);
+  fromImage.resize(newSize);
+  fromImage.write(&toBlob);
+}
 #endif
 
 #ifdef HAVE_LIBEXIF

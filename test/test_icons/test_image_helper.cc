@@ -1,8 +1,10 @@
+#include "gtest/gtest.h"
 #include <common.h>
 #include <icons/image_helper.h>
+#ifdef HAVE_IMAGEMAGICK
 #include <Magick++/Blob.h>
 #include <Magick++/Image.h>
-#include "gtest/gtest.h"
+#endif
 
 using namespace ::testing;
 
@@ -55,6 +57,18 @@ TEST_F(ImageHelperTest, ConvertsFileToJpgType) {
   subject->convertTo(orig, blob, "image/jpeg");
   Magick::Image image( blob );
   EXPECT_STREQ("Joint Photographic Experts Group JFIF format", image.format().c_str());
+}
+
+TEST_F(ImageHelperTest, ResizesToDimension) {
+  Magick::Blob fromBlob;
+  Magick::Blob toBlob;
+  std::string orig = "fixtures/icon-with-exif.jpg";
+  Magick::Image origImage(orig);
+  origImage.write(&fromBlob);
+  subject->resizeTo(fromBlob, toBlob, 48, 48);
+  Magick::Image image( toBlob );
+  EXPECT_EQ(image.baseColumns(), 48);
+  EXPECT_EQ(image.baseRows(), 48);
 }
 #endif
 

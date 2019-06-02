@@ -43,6 +43,7 @@ public:
 #ifdef HAVE_IMAGEMAGICK
     imageDetails readFromMagick(const std::string &path);
     void convertTo(const std::string &orig, Magick::Blob &dest, const std::string &mimeType);
+    void resizeTo(const Magick::Blob &fromBlob, Magick::Blob &toBlob, size_t width, size_t height);
 #endif
 #ifdef HAVE_LIBEXIF
     imageDetails readFromExif(const std::string &path);

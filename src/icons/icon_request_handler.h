@@ -41,6 +41,8 @@ public:
                                      IN zmm::String range);
 private:
     std::shared_ptr<GerberaIcon> findIcon(const std::string &url);
+    std::vector<unsigned long> splitDimension(std::string dimension);
+    size_t calculateFileSize(std::shared_ptr<GerberaIcon> icon);
 };
 
 

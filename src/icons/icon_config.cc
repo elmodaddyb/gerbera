@@ -118,6 +118,7 @@ icon_loading_type IconConfig::identifyLoadingType(zmm::Ref<Element> &serverConfi
   icon_loading_type ltype;
   Ref<Element> icons = serverConfig->getChildByName(_("icons"));
   Ref<Element> templateIcon = serverConfig->getChildByName(_("icon"));
+#ifdef HAVE_IMAGEMAGICK
   if (templateIcon != nullptr && icons == nullptr) {
     ltype = dynamic_image;
   } else if (icons != nullptr) {
@@ -125,7 +126,13 @@ icon_loading_type IconConfig::identifyLoadingType(zmm::Ref<Element> &serverConfi
   } else {
     ltype = unsupported;
   }
-
+#else
+  if (icons != nullptr) {
+    ltype = static_list;
+  } else {
+    ltype = unsupported;
+  }
+#endif
   return ltype;
 }
 std::vector<std::shared_ptr<GerberaIcon>> IconConfig::loadStaticList(const zmm::Ref<Element> &config){

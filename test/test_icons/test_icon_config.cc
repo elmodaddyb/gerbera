@@ -101,7 +101,7 @@ TEST_F(IconConfigTest, LoadsDynamicListOfIconsLookingUpMimeTypesForPngJpgBmp) {
 }
 #endif
 
-#if defined(HAVE_IMAGEMAGICK)
+#ifdef HAVE_IMAGEMAGICK
 TEST_F(IconConfigTest, LoadsDynamicListOfIconsLookingUpResolutionUsingImageMagick) {
   Ref<Element> config = mockConfig("fixtures/dynamic-resolution-list.xml");
   subject = std::make_unique<IconConfig>(config);

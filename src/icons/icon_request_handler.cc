@@ -56,11 +56,10 @@ void IconRequestHandler::getInfo(IN const char *url, OUT UpnpFileInfo *info) {
           }
           case dynamic_image: {
             size_t fileLength;
-#if !defined(HAVE_IMAGEMAGICK)
-            fileLength = statbuf.st_size;
-#endif
 #ifdef HAVE_IMAGEMAGICK
             fileLength = calculateFileSize(icon);
+#else
+            fileLength = statbuf.st_size;
 #endif
             UpnpFileInfo_set_IsReadable(info, 1);
             UpnpFileInfo_set_LastModified(info, statbuf.st_mtime);
@@ -73,10 +72,10 @@ void IconRequestHandler::getInfo(IN const char *url, OUT UpnpFileInfo *info) {
             UpnpFileInfo_set_IsReadable(info, 0);
           }
         }
-      } else {
+      } else { // no access
         UpnpFileInfo_set_IsReadable(info, 0);
       }
-    } else {
+    } else { // no stat
       UpnpFileInfo_set_IsReadable(info, 0);
     }
   }
@@ -99,29 +98,27 @@ IconRequestHandler::open(IN const char *url, IN enum UpnpOpenFileMode mode, IN z
           if (access(icon->path().c_str(), R_OK) == 0) {
             io_handler = zmm::Ref<IOHandler>(new FileIOHandler(icon->path()));
             io_handler->open(mode);
-          } else {
+          } else { // no access
             throw IconException("Could not access icon by path: " + std::string(icon->path()));
           }
-        } else {
+        } else { // no stat
           throw IconException("Could not access icon by path: " + std::string(icon->path()));
         }
         break;
       }
-      case dynamic_image: {
-#if !defined(HAVE_IMAGEMAGICK)
-        throw IconException("Dynamic Icon not supported");
-#endif
 #ifdef HAVE_IMAGEMAGICK
+      case dynamic_image: {
         Magick::Blob blob;
         imageHelper->convertTo(icon->path(), blob, icon->mimeType());
         std::vector<unsigned long> wh = splitDimension(icon->resolution());
         Magick::Blob resizedBlob;
         imageHelper->resizeTo(blob, resizedBlob, wh.at(0), wh.at(1));
         io_handler = zmm::Ref<IOHandler>(new MemIOHandler((void*)resizedBlob.data(), resizedBlob.length()));
-#endif
+
         io_handler->open(mode);
         break;
       }
+#endif
       case unsupported: {
         throw IconException("Dynamic icon loading not supported");
       }

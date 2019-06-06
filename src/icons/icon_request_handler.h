@@ -28,6 +28,7 @@ Gerbera - https://gerbera.io/
 
 #include <request_handler.h>
 #include "icon_config.h"
+#include "icon.h"
 
 class IconRequestHandler: public RequestHandler {
 protected:
@@ -35,14 +36,13 @@ protected:
     std::shared_ptr<ImageHelper> imageHelper;
 public:
     explicit IconRequestHandler(IconConfig* config, std::shared_ptr<ImageHelper> imageHelper);
-    virtual void getInfo(IN const char *url, OUT UpnpFileInfo *info);
-    virtual zmm::Ref<IOHandler> open(IN const char* filename,
+    void getInfo(IN const char *url, OUT UpnpFileInfo *info) override;
+    zmm::Ref<IOHandler> open(IN const char* filename,
                                      IN enum UpnpOpenFileMode mode,
-                                     IN zmm::String range);
+                                     IN zmm::String range) override;
 private:
     std::shared_ptr<GerberaIcon> findIcon(const std::string &url);
-    std::vector<unsigned long> splitDimension(std::string dimension);
-    size_t calculateFileSize(std::shared_ptr<GerberaIcon> icon);
+    std::unique_ptr<Icon> generateIcon(std::shared_ptr<GerberaIcon> grbIcon, icon_loading_type type);
 };
 
 

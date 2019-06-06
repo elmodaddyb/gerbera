@@ -81,6 +81,9 @@ set(libgerberaFILES
         src/generic_task.h
         src/handler/headers.h
         src/handler/headers.cc
+        src/icons/icon.h
+        src/icons/dynamic_icon.h
+        src/icons/dynamic_icon.cc
         src/icons/gerbera_icon.h
         src/icons/gerbera_icon.cc
         src/icons/icon_config.h
@@ -92,6 +95,8 @@ set(libgerberaFILES
         src/icons/icon_xml_helper.cc
         src/icons/image_helper.h
         src/icons/image_helper.cc
+        src/icons/static_icon.h
+        src/icons/static_icon.cc
         src/io_handler_buffer_helper.cc
         src/io_handler_buffer_helper.h
         src/io_handler.cc

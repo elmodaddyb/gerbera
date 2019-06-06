@@ -23,6 +23,7 @@ Gerbera - https://gerbera.io/
 /// \file static_icon.cc
 
 #include <file_io_handler.h>
+#include "gerbera_icon.h"
 #include "static_icon.h"
 
 StaticIcon::StaticIcon(const std::shared_ptr<GerberaIcon> &icon) : icon(icon) {

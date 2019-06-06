@@ -25,7 +25,7 @@ Gerbera - https://gerbera.io/
 #ifndef GERBERA_ICONREQUESTHANDLER_H
 #define GERBERA_ICONREQUESTHANDLER_H
 
-
+#include <memory>
 #include <request_handler.h>
 #include "icon_config.h"
 #include "icon.h"

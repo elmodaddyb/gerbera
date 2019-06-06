@@ -22,6 +22,7 @@ Gerbera - https://gerbera.io/
 */
 /// \file static_icon.cc
 
+#include <memory>
 #include <file_io_handler.h>
 #include "gerbera_icon.h"
 #include "static_icon.h"

@@ -25,6 +25,7 @@ Gerbera - https://gerbera.io/
 #ifndef GERBERA_DYNAMIC_ICON_H
 #define GERBERA_DYNAMIC_ICON_H
 
+#include <memory>
 #include <sys/stat.h>
 #include "icon.h"
 #include "gerbera_icon.h"

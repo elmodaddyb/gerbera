@@ -25,6 +25,7 @@ Gerbera - https://gerbera.io/
 #ifndef GERBERA_STATIC_ICON_H
 #define GERBERA_STATIC_ICON_H
 
+#include <memory>
 #include "icon.h"
 #include "gerbera_icon.h"
 #include "io_handler.h"

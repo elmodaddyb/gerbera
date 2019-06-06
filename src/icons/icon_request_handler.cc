@@ -21,6 +21,7 @@ Gerbera - https://gerbera.io/
     $Id$
 */
 /// \file icon_request_handler.cc
+#include <memory>
 #include <mem_io_handler.h>
 #include <file_io_handler.h>
 #include <sys/stat.h>

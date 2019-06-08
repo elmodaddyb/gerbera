@@ -27,6 +27,7 @@ Gerbera - https://gerbera.io/
 #include <mxml/mxml.h>
 #include "icon_xml_helper.h"
 #include "icon_config.h"
+#include "icon_loader.h"
 
 using namespace zmm;
 using namespace mxml;
@@ -36,15 +37,15 @@ zmm::Ref<Element> IconXmlHelper::generateDescList(IconConfig *config) {
   if(config == nullptr) {
     iconList = generateDescList();
   } else {
-    icon_loading_type listType = config->getType();
+    IconLoader::Type listType = config->type();
     switch (listType) {
-      case dynamic_image:
-      case static_list: {
-        auto gerberaIcons = config->getIcons();
+      case IconLoader::Type::Dynamic:
+      case IconLoader::Type::Static: {
+        auto gerberaIcons = config->icons();
         iconList = createListFromConfig(gerberaIcons);
         break;
       }
-      case unsupported: {
+      case IconLoader::Type::None: {
         iconList = generateDescList();
         break;
       }

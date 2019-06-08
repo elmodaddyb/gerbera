@@ -5,12 +5,12 @@ add_executable(testicons
         main.cc
         mock/upnp_file_info_mock.h
         mock/upnp_file_info_fixture.h
-        test_icon_config.cc
         test_icon_handler.cc
         test_icon_xml_helper.cc
         test_image_helper.cc
         test_dynamic_icon.cc
-        test_static_icon.cc)
+        test_static_icon.cc
+        test_icon_loader.cc)
 
 include(DefFileName)
 define_file_path_for_sources(testicons)

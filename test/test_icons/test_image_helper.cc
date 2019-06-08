@@ -23,12 +23,12 @@ public:
 
 #ifdef HAVE_IMAGEMAGICK
 TEST_F(ImageHelperTest, RetrievesImageDetailsUsingImageMagick) {
-  imageDetails details = subject->readFromMagick(testIcon);
+  ImageDetails details = subject->readFromMagick(testIcon);
   EXPECT_TRUE(details.valid);
 }
 
 TEST_F(ImageHelperTest, ImageDetailsContainsWidthHeightDepth) {
-  imageDetails details = subject->readFromMagick(testIcon);
+  ImageDetails details = subject->readFromMagick(testIcon);
   EXPECT_TRUE(details.valid);
   EXPECT_EQ(details.width, 120);
   EXPECT_EQ(details.height, 120);
@@ -81,7 +81,7 @@ TEST_F(ImageHelperTest, RetievesMimeTypeUsingMagic) {
 
 #ifdef HAVE_LIBEXIF
 TEST_F(ImageHelperTest, RetrievesImageDetailsUsingExifTags) {
-  imageDetails details = subject->readFromExif(testIcon);
+  ImageDetails details = subject->readFromExif(testIcon);
   EXPECT_TRUE(details.valid);
   EXPECT_EQ(details.width, 120);
   EXPECT_EQ(details.height, 120);

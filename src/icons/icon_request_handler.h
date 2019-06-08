@@ -28,6 +28,7 @@ Gerbera - https://gerbera.io/
 #include <memory>
 #include <request_handler.h>
 #include "icon_config.h"
+#include "icon_loader.h"
 #include "icon.h"
 
 class IconRequestHandler: public RequestHandler {
@@ -42,7 +43,7 @@ public:
                                      IN zmm::String range) override;
 private:
     std::shared_ptr<GerberaIcon> findIcon(const std::string &url);
-    std::unique_ptr<Icon> generateIcon(std::shared_ptr<GerberaIcon> grbIcon, icon_loading_type type);
+    std::unique_ptr<Icon> generateIcon(std::shared_ptr<GerberaIcon> grbIcon, IconLoader::Type type);
 };
 
 

@@ -30,51 +30,20 @@ Gerbera - https://gerbera.io/
 #include <icons/gerbera_icon.h>
 #include <mxml/mxml.h>
 #include "image_helper.h"
-
-#define DESC_ICON_PNG_MIMETYPE "image/png"
-#define DESC_ICON_BMP_MIMETYPE "image/x-ms-bmp"
-#define DESC_ICON_JPG_MIMETYPE "image/jpeg"
-#define DESC_ICON32_PNG "/icons/mt-icon32.png"
-#define DESC_ICON32_BMP "/icons/mt-icon32.bmp"
-#define DESC_ICON32_JPG "/icons/mt-icon32.jpg"
-#define DESC_ICON48_PNG "/icons/mt-icon48.png"
-#define DESC_ICON48_BMP "/icons/mt-icon48.bmp"
-#define DESC_ICON48_JPG "/icons/mt-icon48.jpg"
-#define DESC_ICON120_JPG "/icons/mt-icon120.jpg"
-#define DESC_ICON120_PNG "/icons/mt-icon120.png"
-#define DESC_ICON120_BMP "/icons/mt-icon120.bmp"
-#define DEFAULT_ICON_HANDLER "/content/icons"
-#define DEFAULT_ICON_RESOLUTIONS "120,48,32"
-#define DEFAULT_ICON_TYPES "jpg,png,bmp"
+#include "icon_loader.h"
 
 using namespace mxml;
-
-enum icon_loading_type {
-    static_list,
-    dynamic_image,
-    unsupported
-};
 
 class IconConfig {
 private:
     std::vector<std::shared_ptr<GerberaIcon>> _icons;
-    icon_loading_type _loadingType;
-    std::unique_ptr<ImageHelper> _imageHelper;
-    icon_loading_type identifyLoadingType(zmm::Ref<Element> &serverConfig);
-    std::string getAttribute(const zmm::Ref<Element> &el, const std::string &attr, std::string defaultValue);
-    std::string lookupMimeType(const zmm::Ref<Element> &icon);
-    std::string lookupResolution(const zmm::Ref<Element> &icon, imageDetails details);
-    std::string lookupDepth(const zmm::Ref<Element> &icon, imageDetails details);
-    imageDetails lookupImage(const std::string &path);
-    std::vector<std::shared_ptr<GerberaIcon>> loadStaticList(const zmm::Ref<Element> &config);
-    std::vector<std::shared_ptr<GerberaIcon>> loadDynamicList(const zmm::Ref<Element> &config);
-    std::vector<std::string> splitList(const std::string& list);
+    IconLoader::Type _loadingType;
 public:
     IconConfig();
-    explicit IconConfig(zmm::Ref<Element> serverConfig);
+    explicit IconConfig(const zmm::Ref<Element> &serverConfig);
     ~IconConfig() = default;
-    icon_loading_type getType();
-    std::vector<std::shared_ptr<GerberaIcon>>& getIcons();
+    IconLoader::Type type();
+    std::vector<std::shared_ptr<GerberaIcon>>& icons();
 };
 
 

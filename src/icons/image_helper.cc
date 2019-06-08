@@ -39,14 +39,14 @@ char exif_buffer[BUFLEN];
 #endif
 
 #ifdef HAVE_IMAGEMAGICK
-imageDetails ImageHelper::readFromMagick(const std::string &path) {
+ImageDetails ImageHelper::readFromMagick(const std::string &path) {
   Magick::Image myIconImage;
   myIconImage.read(path);
   size_t width = myIconImage.baseColumns();
   size_t height = myIconImage.baseRows();
   size_t depth = myIconImage.depth();
 
-  imageDetails details;
+  ImageDetails details;
   details.width = width;
   details.height = height;
   details.depth = depth;
@@ -79,8 +79,8 @@ void ImageHelper::resizeTo(const Magick::Blob &fromBlob, Magick::Blob &toBlob, s
 #endif
 
 #ifdef HAVE_LIBEXIF
-imageDetails ImageHelper::readFromExif(const std::string &path) {
-  imageDetails details;
+ImageDetails ImageHelper::readFromExif(const std::string &path) {
+  ImageDetails details;
   std::stringstream imageX;
   std::stringstream imageY;
   size_t width;

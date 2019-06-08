@@ -36,19 +36,19 @@ struct _imageDetails {
     size_t height;
     size_t depth;
 };
-typedef struct _imageDetails imageDetails;
+typedef struct _imageDetails ImageDetails;
 
 class ImageHelper {
 public:
     ImageHelper() = default;
     ~ImageHelper() = default;
 #ifdef HAVE_IMAGEMAGICK
-    imageDetails readFromMagick(const std::string &path);
+    ImageDetails readFromMagick(const std::string &path);
     void convertTo(const std::string &orig, Magick::Blob &dest, const std::string &mimeType);
     void resizeTo(const Magick::Blob &fromBlob, Magick::Blob &toBlob, size_t width, size_t height);
 #endif
 #ifdef HAVE_LIBEXIF
-    imageDetails readFromExif(const std::string &path);
+    ImageDetails readFromExif(const std::string &path);
 #endif
 #ifdef HAVE_MAGIC
     std::string mimeFromMagic(const std::string &path);

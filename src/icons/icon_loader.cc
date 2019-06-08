@@ -23,6 +23,7 @@ Gerbera - https://gerbera.io/
 /// \file icon_loader.cc
 
 #include <fstream>
+#include <memory>
 #include <vector>
 #include "gerbera_icon.h"
 #include "icon_loader.h"

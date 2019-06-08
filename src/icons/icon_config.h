@@ -26,7 +26,6 @@ Gerbera - https://gerbera.io/
 #define GERBERA_ICON_CONFIG_H
 #include <memory>
 #include <vector>
-#include <map>
 #include <icons/gerbera_icon.h>
 #include <mxml/mxml.h>
 #include "image_helper.h"

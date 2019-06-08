@@ -25,6 +25,7 @@ Gerbera - https://gerbera.io/
 #ifndef GERBERA_ICON_LOADER_H
 #define GERBERA_ICON_LOADER_H
 
+#include <memory>
 #include <zmm/zmm.h>
 #include <mxml/mxml.h>
 #include "gerbera_icon.h"

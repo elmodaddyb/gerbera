@@ -6,7 +6,7 @@
 
 #include <config_manager.h>
 #include <config/config_generator.h>
-#include <icons/icon_config.h>
+#include <icons/icon_loader.h>
 
 using namespace zmm;
 using namespace mxml;
@@ -152,6 +152,6 @@ TEST_F(ConfigManagerTest, LoadsIconConfigAsUnsupportedByDefault) {
   subject->init();
 
   auto iconConfig = subject->getIconConfig();
-  EXPECT_EQ(iconConfig->getType(), unsupported);
+  EXPECT_EQ(iconConfig->type(), IconLoader::Type::None);
 }
 

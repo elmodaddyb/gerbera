@@ -129,23 +129,24 @@ SUCCESS generated Gerbera documentation:
 
 ### View Generated Documentation
 
-You can view the documentation by creating a static web server in Python.
+You can view the documentation by running `do_sphinx.sh` with the `--serve` option.
 
 
-#### Activate the virtualenv
-
-```bash
-$ source _build/gerbera-env/bin/activate
-(gerbera-env) $
-```
-
-> Deactive the virtualenv using `deactivate` command
-
+#### Compile & Serve
 
 ```bash
-(gerbera-env) $ cd _build/dist/
-(gerbera-env) $ python -m http.server 8000
+$ ./do_sphinx.sh --serve
+... 
+
+The HTML pages are in dist.
+
+Serving generated Gerbera documentation
+
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+
 ```
+
+
 
 Visit the generated documentation using the server URL in a browser
 

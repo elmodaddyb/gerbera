@@ -5,10 +5,10 @@ DOC_DIST_DIR=$DOC_BUILD_DIR/dist
 VENV_NAME=gerbera-env
 SPHINX_THEME=sphinx_rtd_theme
 SPHINX_BUILDER=html
-CLOBBER=$1
+ACTION=$1
 
 function create {
-    if [ -d "$DOC_BUILD_DIR" ] && [ "$CLOBBER" == "--clobber" ]
+    if [ -d "$DOC_BUILD_DIR" ] && [ "$ACTION" == "--clobber" ]
     then
       printf "\nRemoving $DOC_BUILD_DIR \n\n"
       rm -Rf $DOC_BUILD_DIR
@@ -47,8 +47,15 @@ function build {
 }
 
 function finalize {
-    deactivate
-    cd $ROOT_PATH
+    if [ -e $DOC_DIST_DIR/index.html ] && [ "$ACTION" == "--serve" ]
+    then
+      printf "\nServing generated Gerbera documentation\n\n"
+      cd $DOC_DIST_DIR
+      python -m http.server 8000
+    else
+      deactivate
+      cd $ROOT_PATH
+    fi
 }
 
 function verify {

@@ -31,6 +31,7 @@ The server configuration file has several options.  Below are links to the confi
 
 
 * :doc:`Server </config-server>`
+* :doc:`Gerbera Icons </icons>`
 * :doc:`Extended Runtime Options </config-extended>`
 * :doc:`Import Content </config-import>`
 * :doc:`Online Content </config-online>`
@@ -42,6 +43,7 @@ The server configuration file has several options.  Below are links to the confi
 
    Config Generation        <config-generate>
    Server Options           <config-server>
+   Gerbera Icons            <icons>
    Extended Options         <config-extended>
    Content Import Options   <config-import>
    Online Content Options   <config-online>

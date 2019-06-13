@@ -35,7 +35,12 @@ IconLoader::Type IconLoader::identifyLoadingType(const zmm::Ref<Element> &server
   zmm::Ref<Element> templateIcon = serverConfig->getChildByName(_("icon"));
 #ifdef HAVE_IMAGEMAGICK
   if (templateIcon != nullptr && icons == nullptr) {
-    type = Dynamic;
+    ImageDetails details = lookupImage(templateIcon->getText().c_str());
+    if(details.valid) {
+      type = Dynamic;
+    } else {
+      type = None;
+    }
   } else if (icons != nullptr) {
     type = Static;
   } else {

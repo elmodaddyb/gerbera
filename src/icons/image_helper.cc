@@ -41,16 +41,19 @@ char exif_buffer[BUFLEN];
 #ifdef HAVE_IMAGEMAGICK
 ImageDetails ImageHelper::readFromMagick(const std::string &path) {
   Magick::Image myIconImage;
-  myIconImage.read(path);
-  size_t width = myIconImage.baseColumns();
-  size_t height = myIconImage.baseRows();
-  size_t depth = myIconImage.depth();
-
   ImageDetails details;
-  details.width = width;
-  details.height = height;
-  details.depth = depth;
-  details.valid = true;
+  try {
+    myIconImage.read(path);
+    size_t width = myIconImage.baseColumns();
+    size_t height = myIconImage.baseRows();
+    size_t depth = myIconImage.depth();
+    details.width = width;
+    details.height = height;
+    details.depth = depth;
+    details.valid = true;
+  } catch (std::exception & e) {
+    details.valid = false;
+  }
   return details;
 }
 

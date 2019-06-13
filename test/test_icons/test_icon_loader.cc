@@ -67,6 +67,22 @@ TEST_F(IconLoaderTest, LoadingDynamicTypeBasedOnServerConfigXml) {
 
   EXPECT_EQ(result, IconLoader::Type::Dynamic);
 }
+
+TEST_F(IconLoaderTest, NotFoundImageIsUnsupportedLoadingType) {
+  zmm::Ref<Element> config = mockConfig("fixtures/dynamic-not-found.xml");
+
+  IconLoader::Type result = subject->identifyLoadingType(config);
+
+  EXPECT_EQ(result, IconLoader::Type::None);
+}
+
+TEST_F(IconLoaderTest, InvalidImageIsUnsupportedLoadingType) {
+  zmm::Ref<Element> config = mockConfig("fixtures/dynamic-invalid.xml");
+
+  IconLoader::Type result = subject->identifyLoadingType(config);
+
+  EXPECT_EQ(result, IconLoader::Type::None);
+}
 #endif
 
 TEST_F(IconLoaderTest, LoadsStaticListOfIcons) {

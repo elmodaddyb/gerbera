@@ -53,6 +53,7 @@ IconLoader::Type IconLoader::identifyLoadingType(const zmm::Ref<Element> &server
     type = Type::None;
   }
 #endif
+  log_debug("Icon Loading Type: %d\n", type);
   return type;
 }
 
@@ -97,18 +98,22 @@ std::string IconLoader::lookupResolution(const zmm::Ref<Element> &icon, ImageDet
 ImageDetails IconLoader::lookupImage(const std::string &path) {
   ImageDetails details;
   ImageHelper imageHelper;
+  log_debug("Lookup image: %s\n", path.c_str());
   std::ifstream f(path);
   if(f.good()){
 #ifdef HAVE_IMAGEMAGICK
+    log_debug("Read image details using ImageMagick\n");
     details = imageHelper.readFromMagick(path);
 #endif
 #ifdef HAVE_LIBEXIF
     if (!details.valid) {
+      log_debug("Read image details using Exif\n");
       details = imageHelper.readFromExif(path);
     }
 #endif
     f.close();
   } else {
+    log_debug("Failed to load image\n");
     details.valid = false;
   }
   return details;
@@ -130,6 +135,7 @@ std::vector<std::shared_ptr<GerberaIcon>> IconLoader::loadDynamicList(const zmm:
   std::string resolution = DEFAULT_ICON_RESOLUTIONS;
   std::string type = DEFAULT_ICON_TYPES;
   std::string path = templateIcon->getText().c_str();
+  log_debug("Load dynamic icon list using template: %s\n", path.c_str());
   std::vector<std::string> resolutions = splitList(resolution);
   std::vector<std::string> types = splitList(type);
   // for each resolution, for each type;
@@ -163,6 +169,7 @@ std::vector<std::shared_ptr<GerberaIcon>> IconLoader::loadStaticList(const zmm::
   zmm::Ref<Element> icons = config->getChildByName(_("icons"));
   zmm::Ref<Element> item;
   std::shared_ptr<GerberaIcon> icon;
+  log_debug("Load static icon list from configuration\n");
   for (int e = 0; e < icons->elementChildCount(); e++) {
     item = icons->getElementChild(e);
     std::string path = item->getText().c_str();

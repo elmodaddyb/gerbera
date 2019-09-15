@@ -1,5 +1,5 @@
 # None as otherwise it clobbers our compiler choce
-language: none
+language: cpp
 
 # Ubuntu 16.04 Xenial support
 sudo: required
@@ -21,11 +21,7 @@ jobs:
   include:
   - stage: Test Gerbera UI
     addons:
-      apt:
-        sources:
-          - google-chrome
-        packages:
-          - google-chrome-stable
+      chrome: stable
     before_install: skip
     install:
       - npm --prefix $TRAVIS_BUILD_DIR/gerbera-web/ install $TRAVIS_BUILD_DIR/gerbera-web/
